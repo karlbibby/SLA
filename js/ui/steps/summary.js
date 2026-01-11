@@ -58,8 +58,16 @@ function renderSummaryStep(character, container, onUpdate) {
     // Advantages / Disadvantages
     const advEntries = Object.entries(character.advantages || {});
     const disEntries = Object.entries(character.disadvantages || {});
-    const advantagesHtml = advEntries.length ? advEntries.map(([k,v]) => '<div><strong>' + escapeHtml(k) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
-    const disadvantagesHtml = disEntries.length ? disEntries.map(([k,v]) => '<div><strong>' + escapeHtml(k) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
+    function getAdvDisplayName(key) {
+        for (const catKey in ADVANTAGES) {
+            if (ADVANTAGES[catKey].items && ADVANTAGES[catKey].items[key]) {
+                return ADVANTAGES[catKey].items[key].name || key;
+            }
+        }
+        return key;
+    }
+    const advantagesHtml = advEntries.length ? advEntries.map(([k,v]) => '<div><strong>' + escapeHtml(getAdvDisplayName(k)) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
+    const disadvantagesHtml = disEntries.length ? disEntries.map(([k,v]) => '<div><strong>' + escapeHtml(getAdvDisplayName(k)) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
 
     // Training packages
     const trainingHtml = (character.trainingPackages && character.trainingPackages.length) ? character.trainingPackages.map(tp => '<div>' + escapeHtml(tp) + '</div>').join('') : '<div style="color:#666">None</div>';

@@ -74,13 +74,15 @@
     const buildSkillsHtml = () => {
       let html = '';
       for (const cat in skillCategories) {
-        html += `<div style="margin-bottom:8px"><strong>${cat}</strong><div style="font-size:11px;margin-top:4px">`;
         const items = skillCategories[cat];
-        items.forEach(name => {
+        const entries = items.map(name => {
           const rank = character.skills[name] || 0;
-          html += `<div style="display:flex;justify-content:space-between;padding:2px 0"><span>${name}</span><span>${formatStatBar(rank, Math.max(10, rank))}</span></div>`;
-        });
-        html += `</div></div>`;
+          return rank > 0
+            ? `<div style="display:flex;justify-content:space-between;padding:2px 0"><span>${escapeHtml(name)}</span><span>${formatStatBar(rank, Math.max(10, rank))}</span></div>`
+            : '';
+        }).filter(Boolean);
+        if (entries.length === 0) continue;
+        html += `<div style="margin-bottom:8px"><strong>${escapeHtml(cat)}</strong><div style="font-size:11px;margin-top:4px">` + entries.join('') + `</div></div>`;
       }
       return html;
     };
@@ -94,7 +96,55 @@
     pages.push(p2);
 
     // Page 3: Equipment & Advantages
-    const equipmentHtml = (character.selectedEquipment || []).map(it => `<div style="margin-bottom:6px"><strong>${escapeHtml(it)}</strong></div>`).join('') || '<div style="color:#666">No equipment selected</div>';
+    const equipmentHtml = (() => {
+      const sel = character.selectedEquipment || [];
+      const eq = (typeof window !== 'undefined' && window.EQUIPMENT) ? window.EQUIPMENT : {};
+      if (!sel || !sel.length) return '<div style="color:#666">No equipment selected</div>';
+      const parts = [];
+      for (const nameRaw of sel) {
+        const name = String(nameRaw || '').trim();
+        if (!name) continue;
+
+        // Ammunition (by calibre)
+        let item = (eq.ammunitions || []).find(a => a.calibre === name);
+        if (item) {
+          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.calibre)}</div><div style="font-size:11px;color:#444">STD: ${escapeHtml(item.std || '-')} • AP: ${escapeHtml(item.ap || '-')} • HP: ${escapeHtml(item.hp || '-')} • HEAP: ${escapeHtml(item.heap || '-')} • HESH: ${escapeHtml(item.hesh || '-')}</div></div>`);
+          continue;
+        }
+
+        // Specialised ammunition
+        item = (eq.specialisedAmmunition || []).find(a => a.type === name);
+        if (item) {
+          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.type)}</div><div style="font-size:11px;color:#444">DMG: ${escapeHtml(String(item.dmg || '-'))} • PEN: ${escapeHtml(item.pen == null ? '-' : String(item.pen))} • ARM: ${escapeHtml(String(item.arm || '-'))} • COST: ${escapeHtml(item.cost || '')}</div></div>`);
+          continue;
+        }
+
+        // Grenades
+        item = (eq.grenades || []).find(g => g.type === name);
+        if (item) {
+          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.type)}</div><div style="font-size:11px;color:#444">Blast: ${escapeHtml(item.blast == null ? '-' : String(item.blast))} • PEN: ${escapeHtml(item.pen == null ? '-' : String(item.pen))} • Weight: ${escapeHtml(item.weight || '-')}</div></div>`);
+          continue;
+        }
+
+        // Armour
+        item = (eq.armour || []).find(a => a.name === name);
+        if (item) {
+          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.name)}</div><div style="font-size:11px;color:#444">PV: ${escapeHtml(String(item.pv || '-'))} • Head: ${escapeHtml(item.head == null ? '-' : String(item.head))} • Torso: ${escapeHtml(item.torso == null ? '-' : String(item.torso))} • Arms: ${escapeHtml(item.arms == null ? '-' : String(item.arms))} • Legs: ${escapeHtml(item.legs == null ? '-' : String(item.legs))} • Modifiers: ${escapeHtml(item.modifiers || '')}</div></div>`);
+          continue;
+        }
+
+        // Vehicles
+        item = (eq.vehicles || []).find(v => v.name === name);
+        if (item) {
+          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.name)}</div><div style="font-size:11px;color:#444">${escapeHtml(item.type || '')} • Speed: ${escapeHtml(item.speed || '-') } • Skill: ${escapeHtml(item.skill || '-')} • Cost: ${escapeHtml(item.cost || '-')} • P.V./I.D.: ${escapeHtml(item.pv_id || '-')} • Crew: ${escapeHtml(item.crew || '-')}</div></div>`);
+          continue;
+        }
+
+        // Fallback: raw string
+        parts.push(`<div style="margin-bottom:6px"><strong>${escapeHtml(name)}</strong></div>`);
+      }
+      return parts.join('');
+    })();
     const advantagesHtml = Object.keys(character.advantages || {}).length ? Object.entries(character.advantages).map(([k,v]) => `<div><strong>${escapeHtml(k)}</strong> (Rank ${v})</div>`).join('') : '<div style="color:#666">None</div>';
     const disadvantagesHtml = Object.keys(character.disadvantages || {}).length ? Object.entries(character.disadvantages).map(([k,v]) => `<div><strong>${escapeHtml(k)}</strong> (Rank ${v})</div>`).join('') : '<div style="color:#666">None</div>';
 
@@ -126,12 +176,45 @@
           if (!meta) {
             return `<div style="margin-bottom:6px"><strong>${escapeHtml(drugName)}</strong> x${qty} <div style="font-size:11px;color:#444">No metadata available</div></div>`;
           }
-          const effects = (meta.effects && meta.effects.other_effects) ? meta.effects.other_effects.join('; ') : '';
-          const side = meta.side_effects ? JSON.stringify(meta.side_effects) : '';
+
+          // Build concise effects summary
+          const effectsArr = [];
+          if (meta.effects) {
+            if (Array.isArray(meta.effects.other_effects) && meta.effects.other_effects.length) effectsArr.push(...meta.effects.other_effects);
+            if (meta.effects.game) effectsArr.push(meta.effects.game);
+            if (Array.isArray(meta.effects.stat_modifiers)) meta.effects.stat_modifiers.forEach(m => effectsArr.push((m.delta || '') + ' ' + (m.stat || '') + (m.duration_hours ? ' (' + m.duration_hours + 'h)' : '')));
+            if (Array.isArray(meta.effects.skill_modifiers)) meta.effects.skill_modifiers.forEach(m => effectsArr.push((m.delta || '') + ' ' + (m.skill || '') + (m.duration_minutes ? ' (' + m.duration_minutes + 'm)' : '')));
+          }
+          const effects = effectsArr.join('; ') || 'None';
+
+          // Detox / side effects
+          let detoxText = 'None';
+          if (meta.detox) {
+            if (typeof meta.detox === 'string') detoxText = meta.detox;
+            else if (meta.detox.effects) detoxText = meta.detox.effects;
+            else detoxText = JSON.stringify(meta.detox);
+          }
+
+          // Addiction summary
+          const addictionParts = [];
+          if (meta.addiction) {
+            if (meta.addiction.rate) addictionParts.push(`Rate: ${meta.addiction.rate}`);
+            if (meta.addiction.effects) addictionParts.push(meta.addiction.effects);
+            else if (meta.addiction.failure_effect) addictionParts.push(meta.addiction.failure_effect);
+          }
+          const addictionText = addictionParts.length ? addictionParts.join(' • ') : 'None';
+
+          const costText = (typeof meta.cost === 'number') ? `${meta.cost} cr` : (meta.cost ? String(meta.cost) : 'Unknown');
+          const availText = meta.availability || meta.legal_status || 'Unknown';
+          const notes = meta.notes || '';
+
           return `<div style="margin-bottom:8px">
                     <div style="font-weight:600">${escapeHtml(meta.name)} <span style="font-weight:400">x${qty}</span></div>
                     <div style="font-size:11px;color:#444;margin-top:4px">${escapeHtml(effects)}</div>
-                    <div style="font-size:11px;color:#666;margin-top:4px"><em>Side effects:</em> ${escapeHtml(side)}</div>
+                    <div style="font-size:11px;color:#444;margin-top:4px"><strong>Cost:</strong> ${escapeHtml(costText)} • <strong>Availability:</strong> ${escapeHtml(availText)} • <strong>Category:</strong> ${escapeHtml(meta.categoryName || meta.category || '')}</div>
+                    <div style="font-size:11px;color:#666;margin-top:4px"><em>Detox:</em> ${escapeHtml(detoxText)}</div>
+                    <div style="font-size:11px;color:#666;margin-top:4px"><em>Addiction:</em> ${escapeHtml(addictionText)}</div>
+                    ${notes ? `<div style="font-size:11px;color:#555;margin-top:4px">${escapeHtml(notes)}</div>` : ''}
                   </div>`;
         }).join('')
       : '<div style="color:#666">No drugs selected</div>';

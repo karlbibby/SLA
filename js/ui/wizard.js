@@ -6,13 +6,13 @@ const WIZARD = {
         { name: 'Race', key: 'race' },
         { name: 'Class', key: 'class' },
         { name: 'Statistics', key: 'stats' },
-        { name: 'Skills', key: 'skills' },
         { name: 'Advantages', key: 'advantages' },
+        { name: 'Phobias', key: 'phobias' },
+        { name: 'Skills', key: 'skills' },
         { name: 'Training', key: 'training' },
         { name: 'Ebon Abilities', key: 'ebon' },
         { name: 'Equipment', key: 'equipment' },
         { name: 'Drugs', key: 'drugs' },
-        { name: 'Phobias', key: 'phobias' },
         { name: 'Summary', key: 'summary' }
     ],
 
@@ -70,7 +70,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Class', '4. Stats', '5. Skills', '6. Adv/Dis', '7. Training', '8. Flux', '9. Equipment', '10. Drugs', '11. Phobias', '12. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Class', '4. Stats', '5. Adv/Dis', '6. Phobias', '7. Skills', '8. Training', '9. Flux', '10. Equipment', '11. Drugs', '12. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -105,6 +105,21 @@ const WIZARD = {
         const container = document.getElementById('mainContent');
         this.updatePointsDisplay();
         const stepKey = this.steps[this.currentStep].key;
+
+        // If the phobias step is reached but the character hasn't selected the phobia placeholder,
+        // skip the phobias step automatically.
+        if (stepKey === 'phobias') {
+            const showPhobias = !!(this.character && this.character.disadvantages && this.character.disadvantages.phobia);
+            if (!showPhobias) {
+                // advance to next step
+                if (this.currentStep < this.steps.length - 1) {
+                    this.currentStep++;
+                    this.renderStepIndicators();
+                    this.updateNavigation();
+                    return this.renderCurrentStep();
+                }
+            }
+        }
         
         switch (stepKey) {
             case 'basicInfo': renderBasicInfoStep(this.character, container, this.onUpdate); break;

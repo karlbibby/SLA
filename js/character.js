@@ -211,7 +211,12 @@ class Character {
                 const advData = categoryData.items[advName];
                 const rank = this.advantages[advName] || 0;
                 if (rank > 0 && advData.type === 'advantage') {
-                    points += advData.basePoints * rank;
+                    // oneOffCost overrides per-rank costs
+                    if (typeof advData.oneOffCost === 'number') {
+                        points += advData.oneOffCost;
+                    } else {
+                        points += (advData.costPerRank || 0) * rank;
+                    }
                 }
             }
         }
@@ -229,9 +234,31 @@ class Character {
                 const advData = categoryData.items[advName];
                 const rank = this.disadvantages[advName] || 0;
                 if (rank > 0 && advData.type === 'disadvantage') {
-                    // basePoints is negative, so we negate it to get positive point gain
-                    points += Math.abs(advData.basePoints * rank);
+                    // oneOffCost grants a fixed amount; otherwise grant costPerRank * rank
+                    if (typeof advData.oneOffCost === 'number') {
+                        points += advData.oneOffCost;
+                    } else {
+                        points += (advData.costPerRank || 0) * rank;
+                    }
                 }
+            }
+        }
+        
+        // Include phobias explicitly (selected in Phobias step).
+        // The 'phobia' placeholder in ADVANTAGES is zero-cost and must not change points;
+        // actual phobia point gains come from character.phobias.
+        if (Array.isArray(this.phobias)) {
+            for (const ph of this.phobias) {
+                const name = ph.name;
+                const rank = ph.rank || 0;
+                let perRank = 0;
+                // Look up in PHOBIAS data if available, otherwise fall back to PHOBIA_RULES
+                if (typeof PHOBIAS !== 'undefined' && PHOBIAS.items && PHOBIAS.items[name]) {
+                    perRank = PHOBIAS.items[name].costPerRank || (PHOBIA_RULES && PHOBIA_RULES.costPerRank) || 0;
+                } else {
+                    perRank = (PHOBIA_RULES && PHOBIA_RULES.costPerRank) || 0;
+                }
+                points += perRank * rank;
             }
         }
         

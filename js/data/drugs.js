@@ -1,312 +1,317 @@
-// SLA Industries - Drug Data
+// SLA Industries - Drug Data (reworked to match provided drug descriptions)
 
 const DRUGS = {
-    combat_stimulants: {
-        name: 'Combat Stimulants',
-        description: 'Performance-enhancing drugs for combat situations',
+    combat: {
+        name: 'Combat Drugs',
+        description: 'Performance and combat-focused pharmaceuticals used by SLA Industries operatives.',
         drugs: [
             {
-                name: 'Redline-9',
-                category: 'combat_stim',
-                cost_uni: 30,
+                name: 'Rush',
+                category: 'combat_stimulant',
+                cost: 15,
                 availability: 'restricted',
+                description: 'The first mass-produced combat drug used to improve combat effectiveness. Strong stimulant with healing adjuncts; accelerates blood flow and adrenaline.',
                 effects: {
-                    stat_modifiers: [
-                        { stat: 'DEX', delta: 2, duration_rounds: 5 },
-                        { stat: 'COOL', delta: 1, duration_rounds: 5 }
-                    ],
-                    skill_modifiers: [],
-                    other_effects: ['Initiative improved as per higher DEX', 'Ignore first 1 point of recoil penalty']
-                },
-                side_effects: {
-                    crash: { stat: 'COOL', delta: -1, duration_hours: 1 },
-                    timing: 'after_5_rounds'
+                    game: '1 free action per round; duration 6 hours; no PHYS (Physique) rolls while active; damage taken reduced by 25%'
                 },
                 addiction: {
-                    check_frequency: 'daily',
-                    difficulty: 'moderate',
-                    failure_effect: 'Must take Redline-9 or suffer −1 COOL that day'
+                    rate: '1 per 4 doses',
+                    effects: '-1 PHYS per 4 doses',
+                    type: 'continuous'
                 },
-                legal_status: 'restricted'
+                detox: {
+                    effects: '-1 STR, -1 PHYS, -1 HITS (permanent)'
+                },
+                notes: 'Contains healing agents that partially mitigate tissue wear while active. Long-term use increases heart disease, stroke and brain damage risk; average life expectancy ≈ 7 years for heavy users.'
             },
             {
-                name: 'Stormshot',
-                category: 'combat_stim_focus',
-                cost_uni: 40,
-                availability: 'restricted',
+                name: 'Ultra Violence',
+                category: 'combat_stimulant_advanced',
+                cost: 15,
+                availability: 'illegal_restricted',
+                description: 'Next-generation combat drug; concentrated version of Rush with powerful hallucinogenics producing near-indestructible sensations at severe long-term cost.',
                 effects: {
-                    stat_modifiers: [],
-                    skill_modifiers: [
-                        { skill: 'Rifle', delta: 2, duration_rounds: 3 },
-                        { skill: 'Pistol', delta: 2, duration_rounds: 3 },
-                        { skill: 'Marksman', delta: 2, duration_rounds: 3 }
-                    ],
-                    other_effects: ['Ignore first 1 point of recoil penalty']
-                },
-                side_effects: {
-                    crash: { skills: ['Rifle', 'Pistol', 'Shotgun', 'Heavy Weapons', 'Marksman'], delta: -2, duration_minutes: 30 },
-                    timing: 'after_effect_ends'
+                    game: '2 free phases per round; duration 12 hours; no PHYS or COOL rolls while active; damage taken reduced by 50%'
                 },
                 addiction: {
-                    check_frequency: 'every_third_dose',
-                    difficulty: 'moderate',
-                    failure_effect: '−1 to all non-combat social rolls when sober'
+                    rate: '1 per dose',
+                    effects: '-1 PHYS per dose; +3 Ranks Psychosis',
+                    type: 'continuous'
                 },
-                legal_status: 'restricted'
-            }
-        ]
-    },
-    anti_shock_pain: {
-        name: 'Anti-Shock & Pain',
-        description: 'Medical drugs for pain management and trauma response',
-        drugs: [
-            {
-                name: 'Numbra-k',
-                category: 'anti_shock_analgesic',
-                cost_uni: 20,
-                availability: 'common',
-                effects: {
-                    stat_modifiers: [],
-                    skill_modifiers: [],
-                    other_effects: [
-                        'Ignore first 3 points of pain penalties for 1 hour',
-                        'Counts as basic stabiliser: +1 to checks to stay conscious at low HP'
-                    ]
+                detox: {
+                    effects: '-2 STR, -2 PHYS, -2 HITS (permanent)'
                 },
-                side_effects: {
-                    crash: { stat: 'DEX', delta: -1, duration_hours: 1 },
-                    timing: 'after_1_hour'
-                },
-                addiction: {
-                    check_frequency: 'weekly',
-                    difficulty: 'low',
-                    failure_effect: 'None significant'
-                },
-                legal_status: 'licensed'
+                notes: 'Severely burns out the user—average lifespan ≈ 2 years for heavy users.'
             },
             {
-                name: 'BlackFlood',
-                category: 'emergency_trauma',
-                cost_uni: 60,
-                availability: 'restricted',
+                name: 'Pineal Stim',
+                category: 'ebon_flux_adjuvant',
+                cost: 20,
+                availability: 'rare',
+                description: 'Developed for Ebon races; enhances personal enhancement abilities and body-manipulation powers but can cause painful flux-related decline if misused.',
                 effects: {
-                    stat_modifiers: [],
-                    skill_modifiers: [],
-                    other_effects: [
-                        'Immediately restores 3 HP (cannot exceed normal max)',
-                        'Immune to stun effects and fear penalties from injury for 10 minutes'
-                    ]
-                },
-                side_effects: {
-                    crash: [
-                        { damage: '1d3', type: 'body_overload' },
-                        { check: 'COOL', failure_effect: 'Fatigued: −1 to all physical skills for 1 hour' }
-                    ],
-                    timing: 'after_10_minutes'
+                    game: 'Doubles duration for Personal Enhancement abilities (flux/applications as GM adjudicates)'
                 },
                 addiction: {
-                    check_frequency: 'per_use',
-                    difficulty: 'moderate',
-                    failure_effect: 'Seeks BlackFlood whenever wounded'
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 2 doses',
+                    type: 'habit'
                 },
-                legal_status: 'restricted_medical'
-            }
-        ]
-    },
-    focus_enhancers: {
-        name: 'Focus Enhancers',
-        description: 'Cognitive and perception enhancement drugs',
-        drugs: [
-            {
-                name: 'WhiteWire',
-                category: 'concentration_booster',
-                cost_uni: 35,
-                availability: 'common',
-                effects: {
-                    stat_modifiers: [
-                        { stat: 'CONC', delta: 2, duration_minutes: 30 },
-                        { stat: 'KNOW', delta: 1, duration_minutes: 30 }
-                    ],
-                    skill_modifiers: [
-                        { skill: 'Elint', delta: 1, duration_minutes: 30 },
-                        { skill: 'Hacking', delta: 1, duration_minutes: 30 },
-                        { skill: 'Science', delta: 1, duration_minutes: 30 },
-                        { skill: 'Medicine', delta: 1, duration_minutes: 30 }
-                    ]
+                detox: {
+                    effects: '-1 CONC, -2 FLUX, -1 Rank Personal Enhancement (permanent)'
                 },
-                side_effects: {
-                    crash: [
-                        { stat: 'CONC', delta: -1, duration_hours: 2 },
-                        { effect: '−2 to Sleep-related tests that day' }
-                    ],
-                    timing: 'after_30_minutes'
-                },
-                addiction: {
-                    check_frequency: 'per_complex_task',
-                    difficulty: 'moderate',
-                    failure_effect: '−1 to KNOW/CONC checks without dose'
-                },
-                legal_status: 'licensed'
+                notes: 'Physically mild in most cases but can cause brain haemorrhaging or permanent loss of flux power if abused.'
             },
             {
-                name: 'GhostFocus',
-                category: 'perception_enhancer',
-                cost_uni: 30,
-                availability: 'common',
+                name: 'Shatter',
+                category: 'mutagenic_stimulant',
+                cost: null,
+                availability: 'illegal_black_market',
+                description: 'A dangerous, unstable stimulant produced sporadically by DarkNight. Chemical contamination and mutant DNA-alteration codes make this extremely hazardous.',
                 effects: {
-                    stat_modifiers: [],
-                    skill_modifiers: [
-                        { skill: 'Detect', delta: 2, duration_minutes: 20 },
-                        { skill: 'Sense_Ambush', delta: 2, duration_minutes: 20 },
-                        { skill: 'Sight', delta: 2, duration_minutes: 20 }
-                    ],
-                    other_effects: ['Once during duration: re-roll one failed perception test (keep better)']
-                },
-                side_effects: {
-                    crash: { stat: 'COOL', delta: -1, duration_hours: 1 },
-                    timing: 'after_effect'
+                    game: 'Behaves similarly to Ultra Violence but with high risk of bodily mutation and erratic side effects; use discouraged and often lethal'
                 },
                 addiction: {
-                    check_frequency: 'moderate',
-                    difficulty: 'low_moderate',
-                    failure_effect: '−1 to social checks in crowded places'
+                    rate: 'variable',
+                    effects: 'Severe addiction and physiological alteration; GM discretion',
+                    type: 'continuous'
                 },
-                legal_status: 'common'
+                detox: {
+                    effects: 'Unknown — often results in permanent mutation or death'
+                },
+                notes: 'Possession by operatives is capital offence. Produced and distributed by DarkNight in limited, forced quantities.'
             }
         ]
     },
-    mood_social: {
-        name: 'Mood & Social',
-        description: 'Drugs affecting mood and social interactions',
+    soft: {
+        name: 'Soft (Recreational) Drugs',
+        description: 'Non-medical pleasure and recreational drugs with varying social and mood effects.',
         drugs: [
             {
-                name: 'GlowDust',
-                category: 'mood_enhancer_social',
-                cost_uni: 15,
+                name: 'Beat',
+                category: 'recreational_relaxant',
+                cost: 5,
                 availability: 'common',
+                description: 'Popular relaxation drug. Effects vary by user mood — can induce deep calm or, if the user is agitated, cause hyperactivity or aggression.',
                 effects: {
-                    stat_modifiers: [
-                        { stat: 'CHA', delta: 1, duration_hours: 2 },
-                        { stat: 'COOL', delta: 1, duration_hours: 2 }
-                    ],
-                    skill_modifiers: [
-                        { skill: 'Flattery', delta: 1, duration_hours: 2 },
-                        { skill: 'Persuasion', delta: 1, duration_hours: 2 }
-                    ],
-                    other_effects: ['+1 to social checks involving charisma']
-                },
-                side_effects: {
-                    crash: { stat: 'COOL', delta: -1, duration_hours: 2 },
-                    timing: 'after_2_hours'
+                    game: '+2 COOL for 6 hours'
                 },
                 addiction: {
-                    check_frequency: 'weekly',
-                    difficulty: 'low',
-                    failure_effect: 'Minor depression (−1 to all social checks)'
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 2 doses',
+                    type: 'daily'
                 },
-                legal_status: 'common'
+                detox: {
+                    effects: '-1 CONC, -1 COOL (permanent)'
+                },
+                notes: 'Highly addictive despite mild initial effects.'
             },
             {
-                name: 'Starkadone',
-                category: 'depression_mood',
-                cost_uni: 25,
-                availability: 'licensed',
+                name: 'Personal Interest',
+                category: 'hallucinogenic_erotic',
+                cost: 5,
+                availability: 'common',
+                description: 'Powerful hallucinogenic used to induce sensations equivalent to sexual intercourse; increases addiction figures for pleasure drugs.',
                 effects: {
-                    stat_modifiers: [],
-                    skill_modifiers: [],
-                    other_effects: [
-                        'Immune to fear effects from death/horror for 1 hour',
-                        '+2 to COOL checks against panic'
-                    ]
-                },
-                side_effects: {
-                    crash: { stat: 'COOL', delta: -2, duration_hours: 6 },
-                    timing: 'after_effect_ends'
+                    game: 'Duration ~1 hour (sensory hallucination)'
                 },
                 addiction: {
-                    check_frequency: 'daily',
-                    difficulty: 'high',
-                    failure_effect: 'Severe panic attacks when exposed to horror'
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 4 doses',
+                    type: 'daily'
                 },
-                legal_status: 'licensed'
+                detox: {
+                    effects: '-1 COOL, -1 CONC (permanent)'
+                },
+                notes: 'Strong sensory bombardment leads to concentration and composure deficits after use.'
             }
         ]
     },
-    flux_drugs: {
-        name: 'Flux & Psychic',
-        description: 'Psychic enhancement and flux-related substances',
+    medical: {
+        name: 'Medical Drugs',
+        description: 'Therapeutic and recovery drugs produced by the Soul Institute of Pharmacology.',
         drugs: [
             {
-                name: 'VoidDust',
-                category: 'flux_enhancer',
-                cost_uni: 50,
-                availability: 'restricted',
+                name: 'Kick Start',
+                category: 'healing_stimulant',
+                cost: 5,
+                availability: 'medical',
+                description: 'Accelerates natural healing, aids coagulation, tissue regeneration and bone knitting. Widely used post-trauma.',
                 effects: {
-                    stat_modifiers: [
-                        { stat: 'CONC', delta: 2, duration_hours: 1 },
-                        { stat: 'FLUX', delta: 2, duration_hours: 1 }
-                    ],
-                    skill_modifiers: [],
-                    other_effects: [
-                        '+1 to Flux power usage',
-                        'Extended flux ability duration by 50%'
-                    ]
-                },
-                side_effects: {
-                    crash: [
-                        { stat: 'CONC', delta: -2, duration_hours: 4 },
-                        { check: 'DIA', failure_effect: 'Severe headaches (−2 to concentration checks)' }
-                    ],
-                    timing: 'after_1_hour'
+                    game: 'Recovers 2 HITS and stops 2 Wounds 3 phases after injection'
                 },
                 addiction: {
-                    check_frequency: 'per_use',
-                    difficulty: 'high',
-                    failure_effect: 'Cannot use Flux abilities without dose'
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 30 doses',
+                    type: 'rare'
                 },
-                legal_status: 'restricted'
+                detox: {
+                    effects: '-1 PHYS, -2 HITS (permanent)'
+                },
+                notes: 'Occasional addiction in combat operatives; long-term use causes wasting and loss of physique.'
+            },
+            {
+                name: 'Pain Away',
+                category: 'analgesic_opiate_like',
+                cost: 10,
+                availability: 'restricted_medical',
+                description: 'The most powerful painkiller created. Blocks pain signals and raises pain threshold dramatically; can lead to craving for pain when abstinent.',
+                effects: {
+                    game: 'No PHYS rolls while active; duration 6 hours; 3 phases to take effect if used during combat'
+                },
+                addiction: {
+                    rate: 'continuous',
+                    effects: '-1 PHYS per 3 doses',
+                    type: 'continuous'
+                },
+                detox: {
+                    effects: '-2 PHYS, -1 COOL, Rank 1 Phobia: Pain (heightened) — permanent'
+                },
+                notes: 'Users have been known to adopt masochistic behaviours when dependent.'
+            },
+            {
+                name: 'Flush',
+                category: 'detoxifier',
+                cost: 5,
+                availability: 'medical',
+                description: 'Developed to relieve drug addicts and remove effects of prior addictions. Taken daily for ~30 days to purge impurities.',
+                effects: {
+                    game: 'Prevents the Detox effects of other drugs while taken'
+                },
+                addiction: {
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 30 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-1 PHYS (permanent) — rare'
+                },
+                notes: 'Sometimes itself becomes addictive in rare instances.'
+            },
+            {
+                name: 'Streak',
+                category: 'psychosis_treatment_stimulant',
+                cost: 20,
+                availability: 'experimental',
+                description: 'Originally intended to treat psychosis; functions as a powerful mental stimulant, heightening senses and perception but with high risk of brain damage or breakdown.',
+                effects: {
+                    game: '+2 to KNOW and CONC rolls for 1 hour'
+                },
+                addiction: {
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 4 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-1 KNOW (permanent)'
+                },
+                notes: 'Use can produce long-term cognitive harm if misused.'
+            },
+            {
+                name: 'Honesty',
+                category: 'truth_serum',
+                cost: 10,
+                availability: 'controlled',
+                description: 'Potent truth serum rendering subjects incapable of lying; used in extractions and interrogations.',
+                effects: {
+                    game: 'Duration ~30 minutes; subject cannot lie while effected'
+                },
+                addiction: {
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 4 doses',
+                    type: 'occasional'
+                },
+                detox: {
+                    effects: '-1 CONC (permanent)'
+                },
+                notes: 'Extended dependency without Flush can leave subjects in vegetative-like, compliant states.'
+            },
+            {
+                name: 'White Noise',
+                category: 'dream_suppressant',
+                cost: 10,
+                availability: 'ebon_medical',
+                description: 'Used to suppress Dream Demon nightmares in Ebons. Should be continued until the Ebon has fully turned, otherwise nightmares return.',
+                effects: {
+                    game: 'Stops Dream Demon nightmares while taken'
+                },
+                addiction: {
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 5 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: 'Nightmares will return if treatment stops'
+                },
+                notes: 'Therapeutic for Ebons undergoing transition; cessation returns symptoms.'
             }
         ]
     },
-    performance: {
-        name: 'Performance',
-        description: 'Physical performance enhancing substances',
+    general_use_medical: {
+        name: 'General Use Medical Drugs',
+        description: 'Over-the-counter and general medical supplies available to civilians and low-clearance purchasers.',
         drugs: [
             {
-                name: 'Goliath',
-                category: 'muscle_enhancer',
-                cost_uni: 45,
-                availability: 'restricted',
-                effects: {
-                    stat_modifiers: [
-                        { stat: 'STR', delta: 2, duration_hours: 1 },
-                        { stat: 'PHYS', delta: 2, duration_hours: 1 }
-                    ],
-                    skill_modifiers: [
-                        { skill: 'Unarmed Combat', delta: 1, duration_hours: 1 },
-                        { skill: 'Running', delta: 1, duration_hours: 1 }
-                    ],
-                    other_effects: ['+1 to damage with melee weapons']
-                },
-                side_effects: {
-                    crash: [
-                        { stat: 'STR', delta: -1, duration_hours: 2 },
-                        { damage: '1d3', type: 'muscle_strain' }
-                    ],
-                    timing: 'after_1_hour'
-                },
-                addiction: {
-                    check_frequency: 'weekly',
-                    difficulty: 'moderate_high',
-                    failure_effect: '−2 to STR-based tests when not using'
-                },
-                legal_status: 'restricted'
+                name: 'Pro-cane',
+                type: 'Analgesic',
+                amount: '50 Tablets',
+                cost: 20,
+                scl: 'Civilian'
+            },
+            {
+                name: 'Pain solver',
+                type: 'Analgesic',
+                amount: '50 Tablets',
+                cost: 30,
+                scl: 'Civilian'
+            },
+            {
+                name: 'Pre-solv Steroids',
+                type: 'Steroids',
+                amount: '30 Tablets',
+                cost: 50,
+                scl: 'Civilian',
+                notes: '1 tablet/day after four hours exercise for 1 month = +1 STR'
+            },
+            {
+                name: 'Aprolap Vitamins',
+                type: 'Vitamins',
+                amount: '100 Tablets',
+                cost: 3,
+                scl: 'Civilian'
+            },
+            {
+                name: 'Glowgood',
+                type: 'Anti-depressant',
+                amount: '50 Tablets',
+                cost: 50,
+                scl: 'Civilian'
+            },
+            {
+                name: 'Feelgood',
+                type: 'Anti-depressant',
+                amount: '20 Cigarettes',
+                cost: 3,
+                scl: 'Civilian'
+            },
+            {
+                name: 'Bio-block',
+                type: 'Anaesthetic',
+                amount: '20 vials',
+                cost: 100,
+                scl: '11'
+            },
+            {
+                name: 'Hyponock',
+                type: 'Stimulant',
+                amount: '40 Tablets',
+                cost: 30,
+                scl: 'Civilian'
             }
         ]
     }
 };
 
-// Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = DRUGS;
 }

@@ -7,20 +7,23 @@
  */
 
 /**
- * Format crash/side-effect summary into a short string.
+ * Format detox/side-effect summary into a short string.
  */
-function formatCrashSummary(crash) {
-    if (!crash) return 'None';
-    if (Array.isArray(crash)) {
-        return crash.map(c => {
-            if (c.stat) return (c.delta || '') + ' ' + c.stat;
-            if (c.damage) return (c.damage || '') + ' ' + (c.type || '');
-            return c.effect || JSON.stringify(c);
+function formatDetoxSummary(detox) {
+    if (!detox) return 'None';
+    if (typeof detox === 'string') return detox;
+    if (Array.isArray(detox)) {
+        return detox.map(d => {
+            if (d.stat) return (d.delta || '') + ' ' + d.stat;
+            if (d.damage) return (d.damage || '') + ' ' + (d.type || '');
+            if (d.effects) return d.effects;
+            return d.effect || JSON.stringify(d);
         }).join('; ');
     }
-    if (crash.stat) return (crash.delta || '') + ' ' + crash.stat;
-    if (crash.damage) return (crash.damage || '') + ' ' + (crash.type || '');
-    return crash.effect || 'None';
+    if (detox.effects) return detox.effects;
+    if (detox.stat) return (detox.delta || '') + ' ' + detox.stat;
+    if (detox.damage) return (detox.damage || '') + ' ' + (detox.type || '');
+    return detox.effect || JSON.stringify(detox);
 }
 
 /**
@@ -69,9 +72,12 @@ function renderDrugsStep(character, container, onUpdate) {
             const quantity = character.drugInventory[drug.name] || 0;
             const isSelected = quantity > 0;
             const effectsHtml = drugEffectsHtml(drug);
-            const crashSummary = formatCrashSummary(drug.side_effects && drug.side_effects.crash);
-            const legal = drug.legal_status || 'unknown';
-            const cost = drug.cost_uni || 0;
+            const detoxSummary = formatDetoxSummary(drug.detox || (drug.side_effects && drug.side_effects.crash));
+            const detoxTiming = (drug.detox && drug.detox.timing) || (drug.side_effects && drug.side_effects.timing) || 'timing unknown';
+            const legal = drug.legal_status || drug.availability || 'unknown';
+            const cost = drug.cost || 0;
+            const addictionLabel = drug.addiction ? (drug.addiction.rate || drug.addiction.type || 'n/a') : 'n/a';
+            const addictionEffects = drug.addiction ? (drug.addiction.effects || drug.addiction.failure_effect || 'no special failure effect') : 'no special failure effect';
 
             html += '<div class="drug-item ' + (isSelected ? 'selected' : '') + '" data-drug="' + escapeHtml(drug.name) + '">';
             html += '<div class="drug-header"><div class="drug-info"><div class="drug-name">' + escapeHtml(drug.name) + '</div>' +
@@ -80,8 +86,8 @@ function renderDrugsStep(character, container, onUpdate) {
             html += '<div class="drug-quantity"><button class="drug-qty-btn drug-decrease" ' + (quantity <= 0 ? 'disabled' : '') + '>−</button>' +
                 '<span class="drug-qty-value">' + escapeHtml(quantity) + '</span><button class="drug-qty-btn drug-increase">+</button></div></div>';
             html += '<div class="drug-effects">' + effectsHtml + '</div>';
-            html += '<div class="drug-side-effects"><strong>Crash:</strong> ' + escapeHtml(crashSummary) + ' <em>(' + escapeHtml((drug.side_effects && drug.side_effects.timing) || 'timing unknown') + ')</em></div>';
-            html += '<div class="drug-addiction"><strong>Addiction:</strong> ' + escapeHtml((drug.addiction && drug.addiction.difficulty) || 'n/a') + ' — ' + escapeHtml((drug.addiction && drug.addiction.failure_effect) || 'no special failure effect') + '</div>';
+            html += '<div class="drug-side-effects"><strong>Detox:</strong> ' + escapeHtml(detoxSummary) + ' <em>(' + escapeHtml(detoxTiming) + ')</em></div>';
+            html += '<div class="drug-addiction"><strong>Addiction:</strong> ' + escapeHtml(addictionLabel) + ' — ' + escapeHtml(addictionEffects) + '</div>';
             if (drug.description) html += '<div class="drug-description">' + escapeHtml(drug.description) + '</div>';
             html += '</div>';
         }
@@ -101,8 +107,26 @@ function renderDrugsStep(character, container, onUpdate) {
         const inc = e.target.closest('.drug-qty-btn.drug-increase');
         const dec = e.target.closest('.drug-qty-btn.drug-decrease');
 
+        function findDrugByName(name) {
+            for (const k in DRUGS) {
+                const cat = DRUGS[k];
+                for (const d of (cat.drugs || [])) {
+                    if (d.name === name) return d;
+                }
+            }
+            return null;
+        }
+
         if (inc) {
             const drugName = inc.closest('[data-drug]').getAttribute('data-drug');
+            const drugObj = findDrugByName(drugName);
+            const price = (drugObj && typeof drugObj.cost === 'number') ? drugObj.cost : 0;
+            character.credits = (typeof character.credits !== 'undefined') ? character.credits : 0;
+            if (price > 0 && character.credits < price) {
+                alert('Insufficient credits to purchase ' + drugName + ' (' + price + 'c).');
+                return;
+            }
+            if (price > 0) character.credits -= price;
             character.drugInventory[drugName] = (character.drugInventory[drugName] || 0) + 1;
             renderDrugsStep(character, container, onUpdate);
             if (typeof onUpdate === 'function') onUpdate();
@@ -110,7 +134,15 @@ function renderDrugsStep(character, container, onUpdate) {
         } else if (dec) {
             const drugName = dec.closest('[data-drug]').getAttribute('data-drug');
             const current = character.drugInventory[drugName] || 0;
-            if (current > 0) character.drugInventory[drugName] = current - 1;
+            if (current > 0) {
+                const drugObj = findDrugByName(drugName);
+                const price = (drugObj && typeof drugObj.cost === 'number') ? drugObj.cost : 0;
+                character.drugInventory[drugName] = current - 1;
+                if (price > 0) {
+                    character.credits = (typeof character.credits !== 'undefined') ? character.credits : 0;
+                    character.credits += price;
+                }
+            }
             renderDrugsStep(character, container, onUpdate);
             if (typeof onUpdate === 'function') onUpdate();
             return;
