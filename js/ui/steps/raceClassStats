@@ -1,0 +1,43 @@
+// Step 2: Race Selection
+function renderRaceStep(character, container, onUpdate) {
+    let racesHtml = '<div class="grid-2">';
+    for (const raceId in RACES) {
+        const raceData = RACES[raceId];
+        const isSelected = character.race === raceId;
+        racesHtml += `<div class="card ${isSelected ? 'selected' : ''}" data-race="${raceId}" style="cursor:pointer"><div class="card-title">${raceData.name}</div><div class="card-description">${raceData.description}</div></div>`;
+    }
+    racesHtml += '</div>';
+    container.innerHTML = `<div class="section-header"><h2 class="section-title">Step 2: Select Race</h2></div>${racesHtml}`;
+    container.querySelectorAll('[data-race]').forEach(card => card.addEventListener('click', () => { character.race = card.dataset.race; character.calculateDerivedStats(); renderRaceStep(character, container, onUpdate); onUpdate(); }));
+}
+
+// Step 3: Class Selection
+function renderClassStep(character, container, onUpdate) {
+    if (!character.race) { container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 3: Select Class</h2></div><p>Please select a race first.</p>'; return; }
+    let classesHtml = '<div class="grid-2">';
+    for (const classId in CLASSES) {
+        const classData = CLASSES[classId];
+        const isSelected = character.class === classId;
+        classesHtml += `<div class="card ${isSelected ? 'selected' : ''}" data-class="${classId}" style="cursor:pointer"><div class="card-title">${classData.name}</div></div>`;
+    }
+    classesHtml += '</div>';
+    container.innerHTML = `<div class="section-header"><h2 class="section-title">Step 3: Select Class</h2></div>${classesHtml}`;
+    container.querySelectorAll('[data-class]').forEach(card => card.addEventListener('click', () => { character.class = card.dataset.class; renderClassStep(character, container, onUpdate); onUpdate(); }));
+}
+
+// Step 4: Statistics
+function renderStatsStep(character, container, onUpdate) {
+    if (!character.race) return;
+    const maximums = RACES[character.race].statMaximums;
+    character.calculateDerivedStats();
+    let statsHtml = '<div class="stats-grid">';
+    for (const stat in character.stats) {
+        const value = character.stats[stat];
+        const max = maximums[stat]?.max || 10;
+        statsHtml += `<div class="stat-row" data-stat="${stat}"><span class="stat-label">${stat}</span><span class="stat-value">${value}</span><div class="stat-controls"><button class="stat-btn stat-decrease">−</button><button class="stat-btn stat-increase">+</button></div><span class="stat-max">Max: ${max}</span></div>`;
+    }
+    statsHtml += '</div>';
+    container.innerHTML = `<div class="section-header"><h2 class="section-title">Step 4: Allocate Statistics</h2></div>${statsHtml}`;
+    container.querySelectorAll('.stat-increase').forEach(btn => btn.addEventListener('click', () => { const stat = btn.closest('[data-stat]').dataset.stat; character.stats[stat]++; character.calculateDerivedStats(); renderStatsStep(character, container, onUpdate); onUpdate(); }));
+    container.querySelectorAll('.stat-decrease').forEach(btn => btn.addEventListener('click', () => { const stat = btn.closest('[data-stat]').dataset.stat; character.stats[stat]--; character.calculateDerivedStats(); renderStatsStep(character, container, onUpdate); onUpdate(); }));
+}

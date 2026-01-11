@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLA Industries Character Generator</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">
+                <h1>SLA INDUSTRIES</h1>
+                <span class="subtitle">Character Generator</span>
+            </div>
+            <div class="header-actions">
+                <button id="newCharacterBtn" class="btn btn-secondary">New Character</button>
+                <button id="loadCharacterBtn" class="btn btn-secondary">Load</button>
+                <button id="saveCharacterBtn" class="btn btn-secondary">Save</button>
+            </div>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="step-indicators" id="stepIndicators"></div>
+        </div>
+
+        <main class="main-content" id="mainContent"></main>
+
+        <footer class="app-footer">
+            <button id="prevStepBtn" class="btn btn-secondary" disabled>← Previous</button>
+            <div class="point-tracker">
+                <span class="points-label">Points Available:</span>
+                <span class="points-value" id="pointsAvailable">100</span>
+            </div>
+            <button id="nextStepBtn" class="btn btn-primary">Next →</button>
+        </footer>
+    </div>
+
+    <div class="modal" id="loadModal">
+        <div class="modal-content">
+            <h2>Load Character</h2>
+            <div id="savedCharactersList"></div>
+            <button class="btn btn-secondary" onclick="closeModal('loadModal')">Cancel</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="js/data/races.js"></script>
+    <script src="js/data/classes.js"></script>
+    <script src="js/data/skills.js"></script>
+    <script src="js/data/advantages.js"></script>
+    <script src="js/data/training.js"></script>
+    <script src="js/data/ebon.js"></script>
+    <script src="js/data/drugs.js"></script>
+    <script src="js/character.js"></script>
+    <script src="js/validators.js"></script>
+    
+    <!-- Step modules -->
+    <script src="js/ui/steps/basicInfo.js"></script>
+    <script src="js/ui/steps/raceClassStats.js"></script>
+    <script src="js/ui/steps/skillsAdvantagesTraining.js"></script>
+    <script src="js/ui/steps/ebonEquipmentDrugsSummary.js"></script>
+    
+    <!-- Main wizard -->
+    <script src="js/ui/wizard.js"></script>
+    <script src="js/ui/components.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

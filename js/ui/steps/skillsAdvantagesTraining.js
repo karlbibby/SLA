@@ -1,0 +1,57 @@
+// Steps 5-7: Skills, Advantages, Training
+function renderSkillsStep(character, container, onUpdate) {
+    if (!character.class) return;
+    let skillsHtml = '<div class="skills-container">';
+    for (const categoryKey in SKILLS) {
+        const category = SKILLS[categoryKey];
+        skillsHtml += '<div class="skill-category"><div class="skill-category-header"><span class="skill-category-title">' + category.name + '</span></div><div class="skill-list">';
+        for (const skillName in category.skills) {
+            const currentRank = character.skills[skillName] || 0;
+            skillsHtml += '<div class="skill-item"><div class="skill-name">' + skillName + '</div><div class="skill-rank"><span class="skill-rank-value">' + currentRank + '</span></div></div>';
+        }
+        skillsHtml += '</div></div>';
+    }
+    skillsHtml += '</div>';
+    container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 5: Allocate Skills</h2></div>' + skillsHtml;
+}
+
+function renderAdvantagesStep(character, container, onUpdate) {
+    let advantagesHtml = '<div class="advantages-grid">';
+    for (const categoryKey in ADVANTAGES) {
+        const category = ADVANTAGES[categoryKey];
+        for (const advName in category.items) {
+            const advData = category.items[advName];
+            const isDisadvantage = advData.type === 'disadvantage';
+            const currentRank = isDisadvantage ? (character.disadvantages[advName] || 0) : (character.advantages[advName] || 0);
+            const isSelected = currentRank > 0;
+            advantagesHtml += '<div class="advantage-item ' + (isDisadvantage ? 'disadvantage' : '') + ' ' + (isSelected ? 'selected' : '') + '" data-advantage="' + advName + '" data-type="' + advData.type + '" style="cursor:pointer"><div class="advantage-checkbox">' + (isSelected ? '✓' : '') + '</div><div class="advantage-content"><div class="advantage-name">' + advName + '</div></div></div>';
+        }
+    }
+    advantagesHtml += '</div>';
+    container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 6: Advantages & Disadvantages</h2></div>' + advantagesHtml;
+    container.querySelectorAll('.advantage-item').forEach(item => item.addEventListener('click', () => {
+        const advName = item.dataset.advantage;
+        const isDisadvantage = item.dataset.type === 'disadvantage';
+        if (isDisadvantage) { if (character.disadvantages[advName]) delete character.disadvantages[advName]; else character.disadvantages[advName] = 1; }
+        else { if (character.advantages[advName]) delete character.advantages[advName]; else character.advantages[advName] = 1; }
+        renderAdvantagesStep(character, container, onUpdate); onUpdate();
+    }));
+}
+
+function renderTrainingStep(character, container, onUpdate) {
+    if (!character.class) return;
+    let packagesHtml = '<div class="grid-2">';
+    for (const packageName in TRAINING_PACKAGES) {
+        const isSelected = character.trainingPackages.includes(packageName);
+        packagesHtml += '<div class="card ' + (isSelected ? 'selected' : '') + '" data-package="' + packageName + '" style="cursor:pointer"><div class="card-title">' + packageName + '</div></div>';
+    }
+    packagesHtml += '</div>';
+    container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 7: Training Packages</h2></div>' + packagesHtml;
+    container.querySelectorAll('[data-package]').forEach(card => card.addEventListener('click', () => {
+        const packageName = card.dataset.package;
+        const index = character.trainingPackages.indexOf(packageName);
+        if (index > -1) character.trainingPackages.splice(index, 1);
+        else character.trainingPackages.push(packageName);
+        renderTrainingStep(character, container, onUpdate); onUpdate();
+    }));
+}
