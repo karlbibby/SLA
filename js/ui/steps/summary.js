@@ -30,17 +30,27 @@ function renderSummaryStep(character, container, onUpdate) {
     }
     derivedHtml += '</div>';
 
-    // Skills
+    // Skills (grouped by category)
     let skillsHtml = '<div class="skills-summary"><h4>Skills</h4>';
-    const skillEntries = Object.entries(character.skills || {}).filter(([,v]) => v > 0);
-    if (skillEntries.length) {
-        skillEntries.sort((a,b) => b[1] - a[1]);
-        skillsHtml += '<div class="grid-2">';
-        skillEntries.forEach(([k,v]) => {
-            skillsHtml += '<div>' + escapeHtml(k) + ': <strong>' + escapeHtml(String(v)) + '</strong></div>';
-        });
-        skillsHtml += '</div>';
-    } else {
+    let anySkills = false;
+    for (const catKey in SKILLS) {
+        const category = SKILLS[catKey];
+        // collect skills in this category that have ranks
+        const skillsInCat = [];
+        for (const skillName in category.skills) {
+            const rank = character.skills[skillName] || 0;
+            if (rank > 0) skillsInCat.push({ name: skillName, rank });
+        }
+        if (skillsInCat.length) {
+            anySkills = true;
+            skillsHtml += '<div class="skill-category-summary"><strong>' + escapeHtml(category.name) + '</strong><div class="grid-2" style="margin-top:6px">';
+            skillsInCat.forEach(s => {
+                skillsHtml += '<div>' + escapeHtml(s.name) + ': <strong>' + escapeHtml(String(s.rank)) + '</strong></div>';
+            });
+            skillsHtml += '</div></div>';
+        }
+    }
+    if (!anySkills) {
         skillsHtml += '<div style="color:#666">No skills allocated</div>';
     }
     skillsHtml += '</div>';

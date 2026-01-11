@@ -283,7 +283,7 @@ const DRUGS = {
                         { stat: 'PHYS', delta: 2, duration_hours: 1 }
                     ],
                     skill_modifiers: [
-                        { skill: 'Melee', delta: 1, duration_hours: 1 },
+                        { skill: 'Unarmed Combat', delta: 1, duration_hours: 1 },
                         { skill: 'Running', delta: 1, duration_hours: 1 }
                     ],
                     other_effects: ['+1 to damage with melee weapons']

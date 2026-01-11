@@ -1,4 +1,5 @@
 // SLA Industries Character Generator - Training Packages Data
+// Updated to align with reworked skill names
 
 const TRAINING_PACKAGES = {
     'Military Training': {
@@ -6,10 +7,10 @@ const TRAINING_PACKAGES = {
         description: 'Basic combat and tactical training from SLA military academies.',
         skills: {
             'Rifle': 2,
-            'Auto/Support Fire': 1,
-            'Dodge/Parry': 1,
+            'Auto/Support': 1,
+            'Martial Arts': 1,
             'Running': 2,
-            'First Aid': 1
+            'Medical, Paramedic': 1
         },
         points: 10
     },
@@ -20,8 +21,8 @@ const TRAINING_PACKAGES = {
             'Streetwise': 2,
             'Sneaking': 2,
             'Detect': 1,
-            'Melee': 1,
-            'Lockpicking': 1
+            'Unarmed Combat': 1,
+            'Lock Picking': 1
         },
         points: 10
     },
@@ -29,11 +30,11 @@ const TRAINING_PACKAGES = {
         name: 'Corporate Management',
         description: 'Business and management training from corporate academies.',
         skills: {
-            'Trading': 2,
+            'Haggle': 2,
             'Persuasion': 2,
-            'Charisma': 1,
-            'Acting': 1,
-            'SLA Info': 1
+            'Leadership': 1,
+            'Disguise': 1,
+            'SLA Information': 1
         },
         points: 10
     },
@@ -41,11 +42,11 @@ const TRAINING_PACKAGES = {
         name: 'Technical Specialist',
         description: 'Advanced technical and engineering training.',
         skills: {
-            'Engineering': 2,
-            'Repair': 2,
-            'Hacking': 1,
-            'Elint': 1,
-            'Science': 1
+            'Mechanics, Industrial': 2,
+            'Mechanics, Repair': 2,
+            'Computer, Subterfuge': 1,
+            'Computer Use': 1,
+            'Electronics, Repair': 1
         },
         points: 10
     },
@@ -53,11 +54,11 @@ const TRAINING_PACKAGES = {
         name: 'Combat Specialist',
         description: 'Intensive combat training for frontline operatives.',
         skills: {
-            'Melee': 2,
+            'Unarmed Combat': 2,
             'Pistol': 2,
             'Marksman': 1,
-            'Dodge/Parry': 1,
-            'Heavy Weapons': 1
+            'Martial Arts': 1,
+            'Auto/Support': 1
         },
         points: 10
     },
@@ -68,8 +69,8 @@ const TRAINING_PACKAGES = {
             'Detect': 2,
             'Sneaking': 2,
             'Running': 1,
-            'Climbing': 1,
-            'Sight': 1
+            'Climb': 1,
+            'Detect': 1
         },
         points: 10
     },
@@ -77,9 +78,9 @@ const TRAINING_PACKAGES = {
         name: 'Medical Training',
         description: 'Comprehensive medical and emergency treatment training.',
         skills: {
-            'Medicine': 3,
-            'First Aid': 2,
-            'Biology': 1,
+            'Medical, Practice': 3,
+            'Medical, Paramedic': 2,
+            'Pathology': 1,
             'Psychology': 1
         },
         points: 10
@@ -88,8 +89,8 @@ const TRAINING_PACKAGES = {
         name: 'Social Engineering',
         description: 'Manipulation and social infiltration training.',
         skills: {
-            'Acting': 2,
-            'Flattery': 2,
+            'Disguise': 2,
+            'Interview': 2,
             'Persuasion': 1,
             'Intimidation': 1,
             'Psychology': 1
@@ -100,10 +101,10 @@ const TRAINING_PACKAGES = {
         name: 'Vehicle Operations',
         description: 'Comprehensive vehicle and aircraft training.',
         skills: {
-            'Pilot': 2,
-            'Drive': 2,
-            'Gunnery': 1,
-            'Repair': 1,
+            'Pilot, Military': 2,
+            'Drive, Civilian': 2,
+            'Marksman': 1,
+            'Mechanics, Repair': 1,
             'Running': 1
         },
         points: 10
@@ -113,9 +114,9 @@ const TRAINING_PACKAGES = {
         description: 'Street-level criminal network training.',
         skills: {
             'Streetwise': 2,
-            'Interrogation': 1,
+            'Interview': 1,
             'Intimidation': 2,
-            'Trading': 1,
+            'Haggle': 1,
             'Sneaking': 1
         },
         points: 10

@@ -29,7 +29,7 @@ const CLASSES = {
         freeSkills: {
             'Trading': 2,
             'Persuasion': 2,
-            'SLA Info': 2,
+            'SLA Information': 2,
             'Charisma': 1
         },
         skillPoints: 20,
@@ -71,8 +71,8 @@ const CLASSES = {
         freeSkills: {
             'Sneaking': 2,
             'Intimidation': 2,
-            'Flux Control': 1,
-            'Concentration': 1
+            'Disguise': 1,
+            'Psychology': 1
         },
         skillPoints: 20,
         startingEquipment: [
@@ -90,10 +90,10 @@ const CLASSES = {
         name: 'Pilot',
         description: 'Vehicle and aircraft operators for transportation and combat.',
         freeSkills: {
-            'Pilot': 3,
-            'Drive': 2,
+            'Pilot, Military': 3,
+            'Drive, Civilian': 2,
             'Gunnery': 1,
-            'Repair': 1
+            'Mechanics, Repair': 1
         },
         skillPoints: 20,
         startingEquipment: [
@@ -113,7 +113,7 @@ const CLASSES = {
         freeSkills: {
             'Pistol': 3,
             'Marksman': 2,
-            'Dodge/Parry': 1,
+            'Martial Arts': 1,
             'Running': 1
         },
         skillPoints: 20,
@@ -134,8 +134,8 @@ const CLASSES = {
         freeSkills: {
             'Rifle': 2,
             'Heavy Weapons': 2,
-            'Auto/Support Fire': 1,
-            'Dodge/Parry': 1
+            'Auto/Support': 1,
+            'Martial Arts': 1
         },
         skillPoints: 20,
         startingEquipment: [
@@ -153,10 +153,10 @@ const CLASSES = {
         name: 'Grunt',
         description: 'Basic SLA operatives for general operations.',
         freeSkills: {
-            'Melee': 2,
+            'Unarmed Combat': 2,
             'Pistol': 2,
             'Running': 1,
-            'Climbing': 1
+            'Climb': 1
         },
         skillPoints: 25,
         startingEquipment: [

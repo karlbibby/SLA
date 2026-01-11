@@ -61,12 +61,14 @@
     // Page 2: Skills Grid (grouped)
     // Build simple grids from character.skills object
     const skillCategories = {
-      "Combat Skills": ["Melee","Pistol","Rifle","Shotgun","Heavy Weapons","Auto/Support","Marksman","Dodge/Parry"],
-      "Survival Skills": ["Running","Climbing","Jumping","Swimming","Falling","Sneaking/Hide"],
-      "Knowledge Skills": ["Elint","SLA Info","Streetwise","Interrogation","Science","Medicine","Hacking","Engineering","Psychology","Languages"],
-      "Social Skills": ["Charisma","Flattery","Persuasion","Intimidation","Trading"],
-      "Perception Skills": ["Detect","Sense Ambush","Sight"],
-      "Technical Skills": ["Pilot","Drive","Gunnery","Demolitions","Lockpicking"]
+      "STRENGTH": ["Unarmed Combat","Blade, 1-H","Blade, 2-H","Club, 1-H","Club, 2-H","Chainaxe","Flexible Weapon","Pole-arm"],
+      "DEXTERITY": ["Martial Arts","Gymnastics","Forgery, Manual","Sleight","Sneaking","Hide","Pistol","Rifle","Drive, Motorcycle"],
+      "PHYSIQUE": ["Wrestling","Acrobatics","Running","Climb","Swim","Auto/Support","Throw"],
+      "CHARISMA": ["Leadership","Seduction","Disguise","Interview","Diplomacy","Communique","Haggle","Persuasion"],
+      "DIAGNOSE": ["Computer Use","Electronics, Industrial","Mechanics, Industrial","Demolitions","Medical, Paramedic","Tactics","Tracking","Bribery","Torture","Lock Picking","Electronic Locks","Business Administration","Forensics","Pathology","Read Lips","Intimidation"],
+      "CONCENTRATION": ["Weapons Maintenance","Drive, Civilian","Drive, Military","Detect","Medical, Surgery","Marksman","Business Finance","Photography"],
+      "KNOWLEDGE": ["Computer, Subterfuge","Electronics, Repair","Mechanics, Repair","Demolitions Disposal","Survival","Medical, Practice","Streetwise","Evaluate Opponent","Literacy","SLA Information","Psychology","Astronomy","Pilot, Military","Navigation","Space Navigation"],
+      "SECONDARY-SPECIAL INTEREST- HOBBY SKILLS": ["Gambling","Ecology","Cooking","Agriculture","History","Dance","Artistic Ability","Music - general","Sewing","Archaeology","Physiography","Cinematography","Theatre","Languages: Killan","Languages: Wraith","Languages: Shaktarian","Languages: Sign Language","Languages: New Parisian","Sports: Various","Architecture","Physiology","Palaeography","Botany","Zoology","Mathematics","Video Games","Sing","Play Instrument"]
     };
 
     const buildSkillsHtml = () => {
