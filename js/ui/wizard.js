@@ -12,6 +12,7 @@ const WIZARD = {
         { name: 'Ebon Abilities', key: 'ebon' },
         { name: 'Equipment', key: 'equipment' },
         { name: 'Drugs', key: 'drugs' },
+        { name: 'Phobias', key: 'phobias' },
         { name: 'Summary', key: 'summary' }
     ],
 
@@ -36,9 +37,28 @@ const WIZARD = {
     },
 
     nextStep() {
-        if (this.currentStep < this.steps.length - 1) {
-            this.goToStep(this.currentStep + 1);
+        if (this.currentStep >= this.steps.length - 1) return;
+
+        // Validate phobias step before advancing
+        const stepKey = this.steps[this.currentStep].key;
+        if (stepKey === 'phobias') {
+            const selected = (this.character.phobias || []).map(p => p.name);
+            const max = (typeof PHOBIA_RULES !== 'undefined' && PHOBIA_RULES.max_at_creation) ? PHOBIA_RULES.max_at_creation : 3;
+            if (selected.length > max) {
+                if (typeof UI !== 'undefined' && UI.showToast) UI.showToast(`You may select up to ${max} phobias.`, 'error');
+                return;
+            }
+            if (PHOBIA_RULES && Array.isArray(PHOBIA_RULES.conflicting_pairs)) {
+                for (const pair of PHOBIA_RULES.conflicting_pairs) {
+                    if (selected.includes(pair[0]) && selected.includes(pair[1])) {
+                        if (typeof UI !== 'undefined' && UI.showToast) UI.showToast(`Conflicting phobias selected: ${pair[0]} and ${pair[1]}`, 'error');
+                        return;
+                    }
+                }
+            }
         }
+
+        this.goToStep(this.currentStep + 1);
     },
 
     prevStep() {
@@ -50,7 +70,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Class', '4. Stats', '5. Skills', '6. Adv/Dis', '7. Training', '8. Flux', '9. Equipment', '10. Drugs', '11. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Class', '4. Stats', '5. Skills', '6. Adv/Dis', '7. Training', '8. Flux', '9. Equipment', '10. Drugs', '11. Phobias', '12. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -89,6 +109,7 @@ const WIZARD = {
             case 'ebon': renderEbonStep(this.character, container, this.onUpdate); break;
             case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
             case 'drugs': renderDrugsStep(this.character, container, this.onUpdate); break;
+            case 'phobias': renderPhobiasStep(this.character, container, this.onUpdate); break;
             case 'summary': renderSummaryStep(this.character, container, this.onUpdate); break;
         }
     }

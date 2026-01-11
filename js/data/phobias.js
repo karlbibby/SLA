@@ -278,9 +278,9 @@ const PHOBIAS = {
     }
 };
 
-// Max phobias rules
+ // Max phobias rules
 const PHOBIA_RULES = {
-    max_at_creation: 2,
+    max_at_creation: 3,
     max_lifetime: 3,
     min_rank: 1,
     max_rank: 3,
