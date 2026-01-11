@@ -216,6 +216,33 @@ const ADVANTAGES = {
                 stackingMultiplier: 1
             }
         }
+    },
+    // Lifestyle / Housing
+    lifestyle: {
+        name: 'Lifestyle',
+        items: {
+            'Uptown Housing': {
+                type: 'advantage',
+                description: 'Allocated furnished Uptown SLA apartment.',
+                basePoints: 2,
+                maxRank: 1,
+                stackingMultiplier: 1
+            },
+            'Downtown Housing': {
+                type: 'disadvantage',
+                description: 'Placed in cheaper Downtown accommodation.',
+                basePoints: -1,
+                maxRank: 1,
+                stackingMultiplier: 1
+            },
+            'Homeless': {
+                type: 'disadvantage',
+                description: 'Unable to secure housing; placed lowest on list.',
+                basePoints: -5,
+                maxRank: 1,
+                stackingMultiplier: 1
+            }
+        }
     }
 };
 

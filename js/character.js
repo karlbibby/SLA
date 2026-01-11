@@ -39,8 +39,27 @@ class Character {
         this.ebonAbilities = [];
         this.selectedFormulae = [];
         
-        // Equipment
-        this.selectedEquipment = [];
+        // Equipment (selectedEquipment starts with standard SLA kit)
+        this.selectedEquipment = [
+            'Headset Communicator',
+            'Klippo Lighter',
+            'Pen',
+            'FEN 603',
+            'FEN Ammo Clip',
+            'FEN Ammo Clip',
+            'Blueprint News File Case',
+            'S.C.L. Card',
+            'Finance Card',
+            'Package Card',
+            'Departmental Authorization Card',
+            'Clothes (2 sets)',
+            'Footwear (1 set)',
+            'Operative Organizer',
+            'SLA Badge',
+            'Weapons Maintenance Kit',
+            'Personal Effects',
+            'Contraceptives Pack'
+        ];
         
         // Drug Inventory
         this.drugInventory = {};  // { "Redline-9": 2, "Numbra-k": 3 }
@@ -51,13 +70,38 @@ class Character {
         // Starting SCL
         this.scl = '9A';
         
+        // Financials
+        // Credits are stored in Credits (c). Starting operative receives 1500c to spend on hardware.
+        this.credits = 1500;
+        // Induction bonus (credited to account but locked until game start)
+        this.inductionBonus = 100;
+        this.inductionLocked = true;
+        // Finance medium: by default a Finance Card is provided; financeChip can be toggled in UI (some races disallowed)
+        this.financeChip = false;
+        this.financeCard = true;
+        // Housing provided by SLA by default unless user selects Housing advantage/disadvantage
+        this.housing = {
+            type: 'SLA Apartment',
+            providedBySLA: true
+        };
+        
         // Point tracking
         this.totalPoints = 300;
         this.spentPoints = 0;
         
+        // Ensure starting kit exists (avoid duplicate entries)
+        this.selectedEquipment = this.selectedEquipment || [];
+        const defaultKit = ['Headset Communicator', 'Klippo Lighter', 'Pen', 'FEN 603', 'Blueprint News File case', 'S.C.L. card', 'Finance card', 'Package card and badge', 'Departmental Authorization Card', 'Two sets of clothes', 'One set of footwear', 'Operative organizer', 'SLA badge', 'Weapons Maintenance Kit', 'Minor personal effects', 'Pack of contraceptives'];
+        defaultKit.forEach(item => { if (!this.selectedEquipment.includes(item)) this.selectedEquipment.push(item); });
+        
         // Creation metadata
         this.created = new Date().toISOString();
         this.version = '1.0';
+    }
+    
+    // helper for finance display conversions
+    getCredits() {
+        return typeof this.credits !== 'undefined' ? this.credits : 1500;
     }
 
     // Calculate derived stats based on primary stats
@@ -279,6 +323,13 @@ class Character {
             drugInventory: this.drugInventory,
             phobias: this.phobias,
             scl: this.scl,
+            // Financials
+            credits: this.credits,
+            inductionBonus: this.inductionBonus,
+            inductionLocked: this.inductionLocked,
+            financeChip: this.financeChip,
+            financeCard: this.financeCard,
+            housing: this.housing,
             totalPoints: this.totalPoints,
             spentPoints: this.spentPoints,
             created: this.created,
@@ -288,6 +339,7 @@ class Character {
 
     // Load character from JSON
     fromJSON(data) {
+        data = data || {};
         this.name = data.name || '';
         this.playerName = data.playerName || '';
         this.race = data.race || null;
@@ -300,14 +352,23 @@ class Character {
         this.trainingPackages = data.trainingPackages || [];
         this.ebonAbilities = data.ebonAbilities || [];
         this.selectedFormulae = data.selectedFormulae || [];
-        this.selectedEquipment = data.selectedEquipment || [];
+        this.selectedEquipment = data.selectedEquipment || this.selectedEquipment;
         this.drugInventory = data.drugInventory || {};
         this.phobias = data.phobias || [];
         this.scl = data.scl || '9A';
-        this.totalPoints = data.totalPoints || 300;
-        this.spentPoints = data.spentPoints || 0;
-        this.created = data.created || new Date().toISOString();
-        this.version = data.version || '1.0';
+
+        // Financials with sensible defaults / backwards compatibility
+        this.credits = (typeof data.credits !== 'undefined') ? data.credits : (this.credits || 1500);
+        this.inductionBonus = (typeof data.inductionBonus !== 'undefined') ? data.inductionBonus : (this.inductionBonus || 100);
+        this.inductionLocked = (typeof data.inductionLocked !== 'undefined') ? data.inductionLocked : (this.inductionLocked !== undefined ? this.inductionLocked : true);
+        this.financeChip = (typeof data.financeChip !== 'undefined') ? data.financeChip : this.financeChip;
+        this.financeCard = (typeof data.financeCard !== 'undefined') ? data.financeCard : this.financeCard;
+        this.housing = data.housing || this.housing;
+
+        this.totalPoints = data.totalPoints || this.totalPoints || 300;
+        this.spentPoints = data.spentPoints || this.spentPoints || 0;
+        this.created = data.created || this.created || new Date().toISOString();
+        this.version = data.version || this.version || '1.0';
     }
 
     // Create a copy of this character

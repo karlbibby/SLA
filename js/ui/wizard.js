@@ -91,6 +91,14 @@ const WIZARD = {
         const pointsEl = document.getElementById('pointsAvailable');
         pointsEl.textContent = points;
         pointsEl.style.color = points < 0 ? 'var(--color-error)' : 'var(--color-primary)';
+
+        // Update credits display in footer (if present)
+        const creditsEl = document.getElementById('creditsAvailable');
+        if (creditsEl) {
+            const credits = (typeof this.character.credits !== 'undefined') ? this.character.credits : (this.character.startingCredits || 1500);
+            creditsEl.textContent = credits;
+            creditsEl.style.color = (credits < 0) ? 'var(--color-error)' : 'inherit';
+        }
     },
 
     renderCurrentStep() {

@@ -95,6 +95,14 @@ function renderSummaryStep(character, container, onUpdate) {
     const scl = character.scl || '';
     const created = character.created || '';
     const version = character.version || '';
+    // Financials
+    const credits = (typeof character.credits !== 'undefined') ? character.credits : 0;
+    const uni = credits * 10;
+    const inductionLocked = !!character.inductionLocked;
+    const inductionBonus = character.inductionBonus || 0;
+    const financeMedium = character.financeChip ? 'Chip' : (character.financeCard ? 'Card' : 'None');
+    const housing = character.housing || {};
+    const housingDisplay = housing.type || 'None';
 
     container.innerHTML = sectionHeader('Step 11: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + ' • ' + escapeHtml(cls) + '</div></div>' +
@@ -103,6 +111,9 @@ function renderSummaryStep(character, container, onUpdate) {
                 '<h3>Primary Stats</h3>' + statsHtml +
                 '<h3 style="margin-top:12px">Derived & Resources</h3>' + derivedHtml +
                 '<div style="margin-top:10px"><strong>SCL:</strong> ' + escapeHtml(scl) + ' • <strong>Total Points:</strong> ' + escapeHtml(String(totalPoints)) + ' • <strong>Spent:</strong> ' + escapeHtml(String(spentPoints)) + '</div>' +
+                '<div style="margin-top:6px"><strong>Credits:</strong> ' + escapeHtml(String(credits)) + 'c • <strong>UNI:</strong> ' + escapeHtml(String(uni)) + 'n • <strong>Finance:</strong> ' + escapeHtml(String(financeMedium)) + '</div>' +
+                (inductionLocked ? '<div style="margin-top:6px"><em>Induction Bonus: ' + escapeHtml(String(inductionBonus)) + 'c (locked)</em></div>' : '<div style="margin-top:6px"><em>Induction Bonus: ' + escapeHtml(String(inductionBonus)) + 'c</em></div>') +
+                '<div style="margin-top:6px"><strong>Housing:</strong> ' + escapeHtml(housingDisplay) + '</div>' +
                 '<div style="margin-top:8px"><h3>Points Available: ' + escapeHtml(String(availablePoints)) + '</h3></div>' +
             '</div>' +
             '<div>' +
