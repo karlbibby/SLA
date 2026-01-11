@@ -3,10 +3,12 @@
 // Global state
 let currentCharacter = null;
 
-// Initialize the application
+ // Initialize the application
 function initApp() {
     // Create new character
     currentCharacter = new Character();
+    // expose to window for integration with other scripts (pdf export, etc.)
+    window.currentCharacter = currentCharacter;
 
     // Initialize wizard
     WIZARD.init(currentCharacter, onCharacterUpdate);
@@ -17,14 +19,19 @@ function initApp() {
     // Load any saved character from localStorage
     loadAutoSave();
 
+    // ensure window reference reflects any loaded character
+    window.currentCharacter = currentCharacter;
+
     console.log('SLA Industries Character Generator initialized');
 }
 
-// Character update callback
+ // Character update callback
 function onCharacterUpdate() {
     // Auto-save to localStorage
     saveAutoSave();
     updatePageTitle();
+    // keep window reference in sync for external integrations (pdf export, etc.)
+    window.currentCharacter = currentCharacter;
 }
 
 // Setup event listeners
@@ -71,9 +78,10 @@ function setupEventListeners() {
     });
 }
 
-// Create a new character
+ // Create a new character
 function createNewCharacter() {
     currentCharacter = new Character();
+    window.currentCharacter = currentCharacter;
     WIZARD.init(currentCharacter, onCharacterUpdate);
     UI.showToast('New character created', 'success');
 }
