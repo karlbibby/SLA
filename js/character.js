@@ -38,6 +38,7 @@ class Character {
         // Ebon Abilities
         this.ebonAbilities = [];
         this.selectedFormulae = [];
+        this.ebonRanks = {};
         
         // Equipment (selectedEquipment starts with standard SLA kit)
         this.selectedEquipment = [
@@ -179,6 +180,24 @@ class Character {
         return spent;
     }
 
+    // Calculate Ebon/Flux points spent during generation using triangular cost (same as skills)
+    calculateEbonPointsSpent() {
+        let spent = 0;
+        if (!this.ebonRanks || typeof EBON_ABILITIES === 'undefined') return 0;
+        for (const catKey in this.ebonRanks) {
+            const rank = Number(this.ebonRanks[catKey] || 0);
+            if (!rank || rank <= 0) continue;
+            const cat = EBON_ABILITIES[catKey];
+            if (!cat) continue;
+            // Players only spend points on purchasable categories
+            if (!cat.canPurchase) continue;
+            // Use triangular number: cost = 1 + 2 + ... + rank = rank*(rank+1)/2
+            const cost = (rank * (rank + 1)) / 2;
+            spent += cost;
+        }
+        return spent;
+    }
+
     // Calculate stat points spent
     calculateStatPointsSpent() {
         let spent = 0;
@@ -270,11 +289,13 @@ class Character {
         const basePoints = this.totalPoints;
         const statSpent = this.calculateStatPointsSpent();
         const skillSpent = this.calculateSkillPointsSpent();
+        const ebonSpent = this.calculateEbonPointsSpent ? this.calculateEbonPointsSpent() : 0;
         const advPoints = this.calculateAdvantagePoints();
         const disPoints = this.calculateDisadvantagePoints();
         
         // Disadvantages give you points (positive value), so ADD them
-        return basePoints + disPoints - statSpent - skillSpent - advPoints;
+        // Subtract points spent on stats, skills, advantages and Ebon abilities
+        return basePoints + disPoints - statSpent - skillSpent - advPoints - ebonSpent;
     }
 
     // Apply free skills from class
@@ -325,6 +346,38 @@ class Character {
             }
         }
         
+        // Check Ebon/Flux ranks (generation rules)
+        if (this.ebonRanks) {
+            for (const catKey in this.ebonRanks) {
+                const rank = Number(this.ebonRanks[catKey] || 0);
+                const cat = (typeof EBON_ABILITIES !== 'undefined') ? EBON_ABILITIES[catKey] : null;
+                if (!cat) continue;
+                // Ensure numeric range
+                if (!Number.isInteger(rank) || rank < 0 || rank > 20) {
+                    errors.push(`${cat.name} rank must be an integer between 0 and 20`);
+                    continue;
+                }
+                // Necanthrope-only check
+                if (cat.necanthropeOnly) {
+                    const isNec = (typeof this.isNecanthrope === 'function') ? !!this.isNecanthrope() : (this.class && String(this.class).toLowerCase().includes('necanthrope'));
+                    if (rank > 0 && !isNec) {
+                        errors.push(`${cat.name} is Necanthrope-only`);
+                    }
+                }
+                // Purchase rules: players cannot purchase categories with canPurchase:false
+                if (!cat.canPurchase && rank > (typeof cat.startingMaxRank === 'number' ? cat.startingMaxRank : 0)) {
+                    errors.push(`${cat.name} cannot be purchased or increased by players`);
+                }
+                // Starting generation cap: enforce startingMaxRank for purchasable categories
+                if (cat.canPurchase) {
+                    const startMax = (typeof cat.startingMaxRank === 'number') ? cat.startingMaxRank : 10;
+                    if (rank > startMax) {
+                        errors.push(`${cat.name} cannot exceed starting rank ${startMax} during generation`);
+                    }
+                }
+            }
+        }
+        
         return {
             valid: errors.length === 0,
             errors: errors
@@ -346,6 +399,7 @@ class Character {
             trainingPackages: this.trainingPackages,
             ebonAbilities: this.ebonAbilities,
             selectedFormulae: this.selectedFormulae,
+            ebonRanks: this.ebonRanks,
             selectedEquipment: this.selectedEquipment,
             drugInventory: this.drugInventory,
             phobias: this.phobias,
@@ -379,6 +433,7 @@ class Character {
         this.trainingPackages = data.trainingPackages || [];
         this.ebonAbilities = data.ebonAbilities || [];
         this.selectedFormulae = data.selectedFormulae || [];
+        this.ebonRanks = data.ebonRanks || this.ebonRanks || {};
         this.selectedEquipment = data.selectedEquipment || this.selectedEquipment;
         this.drugInventory = data.drugInventory || {};
         this.phobias = data.phobias || [];

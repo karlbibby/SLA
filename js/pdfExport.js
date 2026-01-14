@@ -247,12 +247,77 @@
     `;
     pages.push(p_drugs);
 
-    // Page 4: Ebon Abilities (if any)
-    const ebonAbilitiesHtml = (character.ebonAbilities || []).length ? (character.ebonAbilities || []).map(ab => `<div style="margin-bottom:6px"><strong>${escapeHtml(ab)}</strong></div>`).join('') : '<div style="color:#666">No Ebon abilities or not an Ebon/Brain Waster</div>';
+    // Page: Ebon / Flux Abilities (detailed ranks)
+    const buildEbonHtml = () => {
+      if (!EBON_ABILITIES) return '<div style="color:#666">Ebon ability data not available.</div>';
+      const ranks = character.ebonRanks || {};
+      const isNecanthrope = (typeof character.isNecanthrope === 'function') ? !!character.isNecanthrope() : (character.class && String(character.class).toLowerCase().includes('necanthrope'));
+      const rows = [];
+      for (const key of Object.keys(EBON_ABILITIES)) {
+        const cat = EBON_ABILITIES[key];
+        if (!cat) continue;
+        const selRank = Number(ranks[key] || 0);
+
+        // Only include selected categories in the PDF
+        if (!selRank || selRank <= 0) continue;
+
+        // Build details for every rank up to current rank
+        const detailsParts = [];
+        for (let i = 0; i < Math.min(selRank, (cat.ranks || []).length); i++) {
+          const rr = cat.ranks[i];
+          if (!rr) continue;
+          const pieces = [];
+          if (rr.title) pieces.push(rr.title);
+          if (typeof rr.dmg !== 'undefined') pieces.push(`DMG: ${rr.dmg}`);
+          if (typeof rr.armDmg !== 'undefined') pieces.push(`ARM DMG: ${rr.armDmg}`);
+          if (typeof rr.pen !== 'undefined') pieces.push(`PEN: ${rr.pen}`);
+          if (rr.range) pieces.push(`Range: ${rr.range}`);
+          if (rr.blastRadius) pieces.push(`Blast Radius: ${rr.blastRadius}`);
+          if (rr.notes) pieces.push(rr.notes);
+          detailsParts.push(`${i + 1}. ${pieces.join(' • ')}`);
+        }
+        const detailsHtml = detailsParts.length ? detailsParts.join('<br/>') : '—';
+
+        const fluxCost = (typeof computeCumulativeCost === 'function') ? computeCumulativeCost(key, selRank) : 0;
+        const pointCost = selRank > 0 ? (selRank * (selRank + 1)) / 2 : 0;
+        const purchaseNote = (cat.necanthropeOnly && !isNecanthrope) ? ' (Necanthrope only)' : '';
+
+        rows.push({
+          name: cat.name + purchaseNote,
+          rank: String(selRank),
+          summaryHtml: detailsHtml,
+          points: pointCost || 0,
+          flux: (fluxCost || (selRank > 0 && fluxCost === 0 ? 'See notes' : 0))
+        });
+      }
+
+      if (rows.length === 0) return '<div style="color:#666">No Ebon abilities available.</div>';
+
+      let table = `<table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Ability</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd;width:56px">Rank</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Rank Details</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd;width:80px">Points</th>
+          <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd;width:80px">FLUX</th>
+        </tr></thead><tbody>`;
+      for (const r of rows) {
+        table += `<tr>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0"><strong>${escapeHtml(r.name)}</strong></td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${escapeHtml(r.rank)}</td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${r.summaryHtml ? r.summaryHtml : escapeHtml(r.summary || '')}</td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${escapeHtml(String(r.points))}</td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${escapeHtml(String(r.flux))}</td>
+        </tr>`;
+      }
+      table += `</tbody></table>`;
+      return table;
+    };
+
     const p4 = `
       <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#111;font-family:Helvetica, Arial, sans-serif;">
         <h2 style="margin:0 0 8px 0">Ebon / Flux Abilities</h2>
-        <div style="font-size:11px">${ebonAbilitiesHtml}</div>
+        <div style="font-size:11px">${buildEbonHtml()}</div>
       </div>
     `;
     pages.push(p4);

@@ -21,65 +21,128 @@ function abilityIcon(category) {
 
 function renderEbonStep(character, container, onUpdate) {
     // Defensive: ensure helpers exist
-    if (typeof sectionHeader !== 'function' || typeof fluxDisplayHtml !== 'function' || typeof equipmentItemHtml !== 'function') {
+    if (typeof sectionHeader !== 'function' || typeof fluxDisplayHtml !== 'function') {
         container.innerHTML = '<div class="info-box">Missing utilities for Ebon step.</div>';
         return;
     }
 
-    if (!character.isFluxUser || !character.isFluxUser() ) {
+    if (!character.isFluxUser || !character.isFluxUser()) {
         container.innerHTML = sectionHeader('Step 8: Flux Abilities') +
             '<div class="info-box"><h4>Not an Ebon User</h4><p>Only Ebon and Brain Waster characters can use Flux abilities.</p></div>';
         return;
     }
 
+    // Compatibility: store ranks as an object { categoryKey: rank }
+    character.ebonRanks = character.ebonRanks || {};
+
+    const isNecanthrope = (typeof character.isNecanthrope === 'function')
+        ? !!character.isNecanthrope()
+        : (character.class && String(character.class).toLowerCase().includes('necanthrope'));
+
     let html = '';
-    html += sectionHeader('Step 8: Flux Abilities', 'Select your Ebon abilities. These require FLUX to use and have various effects.');
-    html += fluxDisplayHtml(character.derivedStats.FLUX);
+    html += sectionHeader('Step 8: Flux Abilities', 'Select your Ebon abilities. Use the rank selectors to set a rank (0 = none). Note: starting max rank is 10; Formulae and Gore Cannon have special rules.');
+    html += fluxDisplayHtml(character.derivedStats && character.derivedStats.FLUX);
 
-    html += '<div class="equipment-grid">';
+    html += '<div class="ebon-categories" style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px;background:transparent;color:#eee">';
+
     for (const catKey in EBON_ABILITIES) {
-        const category = EBON_ABILITIES[catKey];
-        if (!category || !category.abilities) continue;
-        for (const abilityName in category.abilities) {
-            const abilityData = category.abilities[abilityName] || {};
-            const isSelected = (character.ebonAbilities || []).includes(abilityName);
-            const icon = abilityIcon(abilityData.category);
-            const meta = ['Flux: ' + (abilityData.fluxCost || 0), abilityData.category || ''];
-            let desc = abilityData.description || '';
-            if (abilityData.effect) desc += (desc ? ' ' : '') + 'Effect: ' + abilityData.effect;
-            if (abilityData.damage) desc += (desc ? ' ' : '') + 'Damage: ' + abilityData.damage;
-            if (abilityData.range) desc += (desc ? ' ' : '') + 'Range: ' + abilityData.range;
-            if (abilityData.duration) desc += (desc ? ' ' : '') + 'Duration: ' + abilityData.duration;
+        const cat = EBON_ABILITIES[catKey];
+        if (!cat) continue;
+        const selectedRank = Number(character.ebonRanks[catKey] || 0);
+        const startingMax = (typeof cat.startingMaxRank === 'number') ? cat.startingMaxRank : 10;
+        const maxAllowed = 20; // overall cap
+        const maxStartAllowed = startingMax;
+        const necaOnly = !!cat.necanthropeOnly;
+        const canPurchase = !!cat.canPurchase;
 
-            html += equipmentItemHtml({
-                idAttr: 'data-ability="' + escapeHtml(abilityName) + '"',
-                icon,
-                name: abilityName,
-                metaLines: meta.filter(Boolean),
-                desc,
-                selected: isSelected
-            });
+        const disabledForCharacter = necaOnly && !isNecanthrope;
+        const inputMax = Math.min(maxAllowed, (canPurchase ? maxStartAllowed : 20));
+
+        // build a concise current-rank summary
+        let currentSummary = '—';
+        if (selectedRank > 0 && Array.isArray(cat.ranks) && cat.ranks[selectedRank - 1]) {
+            const rankData = cat.ranks[selectedRank - 1];
+            currentSummary = `${escapeHtml(rankData.title || ('Rank ' + selectedRank))}${rankData.notes ? ' — ' + escapeHtml(String(rankData.notes)) : ''}`;
         }
+
+        const fluxCost = (typeof computeCumulativeCost === 'function')
+            ? computeCumulativeCost(catKey, selectedRank)
+            : (() => {
+                let t = 0;
+                if (Array.isArray(cat.ranks)) {
+                    for (let i = 0; i < Math.min(selectedRank, cat.ranks.length); i++) {
+                        const c = cat.ranks[i].cost;
+                        if (typeof c === 'number') t += c;
+                    }
+                }
+                return t;
+            })();
+        const pointCost = selectedRank > 0 ? (selectedRank * (selectedRank + 1)) / 2 : 0;
+
+        html += `<div class="ebon-category" style="border:1px solid #333;padding:8px;border-radius:4px;background:#1e1e1e;color:#eee">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <div style="font-weight:700;color:#fff">${escapeHtml(cat.name)}</div>
+            <div style="font-size:12px;color:#bbb">${escapeHtml(cat.freeAbility || '')}</div>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px">
+            <label style="font-size:13px;color:#ddd">Rank</label>
+            <input class="ebon-rank-input" data-cat="${escapeHtml(catKey)}" type="number" min="0" max="${inputMax}" value="${selectedRank}" style="width:64px;padding:6px;border:1px solid #444;border-radius:4px;background:#333;color:#eee" ${disabledForCharacter ? 'disabled' : ''} ${canPurchase ? '' : 'readonly'}>
+            <div style="font-size:12px;color:#ddd;flex:1"><strong>Current:</strong> ${currentSummary}</div>
+            <div style="font-size:12px;color:#ddd"><strong>Points:</strong> ${pointCost || 0} • <strong>Flux:</strong> ${fluxCost || 0}</div>
+          </div>
+
+          <div style="font-size:12px;color:#444">${escapeHtml(cat.ranks && cat.ranks[0] && cat.ranks[0].notes ? cat.ranks[0].notes : '')}</div>
+        </div>`;
     }
+
     html += '</div>';
 
     container.innerHTML = html;
 
     // Replace previous handler so closure captures current character/onUpdate
     if (container._ebonHandler) {
-        container.removeEventListener('click', container._ebonHandler);
+        container.removeEventListener('input', container._ebonHandler);
+        container.removeEventListener('change', container._ebonHandler);
     }
+
     container._ebonHandler = function (e) {
-        const item = e.target.closest('.equipment-item[data-ability]');
-        if (!item || !container.contains(item)) return;
-        const abilityName = item.getAttribute('data-ability');
-        character.ebonAbilities = character.ebonAbilities || [];
-        const idx = character.ebonAbilities.indexOf(abilityName);
-        if (idx > -1) character.ebonAbilities.splice(idx, 1);
-        else character.ebonAbilities.push(abilityName);
-        // Re-render with current state
+        const input = e.target.closest('.ebon-rank-input');
+        if (!input || !container.contains(input)) return;
+        const cat = input.getAttribute('data-cat');
+        if (!cat) return;
+
+        const catDef = EBON_ABILITIES[cat];
+        const isNecOnly = catDef && !!catDef.necanthropeOnly;
+        const isNec = isNecanthrope;
+        if (isNecOnly && !isNec) {
+            // Disallow changes for Necanthrope-only categories
+            input.value = 0;
+            character.ebonRanks[cat] = 0;
+            return;
+        }
+
+        let val = Number(input.value) || 0;
+        // enforce starting max rank where applicable (generation)
+        const startMax = (catDef && typeof catDef.startingMaxRank === 'number') ? catDef.startingMaxRank : 10;
+        if (val > startMax && catDef && !!catDef.canPurchase) {
+            // cap to starting max for generation UI
+            val = startMax;
+            input.value = val;
+        }
+        if (val < 0) {
+            val = 0;
+            input.value = 0;
+        }
+
+        character.ebonRanks = character.ebonRanks || {};
+        character.ebonRanks[cat] = val;
+
+        // re-render to update summaries & costs
         renderEbonStep(character, container, onUpdate);
         if (typeof onUpdate === 'function') onUpdate();
     };
-    container.addEventListener('click', container._ebonHandler);
+
+    container.addEventListener('input', container._ebonHandler);
+    container.addEventListener('change', container._ebonHandler);
 }
