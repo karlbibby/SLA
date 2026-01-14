@@ -50,13 +50,23 @@ function fluxDisplayHtml(flux) {
  * @returns {string}
  */
 function equipmentItemHtml({ idAttr, icon, name, metaLines = [], desc = '', selected = false }) {
-    return '<div class="equipment-item ' + (selected ? 'selected' : '') + '" ' + idAttr + ' style="cursor:pointer">' +
-        '<div class="equipment-icon">' + icon + '</div>' +
-        '<div class="equipment-info">' +
+    // Show +/− controls only when idAttr contains the multi flag (data-multi="1")
+    const showControls = typeof idAttr === 'string' && idAttr.indexOf('data-multi="1"') !== -1;
+    const controlsHtml = showControls
+        ? '<div class="equipment-controls" style="display:flex;gap:4px;margin-left:8px">' +
+            '<button class="equip-qty-btn" data-action="decrease" title="Decrease quantity">−</button>' +
+            '<button class="equip-qty-btn" data-action="increase" title="Increase quantity">+</button>' +
+            '</div>'
+        : '';
+
+    return '<div class="equipment-item ' + (selected ? 'selected' : '') + '" ' + idAttr + ' style="cursor:pointer;display:flex;align-items:center">' +
+        '<div class="equipment-icon" style="flex:0 0 32px">' + icon + '</div>' +
+        '<div class="equipment-info" style="flex:1">' +
         '<div class="equipment-name">' + escapeHtml(name) + '</div>' +
         (metaLines.length ? '<div class="equipment-stats">' + metaLines.map(escapeHtml).join(' • ') + '</div>' : '') +
         (desc ? '<div class="equipment-desc">' + escapeHtml(desc) + '</div>' : '') +
         '</div>' +
-        '<div class="advantage-checkbox">' + (selected ? '✓' : '') + '</div>' +
+        controlsHtml +
+        '<div class="advantage-checkbox" style="width:24px;text-align:center">' + (selected ? '✓' : '') + '</div>' +
         '</div>';
 }

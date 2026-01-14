@@ -44,7 +44,7 @@
           <div style="width:160mm;max-width:320px">
             <h3 style="margin:0 0 6px 0">Derived & Resources</h3>
             <div style="font-size:12px">PHYS: ${character.derivedStats.PHYS} • KNOW: ${character.derivedStats.KNOW} • FLUX: ${character.derivedStats.FLUX}</div>
-            <div style="margin-top:8px;font-size:12px">Credits: ${character.totalPoints || 0} Uni • Fear: ${character.fear || 0 || 0} • Reputation: ${character.reputation || 0 || 0}</div>
+            <div style="margin-top:8px;font-size:12px">Credits: ${character.credits || 0}c • UNI: ${(character.credits || 0) * 10}n • Fear: ${character.fear || 0} • Reputation: ${character.reputation || 0}</div>
           </div>
         </section>
 
@@ -97,53 +97,73 @@
 
     // Page 3: Equipment & Advantages
     const equipmentHtml = (() => {
-      const sel = character.selectedEquipment || [];
       const eq = (typeof window !== 'undefined' && window.EQUIPMENT) ? window.EQUIPMENT : {};
-      if (!sel || !sel.length) return '<div style="color:#666">No equipment selected</div>';
-      const parts = [];
-      for (const nameRaw of sel) {
-        const name = String(nameRaw || '').trim();
-        if (!name) continue;
+      const counts = character._purchasedEquipmentCounts || {};
+      const singles = character._purchasedEquipment || {};
+      const names = new Set([...Object.keys(counts || {}), ...Object.keys(singles || {})]);
 
-        // Ammunition (by calibre)
+      if (names.size === 0) return '<div style="color:#666">No purchased equipment</div>';
+
+      function findItem(name) {
         let item = (eq.ammunitions || []).find(a => a.calibre === name);
-        if (item) {
-          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.calibre)}</div><div style="font-size:11px;color:#444">STD: ${escapeHtml(item.std || '-')} • AP: ${escapeHtml(item.ap || '-')} • HP: ${escapeHtml(item.hp || '-')} • HEAP: ${escapeHtml(item.heap || '-')} • HESH: ${escapeHtml(item.hesh || '-')}</div></div>`);
-          continue;
-        }
-
-        // Specialised ammunition
+        if (item) return { category: 'Ammunition', item };
         item = (eq.specialisedAmmunition || []).find(a => a.type === name);
-        if (item) {
-          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.type)}</div><div style="font-size:11px;color:#444">DMG: ${escapeHtml(String(item.dmg || '-'))} • PEN: ${escapeHtml(item.pen == null ? '-' : String(item.pen))} • ARM: ${escapeHtml(String(item.arm || '-'))} • COST: ${escapeHtml(item.cost || '')}</div></div>`);
-          continue;
-        }
-
-        // Grenades
+        if (item) return { category: 'Special Ammo', item };
         item = (eq.grenades || []).find(g => g.type === name);
-        if (item) {
-          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.type)}</div><div style="font-size:11px;color:#444">Blast: ${escapeHtml(item.blast == null ? '-' : String(item.blast))} • PEN: ${escapeHtml(item.pen == null ? '-' : String(item.pen))} • Weight: ${escapeHtml(item.weight || '-')}</div></div>`);
-          continue;
-        }
-
-        // Armour
+        if (item) return { category: 'Grenade', item };
         item = (eq.armour || []).find(a => a.name === name);
-        if (item) {
-          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.name)}</div><div style="font-size:11px;color:#444">PV: ${escapeHtml(String(item.pv || '-'))} • Head: ${escapeHtml(item.head == null ? '-' : String(item.head))} • Torso: ${escapeHtml(item.torso == null ? '-' : String(item.torso))} • Arms: ${escapeHtml(item.arms == null ? '-' : String(item.arms))} • Legs: ${escapeHtml(item.legs == null ? '-' : String(item.legs))} • Modifiers: ${escapeHtml(item.modifiers || '')}</div></div>`);
-          continue;
-        }
-
-        // Vehicles
+        if (item) return { category: 'Armour', item };
         item = (eq.vehicles || []).find(v => v.name === name);
-        if (item) {
-          parts.push(`<div style="margin-bottom:8px"><div style="font-weight:600">${escapeHtml(item.name)}</div><div style="font-size:11px;color:#444">${escapeHtml(item.type || '')} • Speed: ${escapeHtml(item.speed || '-') } • Skill: ${escapeHtml(item.skill || '-')} • Cost: ${escapeHtml(item.cost || '-')} • P.V./I.D.: ${escapeHtml(item.pv_id || '-')} • Crew: ${escapeHtml(item.crew || '-')}</div></div>`);
+        if (item) return { category: 'Vehicle', item };
+        if (typeof HARDWARE !== 'undefined' && HARDWARE[name]) return { category: 'Hardware', item: HARDWARE[name] };
+        return null;
+      }
+
+      const rows = [];
+      for (const name of names) {
+        const qty = counts[name] || (singles[name] ? 1 : 0);
+        const found = findItem(name);
+        if (!found) {
+          rows.push({ name, category: 'Unknown', func: '', cost: '' });
           continue;
         }
-
-        // Fallback: raw string
-        parts.push(`<div style="margin-bottom:6px"><strong>${escapeHtml(name)}</strong></div>`);
+        const { category, item } = found;
+        let func = '';
+        const unitCost = item.cost || item.price || item.blackmarket || item.std || '';
+        if (category === 'Ammunition') {
+          func = `STD: ${item.std || '-'}; AP: ${item.ap || '-'}; HP: ${item.hp || '-'}; HEAP: ${item.heap || '-'}; HESH: ${item.hesh || '-'}`;
+        } else if (category === 'Special Ammo') {
+          func = `DMG: ${item.dmg == null ? '-' : String(item.dmg)}; PEN: ${item.pen == null ? '-' : String(item.pen)}; ARM: ${item.arm == null ? '-' : String(item.arm)}; ${item.dmgNote || ''}`;
+        } else if (category === 'Grenade') {
+          func = `Blast: ${item.blast == null ? '-' : String(item.blast)}; PEN: ${item.pen == null ? '-' : String(item.pen)}; W: ${item.weight || '-'}`;
+        } else if (category === 'Armour') {
+          func = `PV: ${item.pv || '-'}; Head: ${item.head == null ? '-' : String(item.head)}; Torso: ${item.torso == null ? '-' : String(item.torso)}; Arms: ${item.arms == null ? '-' : String(item.arms)}; Legs: ${item.legs == null ? '-' : String(item.legs)}; ${item.modifiers || ''}`;
+        } else if (category === 'Vehicle') {
+          func = `${item.type || ''}; Speed: ${item.speed || '-'}; Skill: ${item.skill || '-'}; P.V./I.D.: ${item.pv_id || '-'}; Crew: ${item.crew || '-'}`;
+        } else if (category === 'Hardware') {
+          func = item.description || item.desc || '';
+        }
+        const costDisplay = unitCost ? `${unitCost}${qty > 1 ? ' ×' + qty : ''}` : (singles[name] ? 'Purchased' : '');
+        rows.push({ name, category, func, cost: costDisplay });
       }
-      return parts.join('');
+
+      let table = `<table style="width:100%;border-collapse:collapse;font-size:11px">`;
+      table += `<thead><tr>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Item</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Category</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Function / Stats</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #ddd">Cost</th>
+      </tr></thead><tbody>`;
+      for (const r of rows) {
+        table += `<tr>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0"><strong>${escapeHtml(r.name)}</strong></td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${escapeHtml(r.category)}</td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${escapeHtml(r.func)}</td>
+          <td style="padding:6px;border-bottom:1px solid #f0f0f0">${escapeHtml(r.cost)}</td>
+        </tr>`;
+      }
+      table += `</tbody></table>`;
+      return table;
     })();
     const advantagesHtml = Object.keys(character.advantages || {}).length ? Object.entries(character.advantages).map(([k,v]) => `<div><strong>${escapeHtml(k)}</strong> (Rank ${v})</div>`).join('') : '<div style="color:#666">None</div>';
     const disadvantagesHtml = Object.keys(character.disadvantages || {}).length ? Object.entries(character.disadvantages).map(([k,v]) => `<div><strong>${escapeHtml(k)}</strong> (Rank ${v})</div>`).join('') : '<div style="color:#666">None</div>';
