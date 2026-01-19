@@ -9,7 +9,6 @@ const WIZARD = {
         { name: 'Phobias', key: 'phobias' },
         { name: 'Skills', key: 'skills' },
         { name: 'Ebon Abilities', key: 'ebon' },
-        { name: 'Equipment', key: 'equipment' },
         { name: 'Drugs', key: 'drugs' },
         { name: 'Summary', key: 'summary' }
     ],
@@ -68,7 +67,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Equipment', '9. Drugs', '10. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Drugs', '9. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -126,7 +125,6 @@ const WIZARD = {
             case 'skills': renderSkillsStep(this.character, container, this.onUpdate); break;
             case 'advantages': renderAdvantagesStep(this.character, container, this.onUpdate); break;
             case 'ebon': renderEbonStep(this.character, container, this.onUpdate); break;
-            case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
             case 'drugs': renderDrugsStep(this.character, container, this.onUpdate); break;
             case 'phobias': renderPhobiasStep(this.character, container, this.onUpdate); break;
             case 'summary': renderSummaryStep(this.character, container, this.onUpdate); break;

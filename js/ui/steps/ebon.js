@@ -1,5 +1,5 @@
 /**
- * Step 8: Ebon / Flux Abilities
+ * Step 7: Ebon / Flux Abilities
  * - renderEbonStep(character, container, onUpdate)
  * - abilityIcon(category)
  *
@@ -27,7 +27,7 @@ function renderEbonStep(character, container, onUpdate) {
     }
 
     if (!character.isFluxUser || !character.isFluxUser()) {
-        container.innerHTML = sectionHeader('Step 8: Flux Abilities') +
+        container.innerHTML = sectionHeader('Step 7: Flux Abilities') +
             '<div class="info-box"><h4>Not an Ebon User</h4><p>Only Ebon and Brain Waster characters can use Flux abilities.</p></div>';
         return;
     }
@@ -40,7 +40,7 @@ function renderEbonStep(character, container, onUpdate) {
         : (character.class && String(character.class).toLowerCase().includes('necanthrope'));
 
     let html = '';
-    html += sectionHeader('Step 8: Flux Abilities', 'Select your Ebon abilities. Use the rank selectors to set a rank (0 = none). Note: starting max rank is 10; Formulae and Gore Cannon have special rules.');
+    html += sectionHeader('Step 7: Flux Abilities', 'Select your Ebon abilities. Use the rank selectors to set a rank (0 = none). Note: starting max rank is 10; Formulae and Gore Cannon have special rules.');
     html += fluxDisplayHtml(character.derivedStats && character.derivedStats.FLUX);
 
     html += '<div class="ebon-categories" style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px;background:transparent;color:#eee">';

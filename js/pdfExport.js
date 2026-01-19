@@ -28,21 +28,14 @@
 
   function renderWeaponsRows(character) {
     const rows = [];
-    const eq = character.selectedEquipment || [];
-    const weaponCandidates = eq.filter(n => /rifle|pistol|blade|gun|knife|axe|club|chainaxe|weapon|fen|f.e.n|fen/i.test(n));
-    const toShow = (weaponCandidates.length ? weaponCandidates : eq).slice(0, 8);
     for (let i = 0; i < 8; i++) {
-      const name = toShow[i] || '';
-      rows.push(`<tr><td>${escapeHtml(name)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`);
+      rows.push('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
     }
     return rows.join('');
   }
 
   function renderAmmoList(character) {
-    const eq = character.selectedEquipment || [];
-    const ammo = eq.filter(n => /ammo|clip|caliber|calibre|cal/i.test(n));
-    if (!ammo.length) return '<div style="color:#666">None</div>';
-    return `<ul style="margin:0;padding-left:16px">${ammo.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>`;
+    return '<div style="color:#666">None</div>';
   }
 
   function renderNaturalWeapons(character) {
@@ -281,17 +274,6 @@
       </div>
     `;
     pages.push(p_skills);
-
-    const p_equipment = `
-      <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Helvetica, Arial, sans-serif;">
-        <h2 style="margin:0 0 8px 0">Equipment & Advantages</h2>
-        <div style="font-size:11px">
-          ${((character.selectedEquipment || []).length) ? (character.selectedEquipment.map(e=>`<div>${escapeHtml(e)}</div>`).join('')) : '<div style="color:#666">No purchased equipment</div>'}
-        </div>
-        <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Page 4</div></footer>
-      </div>
-    `;
-    pages.push(p_equipment);
 
     const p_flux = `
       <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Helvetica, Arial, sans-serif;">

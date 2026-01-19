@@ -38,35 +38,3 @@ function fluxDisplayHtml(flux) {
         '<h3>FLUX: ' + escapeHtml(flux) + '</h3><p>Psychic energy for powering abilities</p></div></div>';
 }
 
-/**
- * Generic equipment / list item renderer used by multiple steps.
- * @param {Object} opts
- * @param {string} opts.idAttr - attribute string (e.g. 'data-equipment="Knife"')
- * @param {string} opts.icon
- * @param {string} opts.name
- * @param {string[]} [opts.metaLines]
- * @param {string} [opts.desc]
- * @param {boolean} [opts.selected]
- * @returns {string}
- */
-function equipmentItemHtml({ idAttr, icon, name, metaLines = [], desc = '', selected = false }) {
-    // Show +/− controls only when idAttr contains the multi flag (data-multi="1")
-    const showControls = typeof idAttr === 'string' && idAttr.indexOf('data-multi="1"') !== -1;
-    const controlsHtml = showControls
-        ? '<div class="equipment-controls" style="display:flex;gap:4px;margin-left:8px">' +
-            '<button class="equip-qty-btn" data-action="decrease" title="Decrease quantity">−</button>' +
-            '<button class="equip-qty-btn" data-action="increase" title="Increase quantity">+</button>' +
-            '</div>'
-        : '';
-
-    return '<div class="equipment-item ' + (selected ? 'selected' : '') + '" ' + idAttr + ' style="cursor:pointer;display:flex;align-items:center">' +
-        '<div class="equipment-icon" style="flex:0 0 32px">' + icon + '</div>' +
-        '<div class="equipment-info" style="flex:1">' +
-        '<div class="equipment-name">' + escapeHtml(name) + '</div>' +
-        (metaLines.length ? '<div class="equipment-stats">' + metaLines.map(escapeHtml).join(' • ') + '</div>' : '') +
-        (desc ? '<div class="equipment-desc">' + escapeHtml(desc) + '</div>' : '') +
-        '</div>' +
-        controlsHtml +
-        '<div class="advantage-checkbox" style="width:24px;text-align:center">' + (selected ? '✓' : '') + '</div>' +
-        '</div>';
-}

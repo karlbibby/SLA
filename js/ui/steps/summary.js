@@ -1,5 +1,5 @@
 /**
- * Step 11: Summary
+ * Step 9: Summary
  * - renderSummaryStep(character, container, onUpdate)
  *
  * Displays a concise summary of the character, points and selected phobias.
@@ -70,11 +70,36 @@ function renderSummaryStep(character, container, onUpdate) {
     const disadvantagesHtml = disEntries.length ? disEntries.map(([k,v]) => '<div><strong>' + escapeHtml(getAdvDisplayName(k)) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
 
     // Ebon abilities & formulae
-    const ebonHtml = (character.ebonAbilities && character.ebonAbilities.length) ? character.ebonAbilities.map(e => '<div>' + escapeHtml(e) + '</div>').join('') : '<div style="color:#666">None</div>';
-    const formulaeHtml = (character.selectedFormulae && character.selectedFormulae.length) ? character.selectedFormulae.map(f => '<div>' + escapeHtml(f) + '</div>').join('') : '<div style="color:#666">None</div>';
+    const ebonSelections = [];
+    if (character.ebonRanks && typeof EBON_ABILITIES !== 'undefined') {
+        for (const catKey in character.ebonRanks) {
+            const rank = Number(character.ebonRanks[catKey] || 0);
+            if (!rank || rank <= 0) continue;
+            const cat = EBON_ABILITIES[catKey];
+            if (!cat) continue;
+            if (catKey === 'formulae') continue;
+            const rankData = Array.isArray(cat.ranks) ? cat.ranks[rank - 1] : null;
+            const rankTitle = rankData && rankData.title ? rankData.title : ('Rank ' + rank);
+            ebonSelections.push(cat.name + ' ' + rankTitle);
+        }
+    }
+    if (character.ebonAbilities && character.ebonAbilities.length) {
+        character.ebonAbilities.forEach(e => ebonSelections.push(e));
+    }
+    const ebonHtml = ebonSelections.length ? ebonSelections.map(e => '<div>' + escapeHtml(e) + '</div>').join('') : '<div style="color:#666">None</div>';
 
-    // Equipment
-    const equipmentHtml = (character.selectedEquipment && character.selectedEquipment.length) ? character.selectedEquipment.map(e => '<div>' + escapeHtml(e) + '</div>').join('') : '<div style="color:#666">No equipment selected</div>';
+    const formulaeSelections = [];
+    if (character.selectedFormulae && character.selectedFormulae.length) {
+        character.selectedFormulae.forEach(f => formulaeSelections.push(f));
+    } else if (character.ebonRanks && typeof EBON_ABILITIES !== 'undefined') {
+        const fRank = Number(character.ebonRanks.formulae || 0);
+        if (fRank > 0 && EBON_ABILITIES.formulae && Array.isArray(EBON_ABILITIES.formulae.ranks)) {
+            const rankData = EBON_ABILITIES.formulae.ranks[fRank - 1];
+            const rankTitle = rankData && rankData.title ? rankData.title : ('Rank ' + fRank);
+            formulaeSelections.push(rankTitle);
+        }
+    }
+    const formulaeHtml = formulaeSelections.length ? formulaeSelections.map(f => '<div>' + escapeHtml(f) + '</div>').join('') : '<div style="color:#666">None</div>';
 
     // Drugs
     const drugEntries = Object.entries(character.drugInventory || {}).filter(([,q]) => q > 0);
@@ -109,7 +134,7 @@ function renderSummaryStep(character, container, onUpdate) {
     const housing = character.housing || {};
     const housingDisplay = housing.type || 'None';
 
-    container.innerHTML = sectionHeader('Step 11: Character Summary') +
+    container.innerHTML = sectionHeader('Step 9: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
         '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div>' +
@@ -127,10 +152,7 @@ function renderSummaryStep(character, container, onUpdate) {
                 '<h4 style="margin-top:12px">Disadvantages</h4>' + disadvantagesHtml +
             '</div>' +
         '</div>' +
-        '<div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
-            '<div><h4>Equipment</h4>' + equipmentHtml + '</div>' +
-            '<div><h4>Drugs</h4>' + drugsHtml + '</div>' +
-        '</div>' +
+        '<div style="margin-top:18px"><h4>Drugs</h4>' + drugsHtml + '</div>' +
         '<div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div><h4>Ebon Abilities</h4>' + ebonHtml + '<h5 style="margin-top:8px">Formulae</h5>' + formulaeHtml + '</div>' +
             '<div><h4>Phobias</h4>' + phobiasList + '</div>' +

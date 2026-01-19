@@ -1,5 +1,5 @@
 /**
- * Step 10: Drugs
+ * Step 8: Drugs
  * - renderDrugsStep(character, container, onUpdate)
  *
  * Delegated click handler is replaced on each render to avoid duplicated listeners.
@@ -61,7 +61,7 @@ function renderDrugsStep(character, container, onUpdate) {
 
     character.drugInventory = character.drugInventory || {};
 
-    let html = sectionHeader('Step 10: SLA Drugs', "Select drugs for your character's inventory. Each entry shows effects, side-effects and addiction risks.");
+    let html = sectionHeader('Step 8: SLA Drugs', "Select drugs for your character's inventory. Each entry shows effects, side-effects and addiction risks.");
     html += '<div class="drugs-container">';
     for (const catKey in DRUGS) {
         const category = DRUGS[catKey];

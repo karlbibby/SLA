@@ -187,56 +187,6 @@ const UI = {
         return card;
     },
 
-    // Create an equipment item element
-    createEquipmentItem(equipment, isSelected, onToggle) {
-        const item = document.createElement('div');
-        item.className = `equipment-item ${isSelected ? 'selected' : ''}`;
-        item.dataset.equipment = equipment;
-
-        // Get equipment icon based on type
-        let icon = '🔧';
-        if (equipment.includes('Pistol') || equipment.includes('Rifle') || equipment.includes('Shotgun')) {
-            icon = '🔫';
-        } else if (equipment.includes('Armor') || equipment.includes('Suit')) {
-            icon = '🛡️';
-        } else if (equipment.includes('Knife') || equipment.includes('Sword')) {
-            icon = '⚔️';
-        } else if (equipment.includes('Grenade') || equipment.includes('Explosive')) {
-            icon = '💣';
-        }
-
-        item.innerHTML = `
-            <div class="equipment-icon">${icon}</div>
-            <div class="equipment-info">
-                <div class="equipment-name">${equipment}</div>
-            </div>
-            <div class="advantage-checkbox" style="width: 24px; height: 24px;">${isSelected ? '✓' : ''}</div>
-        `;
-
-        item.addEventListener('click', () => onToggle(equipment));
-        return item;
-    },
-
-    // Create an Ebon ability item
-    createEbonAbilityItem(abilityName, abilityData, isSelected, onToggle) {
-        const item = document.createElement('div');
-        item.className = `equipment-item ${isSelected ? 'selected' : ''}`;
-        item.dataset.ability = abilityName;
-
-        item.innerHTML = `
-            <div class="equipment-icon">✨</div>
-            <div class="equipment-info">
-                <div class="equipment-name">${abilityName}</div>
-                <div class="equipment-stats">Flux Cost: ${abilityData.fluxCost} • ${abilityData.category}</div>
-                <div class="equipment-stats">${abilityData.description}</div>
-            </div>
-            <div class="advantage-checkbox" style="width: 24px; height: 24px;">${isSelected ? '✓' : ''}</div>
-        `;
-
-        item.addEventListener('click', () => onToggle(abilityName));
-        return item;
-    },
-
     // Create step indicator
     createStepIndicator(stepIndex, stepName, isActive, isCompleted, onClick) {
         const indicator = document.createElement('div');

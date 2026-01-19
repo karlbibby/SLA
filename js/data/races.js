@@ -161,6 +161,29 @@ const RACES = {
             Streetwise: 1,
             "Evaluate Opponent": 1
         }
+    },
+    vevaphon: {
+        id: 'vevaphon',
+        name: 'Vevaphon',
+        description: "The Vevaphon, or 'Vev' for short, is the first creation to step forward from the Doppleganger Institute. A biogenetic polymorph, able to take on different shapes and forms through the manipulation of individual cells in their body by the million.",
+        statMaximums: {
+            STR: { min: 5, max: 10 },
+            DEX: { min: 5, max: 10 },
+            DIA: { min: 5, max: 10 },
+            CONC: { min: 5, max: 10 },
+            CHA: { min: 5, max: 10 },
+            COOL: { min: 5, max: 10 }
+        },
+        special: 'Biogenetic polymorphs with adaptable cell structure.',
+        fluxUser: false,
+        freeSkills: {
+            Detect: 1,
+            "SLA Info": 1,
+            "Unarmed Combat": 1,
+            "Blade, 1-H": 1,
+            Sneaking: 2,
+            Sleight: 2
+        }
     }
 };
 

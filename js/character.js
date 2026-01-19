@@ -36,27 +36,6 @@ class Character {
         this.selectedFormulae = [];
         this.ebonRanks = {};
         
-        // Equipment (selectedEquipment starts with standard SLA kit)
-        this.selectedEquipment = [
-            'Headset Communicator',
-            'Klippo Lighter',
-            'Pen',
-            'FEN 603',
-            'FEN Ammo Clip',
-            'Blueprint News File Case',
-            'S.C.L. Card',
-            'Finance Card',
-            'Package Card',
-            'Departmental Authorization Card',
-            'Clothes (2 sets)',
-            'Footwear (1 set)',
-            'Operative Organizer',
-            'SLA Badge',
-            'Weapons Maintenance Kit',
-            'Personal Effects',
-            'Contraceptives Pack'
-        ];
-        
         // Drug Inventory
         this.drugInventory = {};  // { "Redline-9": 2, "Numbra-k": 3 }
         
@@ -67,7 +46,7 @@ class Character {
         this.scl = '9A';
         
         // Financials
-        // Credits are stored in Credits (c). Starting operative receives 1500c to spend on hardware.
+        // Credits are stored in Credits (c). Starting operative receives 1500c for purchases.
         this.credits = 1500;
         // Induction bonus (credited to account but locked until game start)
         this.inductionBonus = 100;
@@ -379,7 +358,6 @@ class Character {
             ebonAbilities: this.ebonAbilities,
             selectedFormulae: this.selectedFormulae,
             ebonRanks: this.ebonRanks,
-            selectedEquipment: this.selectedEquipment,
             drugInventory: this.drugInventory,
             phobias: this.phobias,
             scl: this.scl,
@@ -411,7 +389,6 @@ class Character {
         this.ebonAbilities = data.ebonAbilities || [];
         this.selectedFormulae = data.selectedFormulae || [];
         this.ebonRanks = data.ebonRanks || this.ebonRanks || {};
-        this.selectedEquipment = data.selectedEquipment || this.selectedEquipment;
         this.drugInventory = data.drugInventory || {};
         this.phobias = data.phobias || [];
         this.scl = data.scl || '9A';
