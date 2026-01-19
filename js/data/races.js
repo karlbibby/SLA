@@ -141,7 +141,7 @@ const RACES = {
     },
     stormer: {
         id: 'stormer',
-        name: 'Stormer',
+        name: 'Stormer 313',
         description: 'Biogenetic super-soldiers created for warfare. Stormers are living weapons with enhanced physiology.',
         statMaximums: {
             STR: { min: 5, max: 15 },
@@ -183,6 +183,48 @@ const RACES = {
             "Blade, 1-H": 1,
             Sneaking: 2,
             Sleight: 2
+        }
+    },
+    chagrin: {
+        id: 'chagrin',
+        name: 'Stormer 714 - Chargrin',
+        description: 'The Chagrin is designed to be the optimum combat efficient, self supporting, SLA soldier. This is a role that they fulfil perfectly. These unquestionably loyal killing machines are the perfect breed.',
+        statMaximums: {
+            STR: { min: 5, max: 20 },
+            DEX: { min: 5, max: 12 },
+            DIA: { min: 1, max: 5 },
+            CONC: { min: 2, max: 7 },
+            CHA: { min: 1, max: 3 },
+            COOL: { min: 5, max: 15 }
+        },
+        special: 'Lower minimum stats for this race only. Genetically engineered combat soldiers optimized for efficiency and loyalty.',
+        fluxUser: false,
+        freeSkills: {
+            "Unarmed Combat": 3,
+            Intimidate: 2,
+            "Evaluate Opponent": 1
+        }
+    },
+    xeno: {
+        id: 'xeno',
+        name: 'Stormer 711 - Xeno',
+        description: 'The Stormers 313 and 714 are the muscle, the strong arm of SLA Industries, but Karma wanted more from their designers. The Xeno (Ze-no) is the first successful attempt at such diversification.',
+        statMaximums: {
+            STR: { min: 5, max: 13 },
+            DEX: { min: 5, max: 15 },
+            DIA: { min: 5, max: 10 },
+            CONC: { min: 5, max: 9 },
+            CHA: { min: 5, max: 7 },
+            COOL: { min: 5, max: 12 }
+        },
+        special: 'Biogenetic diversification beyond Stormer templates.',
+        fluxUser: false,
+        freeSkills: {
+            "Unarmed Combat": 2,
+            "SLA Info": 1,
+            Sneaking: 1,
+            Hide: 2,
+            Climb: 1
         }
     }
 };

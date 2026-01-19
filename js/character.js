@@ -161,13 +161,14 @@ class Character {
     // Calculate stat points spent
     calculateStatPointsSpent() {
         let spent = 0;
-        const baseValue = 5;
+        const maximums = this.getStatMaximums();
         
         for (const stat in this.stats) {
+            const baseValue = maximums?.[stat]?.min ?? 5;
             if (this.stats[stat] > baseValue) {
                 spent += (this.stats[stat] - baseValue) * 5;
             } else if (this.stats[stat] < baseValue) {
-                // Points gained from reducing stats
+                // Points gained from reducing stats (below racial minimums, if ever allowed)
                 spent -= (baseValue - this.stats[stat]) * 5;
             }
         }

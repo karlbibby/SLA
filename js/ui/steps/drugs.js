@@ -32,6 +32,9 @@ function formatDetoxSummary(detox) {
 function drugEffectsHtml(drug) {
     let effects = '';
     const e = drug.effects || {};
+    if (e.game) {
+        effects += '<div class="drug-effect-note"><strong>Game Effects:</strong> ' + escapeHtml(e.game) + '</div>';
+    }
     if (e.stat_modifiers) {
         e.stat_modifiers.forEach(m => {
             const dur = m.duration_minutes ? ' (' + m.duration_minutes + 'm)' : (m.duration_hours ? ' (' + m.duration_hours + 'h)' : '');

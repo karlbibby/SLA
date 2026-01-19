@@ -18,7 +18,20 @@ function renderRaceStep(character, container, onUpdate) {
     racesHtml += '</div>';
     container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 2: Select Race</h2><p class="section-description">Choose your character\'s species. Each race has different stat maximums and abilities.</p></div>' + racesHtml;
     container.querySelectorAll('[data-race]').forEach(card => card.addEventListener('click', () => { 
-        character.race = card.dataset.race; 
+        const raceId = card.dataset.race;
+        const isNewRace = character.race !== raceId;
+        character.race = raceId;
+        if (isNewRace) {
+            const maximums = RACES[raceId]?.statMaximums || {};
+            for (const stat in character.stats) {
+                const min = maximums[stat]?.min ?? 5;
+                character.stats[stat] = min;
+            }
+            character.skills = {};
+            if (character.isFluxUser()) {
+                character.derivedStats.FLUX = 10;
+            }
+        }
         character.calculateDerivedStats(); 
         character.applyRaceSkills();
         renderRaceStep(character, container, onUpdate); 

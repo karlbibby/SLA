@@ -80,6 +80,42 @@ const DRUGS = {
                     effects: 'Unknown — often results in permanent mutation or death'
                 },
                 notes: 'Possession by operatives is capital offence. Produced and distributed by DarkNight in limited, forced quantities.'
+            },
+            {
+                name: 'Balze UV',
+                category: 'combat_stimulant',
+                cost: 10,
+                availability: 'restricted',
+                description: 'High-intensity combat drug delivering extreme combat acceleration and pain suppression.',
+                effects: {
+                    game: '2 free phases per round; no PHYS or COOL rolls; damage taken reduced by 50%; duration 10 minutes'
+                },
+                addiction: {
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 20 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-2 STR (instant on comedown), lasts 3 hours'
+                }
+            },
+            {
+                name: 'Bass',
+                category: 'combat_stimulant',
+                cost: 5,
+                availability: 'restricted',
+                description: 'Short-duration strength booster with mild combat emphasis.',
+                effects: {
+                    game: '+2 STR for 1 hour (not cumulative)'
+                },
+                addiction: {
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 17 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-1 STR and -1 DEX (permanent)'
+                }
             }
         ]
     },
@@ -124,6 +160,99 @@ const DRUGS = {
                     effects: '-1 COOL, -1 CONC (permanent)'
                 },
                 notes: 'Strong sensory bombardment leads to concentration and composure deficits after use.'
+            },
+            {
+                name: 'Lumo',
+                category: 'recreational_cosmetic',
+                cost: 4,
+                availability: 'common',
+                description: 'Alters skin pigmentation through a wide palette of shades and tones.',
+                effects: {
+                    game: 'Changes skin colour for 12 hours (1774 colours including shades/tones)'
+                },
+                addiction: {
+                    rate: '1 per day',
+                    effects: '-1 PHYS per 30 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: 'Skin stays a certain colour'
+                },
+                notes: 'Detox side effect can result in a permanent colour shift.'
+            },
+            {
+                name: 'Slosh',
+                category: 'recreational_alcohol_like',
+                cost: 2,
+                availability: 'common',
+                description: 'Extremely potent inebriant; causes severe drunkenness.',
+                effects: {
+                    game: 'Extreme inebriation'
+                },
+                addiction: {
+                    rate: '2 cans per day',
+                    effects: '-1 PHYS per 20 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-1 DEX'
+                },
+                notes: 'Cost is per can.'
+            },
+            {
+                name: 'Alice',
+                category: 'recreational_hallucinogen',
+                cost: 10,
+                availability: 'common',
+                description: 'Induces vivid dream states. Psychosis/phobia sufferers experience intense nightmares; others experience fantasy trips.',
+                effects: {
+                    game: 'Nightmares for psychosis/phobia sufferers; fantasy trip for others'
+                },
+                addiction: {
+                    rate: '1 dose per day',
+                    effects: '-1 PHYS per dose (or no addiction for psychosis/phobia sufferers)',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-1 CONC, -1 COOL'
+                },
+                notes: 'Psychosis/phobia sufferers do not become addicted unless they crave the horrors.'
+            },
+            {
+                name: 'Flip',
+                category: 'recreational_uplift',
+                cost: 4,
+                availability: 'common',
+                description: 'Mood enhancer that boosts composure for a short period.',
+                effects: {
+                    game: '+3 COOL for 3 hours'
+                },
+                addiction: {
+                    rate: '1 dose per day',
+                    effects: '-1 PHYS per 20 doses',
+                    type: 'daily'
+                },
+                detox: {
+                    effects: '-2 COOL'
+                }
+            },
+            {
+                name: 'Drum',
+                category: 'recreational_uplift',
+                cost: 3,
+                availability: 'common',
+                description: 'Variant formulation; effects differ for Ebon and non-Ebon users.',
+                effects: {
+                    game: '(Ebon) Regain full FLUX in 3 hours instead of 5–6; (Other) +1 COOL for 2 hours after waking'
+                },
+                addiction: {
+                    rate: 'per 15 doses',
+                    effects: '-1 PHYS per 15 doses',
+                    type: 'habit'
+                },
+                detox: {
+                    effects: '-1 CONC'
+                }
             }
         ]
     },
@@ -149,6 +278,82 @@ const DRUGS = {
                     effects: '-1 PHYS, -2 HITS (permanent)'
                 },
                 notes: 'Occasional addiction in combat operatives; long-term use causes wasting and loss of physique.'
+            },
+            {
+                name: 'Kick Start +',
+                category: 'healing_stimulant',
+                cost: 7,
+                availability: 'medical',
+                description: 'Enhanced Kick Start formula focused on rapid recovery and wound closure.',
+                effects: {
+                    game: 'Recovers 4 HITS and stops 2 Wounds 3 phases after injection'
+                },
+                addiction: {
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 25 doses',
+                    type: 'rare'
+                },
+                detox: {
+                    effects: '-1 PHYS, -3 HITS (permanent)'
+                },
+                notes: 'Cost is per dose.'
+            },
+            {
+                name: "Kick Start 'Solo'",
+                category: 'healing_stimulant',
+                cost: 10,
+                availability: 'medical',
+                description: 'Solo-grade Kick Start with temporary composure boost and pain suppression.',
+                effects: {
+                    game: 'Recovers 4 HITS, stops 2 Wounds, +1 COOL for 2 hours (not cumulative), no PHYS rolls for 30 minutes (not cumulative) 2 phases after injection'
+                },
+                addiction: {
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 15 doses',
+                    type: 'rare'
+                },
+                detox: {
+                    effects: '-1 PHYS, -3 HITS, -1 STR, -1 COOL (permanent)'
+                },
+                notes: 'Cost is per dose.'
+            },
+            {
+                name: 'Karma KS',
+                category: 'healing_stimulant',
+                cost: 8,
+                availability: 'medical',
+                description: 'Specialized Kick Start variant; interacts with certain implants.',
+                effects: {
+                    game: 'Recovers 2 HITS (3 if Nuke Tendon implants are present) and stops 2 Wounds 3 phases after injection'
+                },
+                addiction: {
+                    rate: '2 per day',
+                    effects: '-1 PHYS per 25 doses',
+                    type: 'rare'
+                },
+                detox: {
+                    effects: '-1 PHYS, -2 HITS (permanent)'
+                },
+                notes: 'Cost is per dose.'
+            },
+            {
+                name: 'Chain',
+                category: 'stabilizer',
+                cost: 4,
+                availability: 'restricted_medical',
+                description: 'Controls mental state and prevents tissue rejection; LAD-specific use also noted.',
+                effects: {
+                    game: '(LAD) Stops tissue rejection and controls mental state. (Other) +3 COOL for 10 hours'
+                },
+                addiction: {
+                    rate: '1 dose per day',
+                    effects: 'Automatic',
+                    type: 'automatic'
+                },
+                detox: {
+                    effects: '(LAD) -2 STR, -2 DEX, -2 DIA, -2 CONC; (Other) -1 DIA, -1 CONC'
+                },
+                notes: 'Cost is per dose.'
             },
             {
                 name: 'Pain Away',

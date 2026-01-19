@@ -117,6 +117,19 @@ const WIZARD = {
                 }
             }
         }
+
+        // Skip Ebon/Flux step for non-flux races
+        if (stepKey === 'ebon') {
+            const isFlux = this.character && typeof this.character.isFluxUser === 'function' && this.character.isFluxUser();
+            if (!isFlux) {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.currentStep++;
+                    this.renderStepIndicators();
+                    this.updateNavigation();
+                    return this.renderCurrentStep();
+                }
+            }
+        }
         
         switch (stepKey) {
             case 'basicInfo': renderBasicInfoStep(this.character, container, this.onUpdate); break;
