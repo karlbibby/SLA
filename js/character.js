@@ -6,7 +6,6 @@ class Character {
         this.name = '';
         this.playerName = '';
         this.race = null;
-        this.class = null;
         
         // Primary Statistics (base values start at 5)
         this.stats = {
@@ -32,9 +31,6 @@ class Character {
         this.advantages = {};  // { name: rank }
         this.disadvantages = {};  // { name: rank }
         
-        // Training Packages
-        this.trainingPackages = [];
-        
         // Ebon Abilities
         this.ebonAbilities = [];
         this.selectedFormulae = [];
@@ -46,7 +42,6 @@ class Character {
             'Klippo Lighter',
             'Pen',
             'FEN 603',
-            'FEN Ammo Clip',
             'FEN Ammo Clip',
             'Blueprint News File Case',
             'S.C.L. Card',
@@ -90,21 +85,11 @@ class Character {
         this.totalPoints = 300;
         this.spentPoints = 0;
         
-        // Ensure starting kit exists (avoid duplicate entries)
-        this.selectedEquipment = this.selectedEquipment || [];
-        const defaultKit = ['Headset Communicator', 'Klippo Lighter', 'Pen', 'FEN 603', 'Blueprint News File case', 'S.C.L. card', 'Finance card', 'Package card and badge', 'Departmental Authorization Card', 'Two sets of clothes', 'One set of footwear', 'Operative organizer', 'SLA badge', 'Weapons Maintenance Kit', 'Minor personal effects', 'Pack of contraceptives'];
-        defaultKit.forEach(item => { if (!this.selectedEquipment.includes(item)) this.selectedEquipment.push(item); });
-        
         // Creation metadata
         this.created = new Date().toISOString();
         this.version = '1.0';
     }
     
-    // helper for finance display conversions
-    getCredits() {
-        return typeof this.credits !== 'undefined' ? this.credits : 1500;
-    }
-
     // Calculate derived stats based on primary stats
     calculateDerivedStats() {
         this.derivedStats.PHYS = Math.ceil((this.stats.STR + this.stats.DEX) / 2);
@@ -159,23 +144,19 @@ class Character {
         return Math.min(10, this.getGoverningStatValue(skillName));
     }
 
-    // Calculate skill points spent (excludes free skills from class)
+    // Calculate skill points spent (excludes free skills from race)
     calculateSkillPointsSpent() {
         let spent = 0;
-        const classData = this.class ? CLASSES[this.class] : null;
-        const freeSkills = classData ? classData.freeSkills : {};
+        const raceData = RACES[this.race];
+        const freeSkills = raceData ? raceData.freeSkills || {} : {};
         
         for (const skillName in this.skills) {
             const rank = this.skills[skillName];
             const freeRank = freeSkills[skillName] || 0;
+            const effectiveRank = Math.max(0, rank - freeRank);
             
-            if (rank > freeRank) {
-                // Calculate cost for ranks above free rank
-                // Progressive cost: rank 1 = 1pt, rank 2 = 2pts, etc.
-                // But we only charge for ranks ABOVE free rank
-                const billableRanks = rank - freeRank;
-                spent += (billableRanks * (billableRanks + 1)) / 2;
-            }
+            // Progressive cost: rank 1 = 1pt, rank 2 = 2pts, etc.
+            spent += (effectiveRank * (effectiveRank + 1)) / 2;
         }
         return spent;
     }
@@ -298,20 +279,21 @@ class Character {
         return basePoints + disPoints - statSpent - skillSpent - advPoints - ebonSpent;
     }
 
-    // Apply free skills from class
-    applyClassSkills() {
-        if (!this.class) return;
-        
-        const classData = CLASSES[this.class];
-        for (const skillName in classData.freeSkills) {
-            this.skills[skillName] = classData.freeSkills[skillName];
-        }
-    }
-
     // Check if race is a flux user
     isFluxUser() {
         if (!this.race) return false;
         return RACES[this.race].fluxUser;
+    }
+
+    // Apply free skills from race
+    applyRaceSkills() {
+        if (!this.race) return;
+        const raceData = RACES[this.race];
+        if (raceData.freeSkills) {
+            for (const [skillName, rank] of Object.entries(raceData.freeSkills)) {
+                this.skills[skillName] = rank;
+            }
+        }
     }
 
     // Validate character for completion
@@ -320,7 +302,6 @@ class Character {
         
         if (!this.name) errors.push('Character name is required');
         if (!this.race) errors.push('Race must be selected');
-        if (!this.class) errors.push('Class must be selected');
         
         // Check stat limits
         const maximums = this.getStatMaximums();
@@ -390,13 +371,11 @@ class Character {
             name: this.name,
             playerName: this.playerName,
             race: this.race,
-            class: this.class,
             stats: this.stats,
             derivedStats: this.derivedStats,
             skills: this.skills,
             advantages: this.advantages,
             disadvantages: this.disadvantages,
-            trainingPackages: this.trainingPackages,
             ebonAbilities: this.ebonAbilities,
             selectedFormulae: this.selectedFormulae,
             ebonRanks: this.ebonRanks,
@@ -424,13 +403,11 @@ class Character {
         this.name = data.name || '';
         this.playerName = data.playerName || '';
         this.race = data.race || null;
-        this.class = data.class || null;
         this.stats = data.stats || { STR: 5, DEX: 5, DIA: 5, CONC: 5, CHA: 5, COOL: 5 };
         this.derivedStats = data.derivedStats || { PHYS: 5, KNOW: 5, FLUX: 10 };
         this.skills = data.skills || {};
         this.advantages = data.advantages || {};
         this.disadvantages = data.disadvantages || {};
-        this.trainingPackages = data.trainingPackages || [];
         this.ebonAbilities = data.ebonAbilities || [];
         this.selectedFormulae = data.selectedFormulae || [];
         this.ebonRanks = data.ebonRanks || this.ebonRanks || {};

@@ -3,7 +3,7 @@
  * - renderEquipmentStep(character, container, onUpdate)
  * - detectEquipmentIcon(name)
  *
- * Uses CLASSES[...] to determine startingEquipment for the selected class.
+ * Provides default SLA starting equipment.
  * Attaches a single click handler replaced on each render to avoid duplicated listeners.
  */
 
@@ -32,13 +32,11 @@ function renderEquipmentStep(character, container, onUpdate) {
     character.credits = (typeof character.credits !== 'undefined') ? character.credits : 0;
     character.selectedEquipment = character.selectedEquipment || [];
 
-    const classData = (typeof CLASSES !== 'undefined' && CLASSES[character.class]) ? CLASSES[character.class] : { startingEquipment: [] };
-
-    // Auto-add class starting equipment (mark as selected but do not charge)
-    for (const se of (classData.startingEquipment || [])) {
-        const seName = typeof se === 'string' ? se : (se.name || se.label || '');
-        if (seName && !character.selectedEquipment.includes(seName)) {
-            character.selectedEquipment.push(seName);
+    // Auto-add standard SLA starting equipment (mark as selected but do not charge)
+    const defaultEquipment = ['Headset Communicator', 'Klippo Lighter', 'Pen', 'FEN 603', 'FEN Ammo Clip', 'Blueprint News File Case', 'S.C.L. Card', 'Finance Card', 'Package Card', 'Departmental Authorization Card', 'Clothes (2 sets)', 'Footwear (1 set)', 'Operative Organizer', 'SLA Badge', 'Weapons Maintenance Kit', 'Personal Effects', 'Contraceptives Pack'];
+    for (const se of defaultEquipment) {
+        if (!character.selectedEquipment.includes(se)) {
+            character.selectedEquipment.push(se);
         }
     }
 

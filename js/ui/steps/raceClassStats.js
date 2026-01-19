@@ -20,6 +20,7 @@ function renderRaceStep(character, container, onUpdate) {
     container.querySelectorAll('[data-race]').forEach(card => card.addEventListener('click', () => { 
         character.race = card.dataset.race; 
         character.calculateDerivedStats(); 
+        character.applyRaceSkills();
         renderRaceStep(character, container, onUpdate); 
         onUpdate(); 
     }));
@@ -27,37 +28,7 @@ function renderRaceStep(character, container, onUpdate) {
 
 // Step 3: Class Selection
 function renderClassStep(character, container, onUpdate) {
-    if (!character.race) {
-        container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 3: Select Class</h2></div><div class="warning-box info-box"><h4>Race Required</h4><p>Please select a race before choosing a class.</p></div>';
-        return;
-    }
-    let classesHtml = '<div class="grid-2">';
-    for (const classId in CLASSES) {
-        const classData = CLASSES[classId];
-        const isSelected = character.class === classId;
-        let freeSkillsHtml = '';
-        for (const skill in classData.freeSkills) {
-            freeSkillsHtml += '<span class="skill-tag">' + skill + ' (' + classData.freeSkills[skill] + ')</span>';
-        }
-        classesHtml += '<div class="card ' + (isSelected ? 'selected' : '') + '" data-class="' + classId + '" style="cursor:pointer">' +
-            '<div class="card-header"><div class="card-title">' + classData.name + '</div>' +
-            '<div class="card-subtitle">SCL ' + classData.scl + ' • ' + classData.skillPoints + ' skill points</div></div>' +
-            '<div class="card-description">' + classData.description + '</div>' +
-            '<div style="margin-top:10px"><strong>Free Skills:</strong><br>' + freeSkillsHtml + '</div>' +
-            '<div class="form-hint" style="margin-top:10px">' + classData.special + '</div></div>';
-    }
-    classesHtml += '</div>';
-    container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 3: Select Class</h2><p class="section-description">Choose your character\'s profession. Each class provides free skills and starting equipment.</p></div>' + classesHtml;
-    container.querySelectorAll('[data-class]').forEach(card => card.addEventListener('click', () => { 
-        const classId = card.dataset.class;
-        if (character.class !== classId) {
-            character.class = classId;
-            character.skills = {};
-            character.applyClassSkills();
-        }
-        renderClassStep(character, container, onUpdate); 
-        onUpdate(); 
-    }));
+    // Class selection removed
 }
 
 // Step 4: Statistics

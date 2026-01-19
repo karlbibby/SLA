@@ -24,7 +24,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Improves appearance; costs 1 point per Rank (Rank 1 = slightly better, Rank 10 = stunning).',
-        effects: {}
+
       },
       ugly: {
         id: 'ugly',
@@ -32,9 +32,7 @@ const ADVANTAGES = {
         type: 'disadvantage',
         maxRank: 10,
         costPerRank: 1,
-        description: 'Worse appearance; grants 1 point per Rank (Rank 1 = slightly unattractive, Rank 10 = grotesque).',
-        effects: {},
-        exclusiveWith: ['handsome']
+        description: 'Worse appearance; grants 1 point per Rank (Rank 1 = slightly unattractive, Rank 10 = grotesque).'
       },
       ambidextrous: {
         id: 'ambidextrous',
@@ -43,7 +41,7 @@ const ADVANTAGES = {
         maxRank: 1,
         oneOffCost: 10,
         description: 'Use either hand without off-hand penalties. One-off cost: 10 points.',
-        effects: {}
+
       },
       good_vision: {
         id: 'good_vision',
@@ -52,7 +50,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'See farther/clearer. Costs 2 points per Rank. Rank 7+: effectively blind in one eye if negative event; Rank 10: both eyes exceptional (per GM).',
-        effects: {}
+
       },
       bad_vision: {
         id: 'bad_vision',
@@ -60,9 +58,7 @@ const ADVANTAGES = {
         type: 'disadvantage',
         maxRank: 10,
         costPerRank: 2,
-        description: 'Reduced vision; grants 2 points per Rank. At low Ranks affects reading/VDU; Rank 7+: blind in one eye; Rank 10: blind in both eyes.',
-        effects: {},
-        exclusiveWith: ['good_vision']
+        description: 'Reduced vision; grants 2 points per Rank. At low Ranks affects reading/VDU; Rank 7+: blind in one eye; Rank 10: blind in both eyes.'
       },
       good_hearing: {
         id: 'good_hearing',
@@ -71,7 +67,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Hear fainter sounds. Costs 1 point per Rank. Rank 7+: deaf in one ear if negative event; Rank 10: excellent acute hearing (GM discretion).',
-        effects: {}
+
       },
       bad_hearing: {
         id: 'bad_hearing',
@@ -80,8 +76,8 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Reduced hearing; grants 1 point per Rank. Rank 7+: deaf in one ear; Rank 10: deaf in both ears.',
-        effects: {},
-        exclusiveWith: ['good_hearing']
+
+
       },
       figure_good: {
         id: 'figure_good',
@@ -90,7 +86,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Athletic/attractive body; costs 1 point per Rank.',
-        effects: {}
+
       },
       figure_bad: {
         id: 'figure_bad',
@@ -99,8 +95,8 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Dumpier or overweight body; grants 1 point per Rank.',
-        effects: {},
-        exclusiveWith: ['figure_good']
+
+
       },
       speech_good: {
         id: 'speech_good',
@@ -119,7 +115,7 @@ const ADVANTAGES = {
         costPerRank: 2,
         description: 'One Rank only. -1 to CHA-governed skill rolls.',
         effects: { chaSpeechPenalty: -1 },
-        exclusiveWith: ['speech_good']
+
       },
       timekeeper_good: {
         id: 'timekeeper_good',
@@ -128,7 +124,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Always on time; costs 1 point per Rank.',
-        effects: {}
+
       },
       timekeeper_bad: {
         id: 'timekeeper_bad',
@@ -137,8 +133,8 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Always late; grants 1 point per Rank.',
-        effects: {},
-        exclusiveWith: ['timekeeper_good']
+
+
       },
       sleeper_good: {
         id: 'sleeper_good',
@@ -147,7 +143,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Sleeps well and knows how much rest is needed; costs 1 point per Rank.',
-        effects: {}
+
       },
       sleeper_bad: {
         id: 'sleeper_bad',
@@ -156,8 +152,8 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Insomnia/tiredness; grants 1 point per Rank.',
-        effects: {},
-        exclusiveWith: ['sleeper_good']
+
+
       },
       sterile: {
         id: 'sterile',
@@ -166,7 +162,7 @@ const ADVANTAGES = {
         maxRank: 1,
         oneOffCost: 10,
         description: 'Unable to have children. One-off disadvantage that grants 10 points.',
-        effects: {}
+
       },
       allergy: {
         id: 'allergy',
@@ -175,7 +171,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Any allergy chosen with GM approval. Grants 2 points per Rank (severity increases with Rank).',
-        effects: {}
+
       },
       physical_general: {
         id: 'physical_general',
@@ -184,7 +180,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Any physical advantage not listed. Costs 2 points per Rank; GM must approve specifics.',
-        effects: {}
+
       },
       medical: {
         id: 'medical',
@@ -215,7 +211,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Permanent regenerative tattoo; costs 1 point per Rank. Higher Ranks are decorative/impressive.',
-        effects: {}
+
       },
       dna_tattoo_bad: {
         id: 'dna_tattoo_bad',
@@ -224,7 +220,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Poorly executed or grotesque tattoo; grants 1 point per Rank.',
-        effects: {}
+
       },
       drug_addict: {
         id: 'drug_addict',
@@ -233,7 +229,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Pre-existing addiction. Grants 2 points per Rank; see Drugs chapter for in-play mechanics.',
-        effects: {}
+
       }
     }
   },
@@ -311,7 +307,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 3,
         description: 'Downgraded housing per negative Rank; grants 3 points per Rank.',
-        effects: {}
+
       },
       income_wealthy: {
         id: 'income_wealthy',
@@ -329,7 +325,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: '10c per Rank monthly outgoing. Grants 2 points per Rank.',
-        effects: {}
+
       },
       mundane_general: {
         id: 'mundane_general',
@@ -338,7 +334,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Any mundane/financial advantage not listed. Costs 1 point per Rank.',
-        effects: {}
+
       },
       info_good: {
         id: 'info_good',
@@ -347,7 +343,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Character knows useful mundane/financial info. Costs 1 point per Rank.',
-        effects: {}
+
       },
       info_bad: {
         id: 'info_bad',
@@ -356,7 +352,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Character knows harmful or forbidden info. Grants 1 point per Rank.',
-        effects: {}
+
       }
     }
   },
@@ -380,7 +376,7 @@ const ADVANTAGES = {
         maxRank: 1,
         oneOffCost: 5,
         description: 'Decrease racial COOL minimum by -1 (or reduce max by 1 depending on rules). Grants 5 points.',
-        effects: {}
+
       },
       phobia: {
         id: 'phobia',
@@ -389,7 +385,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 0,
         description: 'Placeholder entry to enable selecting detailed phobias in the Phobias step. Actual phobia point gains are determined in the Phobias step and do not come from this placeholder.',
-        effects: {},
+
         // marker to indicate special handling in UI/logic
         isPhobiaPlaceholder: true
       },
@@ -400,7 +396,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Increasing arrogance; grants 2 points per Rank.',
-        effects: {}
+
       },
       mental_general: {
         id: 'mental_general',
@@ -409,7 +405,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Any mental advantage not listed. Costs 1 point per Rank.',
-        effects: {}
+
       },
       psychoses: {
         id: 'psychoses',
@@ -418,7 +414,7 @@ const ADVANTAGES = {
         maxRank: 9,
         costPerRank: 3,
         description: 'Serious mental conditions. Grants 3 points per Rank. Max playable Rank 9; Rank 10 → character becomes NPC (GM).',
-        effects: {}
+
       }
     }
   },
@@ -433,7 +429,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 5,
         description: 'Powerful ally who helps substantially. Costs 5 points per Rank.',
-        effects: {}
+
       },
       major_enemy: {
         id: 'major_enemy',
@@ -442,7 +438,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 5,
         description: 'Powerful foe who actively harms you. Grants 5 points per Rank.',
-        effects: {}
+
       },
       minor_friend: {
         id: 'minor_friend',
@@ -451,7 +447,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Contact who helps occasionally. Costs 1 point per Rank.',
-        effects: {}
+
       },
       minor_enemy: {
         id: 'minor_enemy',
@@ -460,7 +456,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Annoying enemy; grants 1 point per Rank.',
-        effects: {}
+
       },
       luck: {
         id: 'luck',
@@ -469,7 +465,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 4,
         description: 'GM-used mechanic. Costs 4 points per Rank.',
-        effects: {}
+
       },
       bad_luck: {
         id: 'bad_luck',
@@ -478,7 +474,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 4,
         description: 'Adverse luck; grants 4 points per Rank.',
-        effects: {}
+
       },
       dependant: {
         id: 'dependant',
@@ -487,7 +483,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Care responsibility per Rank. Grants 1 point per Rank. See dependent table in rules.',
-        effects: {}
+
       },
       circumstantial_general: {
         id: 'circumstantial_general',
@@ -496,7 +492,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Other circumstantial advantages. Costs 1 point per Rank.',
-        effects: {}
+
       }
     }
   },
@@ -511,7 +507,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Reluctant/refuses combat. Grants 2 points per Rank. COOL roll to resist entering combat: COOL - Rank.',
-        effects: {}
+
       },
       chicken: {
         id: 'chicken',
@@ -520,7 +516,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Cowardice in frightening situations. Grants 2 points per Rank. Roll COOL with modifier = -Rank when frightened.',
-        effects: {}
+
       },
       reputation_good: {
         id: 'reputation_good',
@@ -529,7 +525,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Recognised positively by a group; costs 2 points per Rank.',
-        effects: {}
+
       },
       reputation_bad: {
         id: 'reputation_bad',
@@ -538,7 +534,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Distrusted or disliked; grants 2 points per Rank.',
-        effects: {}
+
       },
       social_general: {
         id: 'social_general',
@@ -547,7 +543,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 2,
         description: 'Other social advantages; costs 2 points per Rank.',
-        effects: {}
+
       }
     }
   },
@@ -562,7 +558,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 3,
         description: 'Bonus ability tied to a non-combat skill. Costs 3 points per Rank.',
-        effects: {}
+
       },
       simple_hobby: {
         id: 'simple_hobby',
@@ -571,7 +567,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Minor hobby usable as a lesser skill. Costs 1 point per Rank.',
-        effects: {}
+
       },
       simple_hobby_bad: {
         id: 'simple_hobby_bad',
@@ -580,7 +576,7 @@ const ADVANTAGES = {
         maxRank: 10,
         costPerRank: 1,
         description: 'Hobby that consumes time or is a hindrance; grants 1 point per Rank.',
-        effects: {}
+
       }
     }
   }

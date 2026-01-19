@@ -89,7 +89,6 @@
                   <div class="top-left-fields" style="flex:1;margin-right:4px;">
                     <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Name</span><span style="border-bottom:1px solid #000;flex:1;height:11px;display:inline-block;padding:0 4px;">${escapeHtml(character.name||'')}</span></div>
                     <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Classification</span><span>${escapeHtml(character.classification || character.class || '')}</span></div>
-                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Package</span><span>${escapeHtml((character.trainingPackages && character.trainingPackages[0])||'')}</span></div>
                     <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Squad</span><span>${escapeHtml(character.squad || '')}</span></div>
                     <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Dept</span><span>${escapeHtml(character.department || character.departmentName || '')}</span></div>
                   </div>

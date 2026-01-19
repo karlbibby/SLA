@@ -12,17 +12,6 @@ const VALIDATORS = {
         return { valid: true };
     },
 
-    // Validate class selection
-    validateClass(classId) {
-        if (!classId) {
-            return { valid: false, message: 'Class must be selected' };
-        }
-        if (!CLASSES[classId]) {
-            return { valid: false, message: 'Invalid class selected' };
-        }
-        return { valid: true };
-    },
-
     // Validate stat allocation
     validateStatAllocation(character, statName, newValue) {
         if (!character.race) {
@@ -196,10 +185,6 @@ const VALIDATORS = {
             errors.push('Race must be selected');
         }
 
-        if (!character.class) {
-            errors.push('Class must be selected');
-        }
-
         // Stat validation
         if (character.race) {
             const maximums = RACES[character.race].statMaximums;
@@ -239,38 +224,6 @@ const VALIDATORS = {
             valid: errors.length === 0,
             errors: errors
         };
-    },
-
-    // Validate training package selection
-    validateTrainingPackage(character, packageName) {
-        if (!TRAINING_PACKAGES[packageName]) {
-            return { valid: false, message: 'Invalid training package' };
-        }
-
-        return { valid: true };
-    },
-
-    // Validate equipment selection
-    validateEquipmentSelection(character, equipment) {
-        if (!character.class) {
-            return { valid: false, message: 'Class must be selected first' };
-        }
-
-        const classData = CLASSES[character.class];
-        const classEquipment = classData.startingEquipment;
-
-        // Check if equipment is valid for class
-        const isValidEquipment = classEquipment.includes(equipment) ||
-            character.selectedEquipment.includes(equipment);
-
-        if (!isValidEquipment) {
-            return {
-                valid: false,
-                message: `${equipment} is not available for ${classData.name} class`
-            };
-        }
-
-        return { valid: true };
     }
 };
 

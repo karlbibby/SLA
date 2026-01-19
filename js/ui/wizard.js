@@ -4,12 +4,10 @@ const WIZARD = {
     steps: [
         { name: 'Basic Info', key: 'basicInfo' },
         { name: 'Race', key: 'race' },
-        { name: 'Class', key: 'class' },
         { name: 'Statistics', key: 'stats' },
         { name: 'Advantages', key: 'advantages' },
         { name: 'Phobias', key: 'phobias' },
         { name: 'Skills', key: 'skills' },
-        { name: 'Training', key: 'training' },
         { name: 'Ebon Abilities', key: 'ebon' },
         { name: 'Equipment', key: 'equipment' },
         { name: 'Drugs', key: 'drugs' },
@@ -70,7 +68,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Class', '4. Stats', '5. Adv/Dis', '6. Phobias', '7. Skills', '8. Training', '9. Flux', '10. Equipment', '11. Drugs', '12. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Equipment', '9. Drugs', '10. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -124,11 +122,9 @@ const WIZARD = {
         switch (stepKey) {
             case 'basicInfo': renderBasicInfoStep(this.character, container, this.onUpdate); break;
             case 'race': renderRaceStep(this.character, container, this.onUpdate); break;
-            case 'class': renderClassStep(this.character, container, this.onUpdate); break;
             case 'stats': renderStatsStep(this.character, container, this.onUpdate); break;
             case 'skills': renderSkillsStep(this.character, container, this.onUpdate); break;
             case 'advantages': renderAdvantagesStep(this.character, container, this.onUpdate); break;
-            case 'training': renderTrainingStep(this.character, container, this.onUpdate); break;
             case 'ebon': renderEbonStep(this.character, container, this.onUpdate); break;
             case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
             case 'drugs': renderDrugsStep(this.character, container, this.onUpdate); break;

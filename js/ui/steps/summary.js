@@ -69,9 +69,6 @@ function renderSummaryStep(character, container, onUpdate) {
     const advantagesHtml = advEntries.length ? advEntries.map(([k,v]) => '<div><strong>' + escapeHtml(getAdvDisplayName(k)) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
     const disadvantagesHtml = disEntries.length ? disEntries.map(([k,v]) => '<div><strong>' + escapeHtml(getAdvDisplayName(k)) + '</strong> (Rank ' + escapeHtml(String(v)) + ')</div>').join('') : '<div style="color:#666">None</div>';
 
-    // Training packages
-    const trainingHtml = (character.trainingPackages && character.trainingPackages.length) ? character.trainingPackages.map(tp => '<div>' + escapeHtml(tp) + '</div>').join('') : '<div style="color:#666">None</div>';
-
     // Ebon abilities & formulae
     const ebonHtml = (character.ebonAbilities && character.ebonAbilities.length) ? character.ebonAbilities.map(e => '<div>' + escapeHtml(e) + '</div>').join('') : '<div style="color:#666">None</div>';
     const formulaeHtml = (character.selectedFormulae && character.selectedFormulae.length) ? character.selectedFormulae.map(f => '<div>' + escapeHtml(f) + '</div>').join('') : '<div style="color:#666">None</div>';
@@ -113,7 +110,7 @@ function renderSummaryStep(character, container, onUpdate) {
     const housingDisplay = housing.type || 'None';
 
     container.innerHTML = sectionHeader('Step 11: Character Summary') +
-        '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + ' • ' + escapeHtml(cls) + '</div></div>' +
+        '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
         '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div>' +
                 '<h3>Primary Stats</h3>' + statsHtml +
@@ -126,7 +123,6 @@ function renderSummaryStep(character, container, onUpdate) {
             '</div>' +
             '<div>' +
                 '<h3>Skills & Packages</h3>' + skillsHtml +
-                '<h4 style="margin-top:12px">Training Packages</h4>' + trainingHtml +
                 '<h4 style="margin-top:12px">Advantages</h4>' + advantagesHtml +
                 '<h4 style="margin-top:12px">Disadvantages</h4>' + disadvantagesHtml +
             '</div>' +
