@@ -1142,6 +1142,135 @@
     font-weight: 500;
 }
 
+/* ==================== ARMAMENTS SECTION ==================== */
+.armaments-container {
+    display: block;
+    width: 100%;
+}
+
+.armaments-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.armaments-header,
+.armament-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr 0.6fr 0.8fr 0.7fr 0.8fr 0.8fr 0.9fr 0.8fr 1fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.armaments-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.armament-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.armament-row:last-child {
+    border-bottom: none;
+}
+
+.armament-type {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.armament-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.armament-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.armament-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.armament-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.armament-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.armament-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .armaments-header,
+    .armament-row {
+        grid-template-columns: 1.6fr 0.8fr 0.8fr 1fr 0.8fr 0.9fr 1fr 1fr 0.9fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .armaments-header {
+        display: none;
+    }
+    .armament-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .armament-row > div {
+        font-size: 0.75rem;
+    }
+    .armament-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .armament-row > div:nth-child(1)::before { content: 'Type'; }
+    .armament-row > div:nth-child(2)::before { content: 'Size'; }
+    .armament-row > div:nth-child(3)::before { content: 'Clip'; }
+    .armament-row > div:nth-child(4)::before { content: 'Cal'; }
+    .armament-row > div:nth-child(5)::before { content: 'ROF'; }
+    .armament-row > div:nth-child(6)::before { content: 'Recoil'; }
+    .armament-row > div:nth-child(7)::before { content: 'Range'; }
+    .armament-row > div:nth-child(8)::before { content: 'Weight'; }
+    .armament-row > div:nth-child(9)::before { content: 'Cost'; }
+    .armament-row > div:nth-child(10)::before { content: 'Qty'; }
+}
+
 /* ==================== PHOBIAS SECTION ==================== */
 .phobias-container {
     display: flex;

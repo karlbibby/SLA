@@ -38,6 +38,9 @@ class Character {
         
         // Drug Inventory
         this.drugInventory = {};  // { "Redline-9": 2, "Numbra-k": 3 }
+
+        // Armament Inventory
+        this.armamentInventory = {};  // { "GA47": 1, "FEN 706": 2 }
         
         // Phobias
         this.phobias = [];  // Array of phobia objects with treatment progress

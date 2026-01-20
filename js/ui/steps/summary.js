@@ -134,7 +134,11 @@ function renderSummaryStep(character, container, onUpdate) {
     const housing = character.housing || {};
     const housingDisplay = housing.type || 'None';
 
-    container.innerHTML = sectionHeader('Step 9: Character Summary') +
+    // Armaments (totals per type)
+    const armamentEntries = Object.entries(character.armamentInventory || {}).filter(([,q]) => q > 0);
+    const armamentsHtml = armamentEntries.length ? armamentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No armaments</div>';
+
+    container.innerHTML = sectionHeader('Step 10: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
         '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div>' +
@@ -153,6 +157,7 @@ function renderSummaryStep(character, container, onUpdate) {
             '</div>' +
         '</div>' +
         '<div style="margin-top:18px"><h4>Drugs</h4>' + drugsHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Armaments</h4>' + armamentsHtml + '</div>' +
         '<div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div><h4>Ebon Abilities</h4>' + ebonHtml + '<h5 style="margin-top:8px">Formulae</h5>' + formulaeHtml + '</div>' +
             '<div><h4>Phobias</h4>' + phobiasList + '</div>' +

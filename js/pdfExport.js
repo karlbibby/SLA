@@ -67,6 +67,17 @@
     }).join('');
   }
 
+  function renderArmamentsTable(character) {
+    const ai = character.armamentInventory || {};
+    const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
+    }
+    return entries.slice(0,8).map(([name, qty]) => {
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
+    }).join('');
+  }
+
   function buildPages(character) {
     const pages = [];
     const nowStr = new Date().toLocaleDateString();
@@ -160,6 +171,18 @@
                     <thead><tr><th style="border:1px solid #000;padding:2px">Drugs</th><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
                     <tbody>
                       ${renderDrugsTable(character)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel armaments" style="border:1px solid #000;margin-bottom:5px;">
+                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">ARMAMENTS</div>
+                <div style="padding:3px 4px;">
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
+                    <tbody>
+                      ${renderArmamentsTable(character)}
                     </tbody>
                   </table>
                 </div>
