@@ -2192,6 +2192,129 @@
     .equipment-row > div:nth-child(7)::before { content: 'Qty'; }
 }
 
+/* ==================== EBON EQUIPMENT SECTION ==================== */
+.ebon-equipment-container {
+    display: block;
+    width: 100%;
+}
+
+.ebon-equipment-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.ebon-equipment-header,
+.ebon-equipment-row {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 0.6fr 0.7fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.ebon-equipment-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.ebon-equipment-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.ebon-equipment-row:last-child {
+    border-bottom: none;
+}
+
+.ebon-equipment-ability {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.ebon-equipment-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.ebon-equipment-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.ebon-equipment-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.ebon-equipment-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.ebon-equipment-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.ebon-equipment-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .ebon-equipment-header,
+    .ebon-equipment-row {
+        grid-template-columns: 1.1fr 1.2fr 0.7fr 0.8fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .ebon-equipment-header {
+        display: none;
+    }
+    .ebon-equipment-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .ebon-equipment-row > div {
+        font-size: 0.75rem;
+    }
+    .ebon-equipment-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .ebon-equipment-row > div:nth-child(1)::before { content: 'Ability'; }
+    .ebon-equipment-row > div:nth-child(2)::before { content: 'Equipment'; }
+    .ebon-equipment-row > div:nth-child(3)::before { content: 'Cost'; }
+    .ebon-equipment-row > div:nth-child(4)::before { content: 'Qty'; }
+}
+
 /* ==================== PHOBIAS SECTION ==================== */
 .phobias-container {
     display: flex;

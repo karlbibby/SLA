@@ -18,6 +18,7 @@ const WIZARD = {
         { name: 'Specialist Ammo', key: 'specialistAmmo' },
         { name: 'Equipment', key: 'equipment' },
         { name: 'Vehicles', key: 'vehicles' },
+        { name: 'Ebon Equipment', key: 'ebonEquipment' },
         { name: 'Summary', key: 'summary' }
     ],
 
@@ -75,7 +76,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Drugs', '9. Armaments', '10. Armour', '11. Weapons', '12. Grenades', '13. Ammunition', '14. Specialist Ammo', '15. Equipment', '16. Vehicles', '17. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Drugs', '9. Armaments', '10. Armour', '11. Weapons', '12. Grenades', '13. Ammunition', '14. Specialist Ammo', '15. Equipment', '16. Vehicles', '17. Ebon Equipment', '18. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -138,6 +139,19 @@ const WIZARD = {
                 }
             }
         }
+
+        // Skip Ebon Equipment step for non-flux races
+        if (stepKey === 'ebonEquipment') {
+            const isFlux = this.character && typeof this.character.isFluxUser === 'function' && this.character.isFluxUser();
+            if (!isFlux) {
+                if (this.currentStep < this.steps.length - 1) {
+                    this.currentStep++;
+                    this.renderStepIndicators();
+                    this.updateNavigation();
+                    return this.renderCurrentStep();
+                }
+            }
+        }
         
         switch (stepKey) {
             case 'basicInfo': renderBasicInfoStep(this.character, container, this.onUpdate); break;
@@ -155,6 +169,7 @@ const WIZARD = {
             case 'specialistAmmo': renderSpecialistAmmunitionStep(this.character, container, this.onUpdate); break;
             case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
             case 'vehicles': renderVehiclesStep(this.character, container, this.onUpdate); break;
+            case 'ebonEquipment': renderEbonEquipmentStep(this.character, container, this.onUpdate); break;
             case 'phobias': renderPhobiasStep(this.character, container, this.onUpdate); break;
             case 'summary': renderSummaryStep(this.character, container, this.onUpdate); break;
         }

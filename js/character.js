@@ -77,6 +77,9 @@ class Character {
 
         // Equipment Inventory
         this.equipmentInventory = {};  // { "Telesight": 1 }
+
+        // Ebon Equipment Inventory
+        this.ebonEquipmentInventory = {};  // { "Force Ebb Kinetic — Flintlock": 1 }
         
         // Phobias
         this.phobias = [];  // Array of phobia objects with treatment progress
@@ -420,6 +423,7 @@ class Character {
             vehicleInventory: this.vehicleInventory,
             specialistAmmoInventory: this.specialistAmmoInventory,
             equipmentInventory: this.equipmentInventory,
+            ebonEquipmentInventory: this.ebonEquipmentInventory,
             phobias: this.phobias,
             scl: this.scl,
             // Financials
@@ -472,6 +476,7 @@ class Character {
         this.vehicleInventory = data.vehicleInventory || {};
         this.specialistAmmoInventory = data.specialistAmmoInventory || {};
         this.equipmentInventory = data.equipmentInventory || {};
+        this.ebonEquipmentInventory = data.ebonEquipmentInventory || {};
         this.phobias = data.phobias || [];
         this.scl = data.scl || '9A';
 

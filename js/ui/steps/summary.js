@@ -1,5 +1,5 @@
 /**
- * Step 17: Summary
+ * Step 18: Summary
  * - renderSummaryStep(character, container, onUpdate)
  *
  * Displays a concise summary of the character, points and selected phobias.
@@ -166,7 +166,11 @@ function renderSummaryStep(character, container, onUpdate) {
     const equipmentEntries = Object.entries(character.equipmentInventory || {}).filter(([,q]) => q > 0);
     const equipmentHtml = equipmentEntries.length ? equipmentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No equipment</div>';
 
-    container.innerHTML = sectionHeader('Step 17: Character Summary') +
+    // Ebon Equipment (totals per type)
+    const ebonEquipmentEntries = Object.entries(character.ebonEquipmentInventory || {}).filter(([,q]) => q > 0);
+    const ebonEquipmentHtml = ebonEquipmentEntries.length ? ebonEquipmentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No ebon equipment</div>';
+
+    container.innerHTML = sectionHeader('Step 18: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
         '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div>' +
@@ -192,6 +196,7 @@ function renderSummaryStep(character, container, onUpdate) {
         '<div style="margin-top:18px"><h4>Ammunition</h4>' + ammoHtml + '</div>' +
         '<div style="margin-top:18px"><h4>Specialist Ammunition</h4>' + specialistHtml + '</div>' +
         '<div style="margin-top:18px"><h4>Equipment</h4>' + equipmentHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Ebon Equipment</h4>' + ebonEquipmentHtml + '</div>' +
         '<div style="margin-top:18px"><h4>Vehicles</h4>' + vehiclesHtml + '</div>' +
         '<div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div><h4>Ebon Abilities</h4>' + ebonHtml + '<h5 style="margin-top:8px">Formulae</h5>' + formulaeHtml + '</div>' +
