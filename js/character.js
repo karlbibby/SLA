@@ -41,6 +41,42 @@ class Character {
 
         // Armament Inventory
         this.armamentInventory = {};  // { "GA47": 1, "FEN 706": 2 }
+
+        // Armour Inventory
+        this.armourInventory = {};  // { "Body Armour": 1 }
+
+        // Armour selection + derived sheet fields
+        this.selectedArmourType = '';
+        this.armourHead = '--';
+        this.armourTorso = '--';
+        this.armourLArm = '--';
+        this.armourRArm = '--';
+        this.armourLLeg = '--';
+        this.armourRLeg = '--';
+        this.idHead = '--';
+        this.idTorso = '--';
+        this.idLArm = '--';
+        this.idRArm = '--';
+        this.idLLeg = '--';
+        this.idRLeg = '--';
+
+        // Weapons Inventory
+        this.weaponInventory = {};  // { "Chain Axe": 1, "SLA Blade": 2 }
+
+        // Ammunition Inventory
+        this.ammoInventory = {};  // { "9mm BLA × AP": 2 }
+
+        // Grenade Inventory
+        this.grenadeInventory = {};  // { "Fragmentation": 2 }
+
+        // Vehicle Inventory
+        this.vehicleInventory = {};  // { "Augustus (Car)": 1 }
+
+        // Specialist Ammunition Inventory
+        this.specialistAmmoInventory = {};  // { "Vibro discs": 1 }
+
+        // Equipment Inventory
+        this.equipmentInventory = {};  // { "Telesight": 1 }
         
         // Phobias
         this.phobias = [];  // Array of phobia objects with treatment progress
@@ -363,6 +399,27 @@ class Character {
             selectedFormulae: this.selectedFormulae,
             ebonRanks: this.ebonRanks,
             drugInventory: this.drugInventory,
+            armamentInventory: this.armamentInventory,
+            armourInventory: this.armourInventory,
+            selectedArmourType: this.selectedArmourType,
+            armourHead: this.armourHead,
+            armourTorso: this.armourTorso,
+            armourLArm: this.armourLArm,
+            armourRArm: this.armourRArm,
+            armourLLeg: this.armourLLeg,
+            armourRLeg: this.armourRLeg,
+            idHead: this.idHead,
+            idTorso: this.idTorso,
+            idLArm: this.idLArm,
+            idRArm: this.idRArm,
+            idLLeg: this.idLLeg,
+            idRLeg: this.idRLeg,
+            weaponInventory: this.weaponInventory,
+            ammoInventory: this.ammoInventory,
+            grenadeInventory: this.grenadeInventory,
+            vehicleInventory: this.vehicleInventory,
+            specialistAmmoInventory: this.specialistAmmoInventory,
+            equipmentInventory: this.equipmentInventory,
             phobias: this.phobias,
             scl: this.scl,
             // Financials
@@ -394,6 +451,27 @@ class Character {
         this.selectedFormulae = data.selectedFormulae || [];
         this.ebonRanks = data.ebonRanks || this.ebonRanks || {};
         this.drugInventory = data.drugInventory || {};
+        this.armamentInventory = data.armamentInventory || {};
+        this.armourInventory = data.armourInventory || {};
+        this.selectedArmourType = data.selectedArmourType || this.selectedArmourType || '';
+        this.armourHead = (typeof data.armourHead !== 'undefined') ? data.armourHead : (this.armourHead || '--');
+        this.armourTorso = (typeof data.armourTorso !== 'undefined') ? data.armourTorso : (this.armourTorso || '--');
+        this.armourLArm = (typeof data.armourLArm !== 'undefined') ? data.armourLArm : (this.armourLArm || '--');
+        this.armourRArm = (typeof data.armourRArm !== 'undefined') ? data.armourRArm : (this.armourRArm || '--');
+        this.armourLLeg = (typeof data.armourLLeg !== 'undefined') ? data.armourLLeg : (this.armourLLeg || '--');
+        this.armourRLeg = (typeof data.armourRLeg !== 'undefined') ? data.armourRLeg : (this.armourRLeg || '--');
+        this.idHead = (typeof data.idHead !== 'undefined') ? data.idHead : (this.idHead || '--');
+        this.idTorso = (typeof data.idTorso !== 'undefined') ? data.idTorso : (this.idTorso || '--');
+        this.idLArm = (typeof data.idLArm !== 'undefined') ? data.idLArm : (this.idLArm || '--');
+        this.idRArm = (typeof data.idRArm !== 'undefined') ? data.idRArm : (this.idRArm || '--');
+        this.idLLeg = (typeof data.idLLeg !== 'undefined') ? data.idLLeg : (this.idLLeg || '--');
+        this.idRLeg = (typeof data.idRLeg !== 'undefined') ? data.idRLeg : (this.idRLeg || '--');
+        this.weaponInventory = data.weaponInventory || {};
+        this.ammoInventory = data.ammoInventory || {};
+        this.grenadeInventory = data.grenadeInventory || {};
+        this.vehicleInventory = data.vehicleInventory || {};
+        this.specialistAmmoInventory = data.specialistAmmoInventory || {};
+        this.equipmentInventory = data.equipmentInventory || {};
         this.phobias = data.phobias || [];
         this.scl = data.scl || '9A';
 

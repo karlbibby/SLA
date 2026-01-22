@@ -35,7 +35,16 @@
   }
 
   function renderAmmoList(character) {
-    return '<div style="color:#666">None</div>';
+    const ai = character.ammoInventory || {};
+    const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return '<div style="color:#666">None</div>';
+    }
+    return '<div style="font-size:9px;display:grid;grid-template-columns:1fr 28px;gap:4px 8px;">' +
+      entries.slice(0, 12).map(([name, qty]) => {
+        return '<div>' + escapeHtml(name) + '</div><div style="text-align:right">' + escapeHtml(String(qty)) + '</div>';
+      }).join('') +
+      '</div>';
   }
 
   function renderNaturalWeapons(character) {
@@ -70,6 +79,61 @@
   function renderArmamentsTable(character) {
     const ai = character.armamentInventory || {};
     const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
+    }
+    return entries.slice(0,8).map(([name, qty]) => {
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
+    }).join('');
+  }
+
+  function renderGrenadesTable(character) {
+    const gi = character.grenadeInventory || {};
+    const entries = Object.entries(gi).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
+    }
+    return entries.slice(0,8).map(([name, qty]) => {
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
+    }).join('');
+  }
+
+  function renderArmourTable(character) {
+    const ai = character.armourInventory || {};
+    const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
+    }
+    return entries.slice(0,8).map(([name, qty]) => {
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
+    }).join('');
+  }
+
+  function renderVehiclesTable(character) {
+    const vi = character.vehicleInventory || {};
+    const entries = Object.entries(vi).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
+    }
+    return entries.slice(0,8).map(([name, qty]) => {
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
+    }).join('');
+  }
+
+  function renderSpecialistAmmoTable(character) {
+    const si = character.specialistAmmoInventory || {};
+    const entries = Object.entries(si).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
+    }
+    return entries.slice(0,8).map(([name, qty]) => {
+      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
+    }).join('');
+  }
+
+  function renderEquipmentTable(character) {
+    const ei = character.equipmentInventory || {};
+    const entries = Object.entries(ei).filter(([, qty]) => (Number(qty) || 0) > 0);
     if (!entries.length) {
       return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
     }
@@ -183,6 +247,66 @@
                     <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
                     <tbody>
                       ${renderArmamentsTable(character)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel armour" style="border:1px solid #000;margin-bottom:5px;">
+                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">ARMOUR</div>
+                <div style="padding:3px 4px;">
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
+                    <tbody>
+                      ${renderArmourTable(character)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel grenades" style="border:1px solid #000;margin-bottom:5px;">
+                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">GRENADES</div>
+                <div style="padding:3px 4px;">
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
+                    <tbody>
+                      ${renderGrenadesTable(character)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel specialist-ammo" style="border:1px solid #000;margin-bottom:5px;">
+                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">SPECIALIST AMMUNITION</div>
+                <div style="padding:3px 4px;">
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
+                    <tbody>
+                      ${renderSpecialistAmmoTable(character)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel equipment" style="border:1px solid #000;margin-bottom:5px;">
+                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">EQUIPMENT</div>
+                <div style="padding:3px 4px;">
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
+                    <tbody>
+                      ${renderEquipmentTable(character)}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="panel vehicles" style="border:1px solid #000;margin-bottom:5px;">
+                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">VEHICLES</div>
+                <div style="padding:3px 4px;">
+                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
+                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
+                    <tbody>
+                      ${renderVehiclesTable(character)}
                     </tbody>
                   </table>
                 </div>

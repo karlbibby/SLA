@@ -1271,6 +1271,927 @@
     .armament-row > div:nth-child(10)::before { content: 'Qty'; }
 }
 
+/* ==================== WEAPONS SECTION ==================== */
+.weapons-container {
+    display: block;
+    width: 100%;
+}
+
+.weapons-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.weapons-header,
+.weapon-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr 0.6fr 0.9fr 0.8fr 0.8fr 1fr 0.9fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.weapons-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.weapon-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.weapon-row:last-child {
+    border-bottom: none;
+}
+
+.weapon-type {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.weapon-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.weapon-black-market {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.weapon-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.weapon-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.weapon-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.weapon-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.weapon-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .weapons-header,
+    .weapon-row {
+        grid-template-columns: 1.6fr 0.7fr 0.7fr 1fr 0.9fr 0.9fr 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .weapons-header {
+        display: none;
+    }
+    .weapon-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .weapon-row > div {
+        font-size: 0.75rem;
+    }
+    .weapon-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .weapon-row > div:nth-child(1)::before { content: 'Type'; }
+    .weapon-row > div:nth-child(2)::before { content: 'DMG'; }
+    .weapon-row > div:nth-child(3)::before { content: 'PEN'; }
+    .weapon-row > div:nth-child(4)::before { content: 'Armour DMG'; }
+    .weapon-row > div:nth-child(5)::before { content: 'Weight'; }
+    .weapon-row > div:nth-child(6)::before { content: 'Cost'; }
+    .weapon-row > div:nth-child(7)::before { content: 'Black Market'; }
+    .weapon-row > div:nth-child(8)::before { content: 'Qty'; }
+}
+
+/* ==================== AMMUNITION SECTION ==================== */
+.ammo-container {
+    display: block;
+    width: 100%;
+}
+
+.ammo-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.ammo-header,
+.ammo-row {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(5, 1fr);
+    gap: var(--spacing-sm);
+    align-items: stretch;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.ammo-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.ammo-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.ammo-row:last-child {
+    border-bottom: none;
+}
+
+.ammo-calibre {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+}
+
+.ammo-cell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    align-items: center;
+    justify-content: center;
+    padding: 4px 0;
+    border-left: 1px solid var(--border-color);
+}
+
+.ammo-row .ammo-cell:first-of-type {
+    border-left: none;
+}
+
+.ammo-price {
+    font-weight: 600;
+    color: var(--color-success);
+}
+
+.ammo-price.is-unavailable {
+    color: var(--text-muted);
+}
+
+.ammo-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.ammo-qty-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.ammo-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.ammo-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.ammo-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .ammo-header,
+    .ammo-row {
+        grid-template-columns: 1.6fr repeat(5, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .ammo-header {
+        display: none;
+    }
+    .ammo-row {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+        align-items: start;
+    }
+    .ammo-row > div {
+        font-size: 0.75rem;
+    }
+    .ammo-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .ammo-row > div:nth-child(1)::before { content: 'Calibre'; }
+    .ammo-row > div:nth-child(2)::before { content: 'STD'; }
+    .ammo-row > div:nth-child(3)::before { content: 'AP'; }
+    .ammo-row > div:nth-child(4)::before { content: 'HP'; }
+    .ammo-row > div:nth-child(5)::before { content: 'HEAP'; }
+    .ammo-row > div:nth-child(6)::before { content: 'HESH'; }
+
+    .ammo-cell {
+        align-items: flex-start;
+        border-left: none;
+        padding: 0;
+    }
+}
+
+/* ==================== GRENADES SECTION ==================== */
+.grenades-container {
+    display: block;
+    width: 100%;
+}
+
+.grenades-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.grenades-header,
+.grenade-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.9fr 0.7fr 0.9fr 0.8fr 0.9fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.grenades-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.grenade-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.grenade-row:last-child {
+    border-bottom: none;
+}
+
+.grenade-type {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.grenade-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.grenade-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.grenade-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.grenade-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.grenade-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.grenade-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .grenades-header,
+    .grenade-row {
+        grid-template-columns: 1.6fr 1fr 0.8fr 1fr 0.9fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .grenades-header {
+        display: none;
+    }
+    .grenade-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .grenade-row > div {
+        font-size: 0.75rem;
+    }
+    .grenade-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .grenade-row > div:nth-child(1)::before { content: 'Type'; }
+    .grenade-row > div:nth-child(2)::before { content: 'Blast Rating'; }
+    .grenade-row > div:nth-child(3)::before { content: 'PEN'; }
+    .grenade-row > div:nth-child(4)::before { content: 'Weight'; }
+    .grenade-row > div:nth-child(5)::before { content: 'Cost'; }
+    .grenade-row > div:nth-child(6)::before { content: 'Qty'; }
+}
+
+/* ==================== ARMOUR SECTION ==================== */
+.armour-container {
+    display: block;
+    width: 100%;
+}
+
+.armour-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.armour-header,
+.armour-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.7fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 1fr 0.8fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.armour-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.armour-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.armour-row:last-child {
+    border-bottom: none;
+}
+
+.armour-type {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.armour-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.armour-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.armour-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.armour-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.armour-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.armour-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .armour-header,
+    .armour-row {
+        grid-template-columns: 1.6fr 0.8fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr 1.1fr 0.9fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .armour-header {
+        display: none;
+    }
+    .armour-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .armour-row > div {
+        font-size: 0.75rem;
+    }
+    .armour-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .armour-row > div:nth-child(1)::before { content: 'Armour Types'; }
+    .armour-row > div:nth-child(2)::before { content: 'Cost'; }
+    .armour-row > div:nth-child(3)::before { content: 'P.V.'; }
+    .armour-row > div:nth-child(4)::before { content: 'Head'; }
+    .armour-row > div:nth-child(5)::before { content: 'Torso'; }
+    .armour-row > div:nth-child(6)::before { content: 'Arms'; }
+    .armour-row > div:nth-child(7)::before { content: 'Legs'; }
+    .armour-row > div:nth-child(8)::before { content: 'Modifiers'; }
+    .armour-row > div:nth-child(9)::before { content: 'Qty'; }
+}
+
+/* ==================== VEHICLES SECTION ==================== */
+.vehicles-container {
+    display: block;
+    width: 100%;
+}
+
+.vehicles-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.vehicles-header,
+.vehicle-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr 0.9fr 1.1fr 0.8fr 0.8fr 1fr 0.8fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.vehicles-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.vehicle-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.vehicle-row:last-child {
+    border-bottom: none;
+}
+
+.vehicle-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.vehicle-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.vehicle-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.vehicle-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.vehicle-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.vehicle-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.vehicle-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .vehicles-header,
+    .vehicle-row {
+        grid-template-columns: 1.6fr 0.9fr 1fr 1.2fr 0.9fr 0.9fr 1.1fr 0.9fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .vehicles-header {
+        display: none;
+    }
+    .vehicle-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .vehicle-row > div {
+        font-size: 0.75rem;
+    }
+    .vehicle-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .vehicle-row > div:nth-child(1)::before { content: 'Name'; }
+    .vehicle-row > div:nth-child(2)::before { content: 'Type'; }
+    .vehicle-row > div:nth-child(3)::before { content: 'Max. Speed'; }
+    .vehicle-row > div:nth-child(4)::before { content: 'Skill'; }
+    .vehicle-row > div:nth-child(5)::before { content: 'Cost'; }
+    .vehicle-row > div:nth-child(6)::before { content: 'P.V./I.D.'; }
+    .vehicle-row > div:nth-child(7)::before { content: 'Max. Crew/Passengers'; }
+    .vehicle-row > div:nth-child(8)::before { content: 'Qty'; }
+}
+
+/* ==================== SPECIALIST AMMUNITION SECTION ==================== */
+.specialist-ammo-container {
+    display: block;
+    width: 100%;
+}
+
+.specialist-ammo-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.specialist-ammo-header,
+.specialist-ammo-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.6fr 0.6fr 0.8fr 0.8fr 0.9fr 1fr 0.8fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.specialist-ammo-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.specialist-ammo-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.specialist-ammo-row:last-child {
+    border-bottom: none;
+}
+
+.specialist-ammo-type {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.specialist-ammo-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.specialist-ammo-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.specialist-ammo-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.specialist-ammo-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.specialist-ammo-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.specialist-ammo-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .specialist-ammo-header,
+    .specialist-ammo-row {
+        grid-template-columns: 1.6fr 0.7fr 0.7fr 0.9fr 0.9fr 1fr 1.1fr 0.9fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .specialist-ammo-header {
+        display: none;
+    }
+    .specialist-ammo-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .specialist-ammo-row > div {
+        font-size: 0.75rem;
+    }
+    .specialist-ammo-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .specialist-ammo-row > div:nth-child(1)::before { content: 'Type'; }
+    .specialist-ammo-row > div:nth-child(2)::before { content: 'DMG'; }
+    .specialist-ammo-row > div:nth-child(3)::before { content: 'PEN'; }
+    .specialist-ammo-row > div:nth-child(4)::before { content: 'ARM DMG'; }
+    .specialist-ammo-row > div:nth-child(5)::before { content: 'Cost'; }
+    .specialist-ammo-row > div:nth-child(6)::before { content: 'Weight'; }
+    .specialist-ammo-row > div:nth-child(7)::before { content: 'Weapon'; }
+    .specialist-ammo-row > div:nth-child(8)::before { content: 'Qty'; }
+}
+
+/* ==================== EQUIPMENT SECTION ==================== */
+.equipment-container {
+    display: block;
+    width: 100%;
+}
+
+.equipment-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card-hover);
+}
+
+.equipment-header,
+.equipment-row {
+    display: grid;
+    grid-template-columns: 1.6fr 0.7fr 0.9fr 0.8fr 0.8fr 0.9fr 0.7fr;
+    gap: var(--spacing-sm);
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+}
+
+.equipment-header {
+    background: var(--bg-input);
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.equipment-row {
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.equipment-row:last-child {
+    border-bottom: none;
+}
+
+.equipment-type {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.equipment-cost {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.equipment-black-market {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.equipment-qty {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.equipment-qty-btn {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.equipment-qty-btn:hover:not(:disabled) {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.equipment-qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.equipment-qty-value {
+    min-width: 18px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+@media (max-width: 1024px) {
+    .equipment-header,
+    .equipment-row {
+        grid-template-columns: 1.8fr 0.8fr 1fr 0.9fr 0.9fr 1fr 0.8fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .equipment-header {
+        display: none;
+    }
+    .equipment-row {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xs) var(--spacing-md);
+        align-items: start;
+    }
+    .equipment-row > div {
+        font-size: 0.75rem;
+    }
+    .equipment-row > div::before {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 2px;
+    }
+    .equipment-row > div:nth-child(1)::before { content: 'Type'; }
+    .equipment-row > div:nth-child(2)::before { content: 'Cost'; }
+    .equipment-row > div:nth-child(3)::before { content: 'Black Market'; }
+    .equipment-row > div:nth-child(4)::before { content: 'Max. Weight'; }
+    .equipment-row > div:nth-child(5)::before { content: 'Range'; }
+    .equipment-row > div:nth-child(6)::before { content: 'User Life'; }
+    .equipment-row > div:nth-child(7)::before { content: 'Qty'; }
+}
+
 /* ==================== PHOBIAS SECTION ==================== */
 .phobias-container {
     display: flex;

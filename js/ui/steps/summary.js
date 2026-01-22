@@ -1,5 +1,5 @@
 /**
- * Step 9: Summary
+ * Step 17: Summary
  * - renderSummaryStep(character, container, onUpdate)
  *
  * Displays a concise summary of the character, points and selected phobias.
@@ -138,7 +138,35 @@ function renderSummaryStep(character, container, onUpdate) {
     const armamentEntries = Object.entries(character.armamentInventory || {}).filter(([,q]) => q > 0);
     const armamentsHtml = armamentEntries.length ? armamentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No armaments</div>';
 
-    container.innerHTML = sectionHeader('Step 10: Character Summary') +
+    // Armour (totals per type)
+    const armourEntries = Object.entries(character.armourInventory || {}).filter(([,q]) => q > 0);
+    const armourHtml = armourEntries.length ? armourEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No armour</div>';
+
+    // Weapons (totals per type)
+    const weaponEntries = Object.entries(character.weaponInventory || {}).filter(([,q]) => q > 0);
+    const weaponsHtml = weaponEntries.length ? weaponEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No weapons</div>';
+
+    // Ammunition (totals per calibre x type)
+    const ammoEntries = Object.entries(character.ammoInventory || {}).filter(([,q]) => q > 0);
+    const ammoHtml = ammoEntries.length ? ammoEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No ammunition</div>';
+
+    // Grenades (totals per type)
+    const grenadeEntries = Object.entries(character.grenadeInventory || {}).filter(([,q]) => q > 0);
+    const grenadesHtml = grenadeEntries.length ? grenadeEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No grenades</div>';
+
+    // Vehicles (totals per type)
+    const vehicleEntries = Object.entries(character.vehicleInventory || {}).filter(([,q]) => q > 0);
+    const vehiclesHtml = vehicleEntries.length ? vehicleEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No vehicles</div>';
+
+    // Specialist Ammunition (totals per type)
+    const specialistEntries = Object.entries(character.specialistAmmoInventory || {}).filter(([,q]) => q > 0);
+    const specialistHtml = specialistEntries.length ? specialistEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No specialist ammunition</div>';
+
+    // Equipment (totals per type)
+    const equipmentEntries = Object.entries(character.equipmentInventory || {}).filter(([,q]) => q > 0);
+    const equipmentHtml = equipmentEntries.length ? equipmentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No equipment</div>';
+
+    container.innerHTML = sectionHeader('Step 17: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
         '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div>' +
@@ -158,6 +186,13 @@ function renderSummaryStep(character, container, onUpdate) {
         '</div>' +
         '<div style="margin-top:18px"><h4>Drugs</h4>' + drugsHtml + '</div>' +
         '<div style="margin-top:18px"><h4>Armaments</h4>' + armamentsHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Armour</h4>' + armourHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Weapons</h4>' + weaponsHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Grenades</h4>' + grenadesHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Ammunition</h4>' + ammoHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Specialist Ammunition</h4>' + specialistHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Equipment</h4>' + equipmentHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Vehicles</h4>' + vehiclesHtml + '</div>' +
         '<div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div><h4>Ebon Abilities</h4>' + ebonHtml + '<h5 style="margin-top:8px">Formulae</h5>' + formulaeHtml + '</div>' +
             '<div><h4>Phobias</h4>' + phobiasList + '</div>' +
