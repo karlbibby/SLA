@@ -8,14 +8,13 @@ const WIZARD = {
         { name: 'Advantages', key: 'advantages' },
         { name: 'Phobias', key: 'phobias' },
         { name: 'Skills', key: 'skills' },
-        { name: 'Ebon Abilities', key: 'ebon' },
+        { name: 'Ebon', key: 'ebon' },
         { name: 'Drugs', key: 'drugs' },
         { name: 'Weapons', key: 'weapons' },
         { name: 'Armour', key: 'armour' },
         { name: 'Ammo', key: 'ammo' },
         { name: 'Equipment', key: 'equipment' },
         { name: 'Vehicles', key: 'vehicles' },
-        { name: 'Ebon Equipment', key: 'ebonEquipment' },
         { name: 'Summary', key: 'summary' }
     ],
 
@@ -73,7 +72,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Drugs', '9. Weapons', '10. Armour', '11. Ammo', '12. Equipment', '13. Vehicles', '14. Ebon Equipment', '15. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Ebon', '8. Drugs', '9. Weapons', '10. Armour', '11. Ammo', '12. Equipment', '13. Vehicles', '14. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -124,21 +123,8 @@ const WIZARD = {
             }
         }
 
-        // Skip Ebon/Flux step for non-flux races
+        // Skip Ebon step for non-flux races
         if (stepKey === 'ebon') {
-            const isFlux = this.character && typeof this.character.isFluxUser === 'function' && this.character.isFluxUser();
-            if (!isFlux) {
-                if (this.currentStep < this.steps.length - 1) {
-                    this.currentStep++;
-                    this.renderStepIndicators();
-                    this.updateNavigation();
-                    return this.renderCurrentStep();
-                }
-            }
-        }
-
-        // Skip Ebon Equipment step for non-flux races
-        if (stepKey === 'ebonEquipment') {
             const isFlux = this.character && typeof this.character.isFluxUser === 'function' && this.character.isFluxUser();
             if (!isFlux) {
                 if (this.currentStep < this.steps.length - 1) {
@@ -156,14 +142,13 @@ const WIZARD = {
             case 'stats': renderStatsStep(this.character, container, this.onUpdate); break;
             case 'skills': renderSkillsStep(this.character, container, this.onUpdate); break;
             case 'advantages': renderAdvantagesStep(this.character, container, this.onUpdate); break;
-            case 'ebon': renderEbonStep(this.character, container, this.onUpdate); break;
+            case 'ebon': renderEbonCombinedStep(this.character, container, this.onUpdate); break;
             case 'drugs': renderDrugsStep(this.character, container, this.onUpdate); break;
             case 'weapons': renderWeaponsCombinedStep(this.character, container, this.onUpdate); break;
             case 'armour': renderArmourStep(this.character, container, this.onUpdate); break;
             case 'ammo': renderAmmoCombinedStep(this.character, container, this.onUpdate); break;
             case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
             case 'vehicles': renderVehiclesStep(this.character, container, this.onUpdate); break;
-            case 'ebonEquipment': renderEbonEquipmentStep(this.character, container, this.onUpdate); break;
             case 'phobias': renderPhobiasStep(this.character, container, this.onUpdate); break;
             case 'summary': renderSummaryStep(this.character, container, this.onUpdate); break;
         }
