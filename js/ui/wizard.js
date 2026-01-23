@@ -10,12 +10,9 @@ const WIZARD = {
         { name: 'Skills', key: 'skills' },
         { name: 'Ebon Abilities', key: 'ebon' },
         { name: 'Drugs', key: 'drugs' },
-        { name: 'Armaments', key: 'armaments' },
-        { name: 'Armour', key: 'armour' },
         { name: 'Weapons', key: 'weapons' },
-        { name: 'Grenades', key: 'grenades' },
-        { name: 'Ammunition', key: 'ammunition' },
-        { name: 'Specialist Ammo', key: 'specialistAmmo' },
+        { name: 'Armour', key: 'armour' },
+        { name: 'Ammo', key: 'ammo' },
         { name: 'Equipment', key: 'equipment' },
         { name: 'Vehicles', key: 'vehicles' },
         { name: 'Ebon Equipment', key: 'ebonEquipment' },
@@ -76,7 +73,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Drugs', '9. Armaments', '10. Armour', '11. Weapons', '12. Grenades', '13. Ammunition', '14. Specialist Ammo', '15. Equipment', '16. Vehicles', '17. Ebon Equipment', '18. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Flux', '8. Drugs', '9. Weapons', '10. Armour', '11. Ammo', '12. Equipment', '13. Vehicles', '14. Ebon Equipment', '15. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -161,12 +158,9 @@ const WIZARD = {
             case 'advantages': renderAdvantagesStep(this.character, container, this.onUpdate); break;
             case 'ebon': renderEbonStep(this.character, container, this.onUpdate); break;
             case 'drugs': renderDrugsStep(this.character, container, this.onUpdate); break;
-            case 'armaments': renderArmamentsStep(this.character, container, this.onUpdate); break;
+            case 'weapons': renderWeaponsCombinedStep(this.character, container, this.onUpdate); break;
             case 'armour': renderArmourStep(this.character, container, this.onUpdate); break;
-            case 'weapons': renderWeaponsStep(this.character, container, this.onUpdate); break;
-            case 'grenades': renderGrenadesStep(this.character, container, this.onUpdate); break;
-            case 'ammunition': renderAmmunitionStep(this.character, container, this.onUpdate); break;
-            case 'specialistAmmo': renderSpecialistAmmunitionStep(this.character, container, this.onUpdate); break;
+            case 'ammo': renderAmmoCombinedStep(this.character, container, this.onUpdate); break;
             case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
             case 'vehicles': renderVehiclesStep(this.character, container, this.onUpdate); break;
             case 'ebonEquipment': renderEbonEquipmentStep(this.character, container, this.onUpdate); break;

@@ -1,5 +1,5 @@
 /**
- * Step 18: Summary
+ * Step 15: Summary
  * - renderSummaryStep(character, container, onUpdate)
  *
  * Displays a concise summary of the character, points and selected phobias.
@@ -170,7 +170,7 @@ function renderSummaryStep(character, container, onUpdate) {
     const ebonEquipmentEntries = Object.entries(character.ebonEquipmentInventory || {}).filter(([,q]) => q > 0);
     const ebonEquipmentHtml = ebonEquipmentEntries.length ? ebonEquipmentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No ebon equipment</div>';
 
-    container.innerHTML = sectionHeader('Step 18: Character Summary') +
+    container.innerHTML = sectionHeader('Step 15: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
         '<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div>' +

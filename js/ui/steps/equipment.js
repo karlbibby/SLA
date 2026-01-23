@@ -1,5 +1,5 @@
 /**
- * Step 15: Equipment
+ * Step 12: Equipment
  * - renderEquipmentStep(character, container, onUpdate)
  */
 
@@ -35,7 +35,7 @@ function renderEquipmentStep(character, container, onUpdate) {
 
 	const items = (Array.isArray(EQUIPMENT) ? EQUIPMENT.slice() : []);
 
-	let html = sectionHeader('Step 15: Equipment', 'Purchase equipment using your available credits.');
+	let html = sectionHeader('Step 12: Equipment', 'Purchase equipment using your available credits.');
 	html += '<div class="equipment-container">';
 	html += '<div class="equipment-table">';
 	html += '<div class="equipment-header">' +

@@ -1,5 +1,5 @@
 /**
- * Step 16: Vehicles
+ * Step 13: Vehicles
  * - renderVehiclesStep(character, container, onUpdate)
  */
 
@@ -25,7 +25,7 @@ function renderVehiclesStep(character, container, onUpdate) {
 
     const items = (Array.isArray(VEHICLES) ? VEHICLES.slice() : []);
 
-    let html = sectionHeader('Step 16: Vehicles', 'Purchase vehicles using your available credits.');
+    let html = sectionHeader('Step 13: Vehicles', 'Purchase vehicles using your available credits.');
     html += '<div class="vehicles-container">';
     html += '<div class="vehicles-table">';
     html += '<div class="vehicles-header">' +

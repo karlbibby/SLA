@@ -1,5 +1,5 @@
 /**
- * Step 17: Ebon Equipment
+ * Step 14: Ebon Equipment
  * - renderEbonEquipmentStep(character, container, onUpdate)
  */
 
@@ -23,7 +23,7 @@ function renderEbonEquipmentStep(character, container, onUpdate) {
     }
 
     if (!character.isFluxUser || !character.isFluxUser()) {
-        container.innerHTML = sectionHeader('Step 17: Ebon Equipment') +
+        container.innerHTML = sectionHeader('Step 14: Ebon Equipment') +
             '<div class="info-box"><h4>Not an Ebon User</h4><p>Only Ebon and Brain Waster characters can use Ebon equipment.</p></div>';
         return;
     }
@@ -32,7 +32,7 @@ function renderEbonEquipmentStep(character, container, onUpdate) {
 
     const items = (Array.isArray(EBON_EQUIPMENT) ? EBON_EQUIPMENT.slice() : []);
 
-    let html = sectionHeader('Step 17: Ebon Equipment', 'Purchase Ebon equipment using your available credits.');
+    let html = sectionHeader('Step 14: Ebon Equipment', 'Purchase Ebon equipment using your available credits.');
     html += '<div class="ebon-equipment-container">';
     html += '<div class="ebon-equipment-table">';
     html += '<div class="ebon-equipment-header">' +
