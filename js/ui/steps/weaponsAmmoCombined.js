@@ -201,7 +201,7 @@ function renderAmmoCombinedStep(character, container, onUpdate) {
     const ammoTypes = ['STD', 'AP', 'HP', 'HEAP', 'HESH'];
     const specialist = (Array.isArray(SPECIALIST_AMMUNITION) ? SPECIALIST_AMMUNITION.slice() : []);
 
-    let html = sectionHeader('Step 11: Ammo', 'Purchase grenades and ammunition using your available credits.');
+    let html = sectionHeader('Step 10: Ammo', 'Purchase grenades and ammunition using your available credits.');
 
     html += '<div class="section-header"><h3 class="section-title">Grenades</h3></div>';
     html += '<div class="grenades-container">';

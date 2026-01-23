@@ -11,10 +11,8 @@ const WIZARD = {
         { name: 'Ebon', key: 'ebon' },
         { name: 'Drugs', key: 'drugs' },
         { name: 'Weapons', key: 'weapons' },
-        { name: 'Armour', key: 'armour' },
         { name: 'Ammo', key: 'ammo' },
-        { name: 'Equipment', key: 'equipment' },
-        { name: 'Vehicles', key: 'vehicles' },
+        { name: 'Other', key: 'other' },
         { name: 'Summary', key: 'summary' }
     ],
 
@@ -72,7 +70,7 @@ const WIZARD = {
     renderStepIndicators() {
         const container = document.getElementById('stepIndicators');
         container.innerHTML = '';
-        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Ebon', '8. Drugs', '9. Weapons', '10. Armour', '11. Ammo', '12. Equipment', '13. Vehicles', '14. Summary'];
+        const stepNames = ['1. Basics', '2. Race', '3. Stats', '4. Adv/Dis', '5. Phobias', '6. Skills', '7. Ebon', '8. Drugs', '9. Weapons', '10. Ammo', '11. Other', '12. Summary'];
         this.steps.forEach((step, index) => {
             const indicator = document.createElement('div');
             indicator.className = 'step-indicator' + (index === this.currentStep ? ' active' : '') + (index < this.currentStep ? ' completed' : '');
@@ -145,10 +143,8 @@ const WIZARD = {
             case 'ebon': renderEbonCombinedStep(this.character, container, this.onUpdate); break;
             case 'drugs': renderDrugsStep(this.character, container, this.onUpdate); break;
             case 'weapons': renderWeaponsCombinedStep(this.character, container, this.onUpdate); break;
-            case 'armour': renderArmourStep(this.character, container, this.onUpdate); break;
             case 'ammo': renderAmmoCombinedStep(this.character, container, this.onUpdate); break;
-            case 'equipment': renderEquipmentStep(this.character, container, this.onUpdate); break;
-            case 'vehicles': renderVehiclesStep(this.character, container, this.onUpdate); break;
+            case 'other': renderOtherCombinedStep(this.character, container, this.onUpdate); break;
             case 'phobias': renderPhobiasStep(this.character, container, this.onUpdate); break;
             case 'summary': renderSummaryStep(this.character, container, this.onUpdate); break;
         }
