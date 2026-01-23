@@ -25,10 +25,9 @@ function renderEbonCombinedStep(character, container, onUpdate) {
         : (character.class && String(character.class).toLowerCase().includes('necanthrope'));
 
     let html = '';
-    html += sectionHeader('Step 7: Ebon', 'Select your Ebon abilities. Use the rank selectors to set a rank (0 = none). Note: starting max rank is 10; Formulae and Gore Cannon have special rules.');
-    html += fluxDisplayHtml(character.derivedStats && character.derivedStats.FLUX);
-
-    html += '<div class="ebon-categories" style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px;background:transparent;color:#eee">';
+    html += sectionHeader('Step 7: Ebon');
+    html += '<div class="section-header"><h3 class="section-title">Ebon Skills (max rank 10)</h3></div>';
+    html += '<div class="ebon-categories" style="display:grid;grid-template-columns:repeat(2, 1fr);gap:10px;margin-top:8px;background:transparent;color:#eee">';
 
     for (const catKey in EBON_ABILITIES) {
         const cat = EBON_ABILITIES[catKey];
