@@ -368,6 +368,15 @@
 
               <div class="panel skills" style="border:1px solid #000;height:auto;">
                 <div style="background:#ddd;padding:4px;font-weight:bold;text-transform:uppercase;font-size:10px;">Skills</div>
+                ${(() => {
+                  if (character.selectedTrainingPackage && typeof TRAINING_PACKAGES !== 'undefined') {
+                    const pkg = TRAINING_PACKAGES[character.selectedTrainingPackage];
+                    if (pkg) {
+                      return `<div style="padding:4px 6px;font-size:8px;background:#e8f5e9;border-bottom:1px solid #ddd;"><strong>Training Package:</strong> ${escapeHtml(pkg.name)}</div>`;
+                    }
+                  }
+                  return '';
+                })()}
                 <div style="padding:6px;font-size:9px;color:#000;">
                   ${(() => {
                     const skills = Object.entries(character.skills || {});
@@ -433,6 +442,15 @@
     const p_skills = `
       <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Helvetica, Arial, sans-serif;">
         <h2 style="margin:0 0 8px 0">Skills</h2>
+        ${(() => {
+          if (character.selectedTrainingPackage && typeof TRAINING_PACKAGES !== 'undefined') {
+            const pkg = TRAINING_PACKAGES[character.selectedTrainingPackage];
+            if (pkg) {
+              return `<div style="margin-bottom:8px;padding:6px;background:#e8f5e9;border:1px solid #4caf50;border-radius:4px;font-size:10px;"><strong>Training Package:</strong> ${escapeHtml(pkg.name)}</div>`;
+            }
+          }
+          return '';
+        })()}
         <div style="font-size:11px;line-height:1.25">
           ${(() => {
             const skills = Object.entries(character.skills || {});

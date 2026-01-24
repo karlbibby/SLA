@@ -20,6 +20,8 @@ function renderRaceStep(character, container, onUpdate) {
     container.querySelectorAll('[data-race]').forEach(card => card.addEventListener('click', () => { 
         const raceId = card.dataset.race;
         const isNewRace = character.race !== raceId;
+        const wasFluxUser = character.race ? character.isFluxUser() : false;
+        
         character.race = raceId;
         if (isNewRace) {
             const maximums = RACES[raceId]?.statMaximums || {};
@@ -28,6 +30,29 @@ function renderRaceStep(character, container, onUpdate) {
                 character.stats[stat] = min;
             }
             character.skills = {};
+            
+            // If switching from Ebon to non-Ebon, clear Ebon abilities and equipment
+            if (wasFluxUser && !character.isFluxUser()) {
+                // Refund credits for Ebon equipment
+                if (typeof EBON_EQUIPMENT !== 'undefined' && character.ebonEquipmentInventory) {
+                    for (const itemName in character.ebonEquipmentInventory) {
+                        const quantity = character.ebonEquipmentInventory[itemName] || 0;
+                        if (quantity > 0) {
+                            // Find the item cost
+                            const item = EBON_EQUIPMENT.find(e => (e.equipment === itemName || e.ability === itemName));
+                            if (item) {
+                                character.credits += item.cost * quantity;
+                            }
+                        }
+                    }
+                }
+                
+                character.ebonAbilities = [];
+                character.selectedFormulae = [];
+                character.ebonRanks = {};
+                character.ebonEquipmentInventory = {};
+            }
+            
             if (character.isFluxUser()) {
                 character.derivedStats.FLUX = 10;
             }

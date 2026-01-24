@@ -32,6 +32,17 @@ function renderSummaryStep(character, container, onUpdate) {
 
     // Skills (grouped by category)
     let skillsHtml = '<div class="skills-summary"><h4>Skills</h4>';
+    
+    // Show training package if selected
+    if (character.selectedTrainingPackage && typeof TRAINING_PACKAGES !== 'undefined') {
+        const pkg = TRAINING_PACKAGES[character.selectedTrainingPackage];
+        if (pkg) {
+            skillsHtml += '<div style="margin-bottom: 12px; padding: 8px; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: 6px;">' +
+                '<strong style="color: var(--color-success);">📋 Training Package:</strong> ' + escapeHtml(pkg.name) +
+                '</div>';
+        }
+    }
+    
     let anySkills = false;
     for (const catKey in SKILLS) {
         const category = SKILLS[catKey];

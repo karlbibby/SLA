@@ -84,6 +84,10 @@ class Character {
         // Phobias
         this.phobias = [];  // Array of phobia objects with treatment progress
         
+        // Training Package
+        this.selectedTrainingPackage = null;  // Package ID or null
+        this.packageSkills = {};  // Tracks skills granted by package for removal: { skillName: rank }
+        
         // Starting SCL
         this.scl = '9A';
         
@@ -301,6 +305,11 @@ class Character {
         return basePoints + disPoints - statSpent - skillSpent - advPoints - ebonSpent;
     }
 
+    // Get remaining points (alias for backward compatibility)
+    getRemainingPoints() {
+        return this.getAvailablePoints();
+    }
+
     // Check if race is a flux user
     isFluxUser() {
         if (!this.race) return false;
@@ -316,6 +325,63 @@ class Character {
                 this.skills[skillName] = rank;
             }
         }
+    }
+
+    // Apply training package skills
+    applyTrainingPackage(packageId) {
+        if (!packageId || typeof TRAINING_PACKAGES === 'undefined') return;
+        
+        // Remove current package first if any
+        this.removeTrainingPackage();
+        
+        const packageData = TRAINING_PACKAGES[packageId];
+        if (!packageData) return;
+        
+        this.selectedTrainingPackage = packageId;
+        this.packageSkills = {};
+        
+        // Add skills: +1 if skill exists, +2 if new skill
+        for (const skillName of packageData.skills) {
+            const currentRank = this.skills[skillName] || 0;
+            const bonusRank = currentRank > 0 ? 1 : 2;  // +1 if exists, +2 if new
+            this.skills[skillName] = currentRank + bonusRank;
+            this.packageSkills[skillName] = bonusRank;  // Track actual bonus given
+        }
+    }
+
+    // Remove training package skills
+    removeTrainingPackage() {
+        if (!this.selectedTrainingPackage) return;
+        
+        // Subtract package skills from character skills
+        for (const skillName in this.packageSkills) {
+            const packageRank = this.packageSkills[skillName];
+            const currentRank = this.skills[skillName] || 0;
+            const newRank = Math.max(0, currentRank - packageRank);
+            
+            if (newRank === 0) {
+                delete this.skills[skillName];  // Remove skill if rank becomes 0
+            } else {
+                this.skills[skillName] = newRank;
+            }
+        }
+        
+        this.selectedTrainingPackage = null;
+        this.packageSkills = {};
+    }
+
+    // Validate training package - auto-remove if points are available
+    // Returns true if package was removed
+    validateTrainingPackage() {
+        if (!this.selectedTrainingPackage) return false;
+        
+        // If player has any remaining points, remove the package
+        if (this.getRemainingPoints() !== 0) {
+            this.removeTrainingPackage();
+            return true;  // Package was removed
+        }
+        
+        return false;  // Package still valid
     }
 
     // Validate character for completion
@@ -425,6 +491,8 @@ class Character {
             equipmentInventory: this.equipmentInventory,
             ebonEquipmentInventory: this.ebonEquipmentInventory,
             phobias: this.phobias,
+            selectedTrainingPackage: this.selectedTrainingPackage,
+            packageSkills: this.packageSkills,
             scl: this.scl,
             // Financials
             credits: this.credits,
@@ -478,6 +546,8 @@ class Character {
         this.equipmentInventory = data.equipmentInventory || {};
         this.ebonEquipmentInventory = data.ebonEquipmentInventory || {};
         this.phobias = data.phobias || [];
+        this.selectedTrainingPackage = data.selectedTrainingPackage || null;
+        this.packageSkills = data.packageSkills || {};
         this.scl = data.scl || '9A';
 
         // Financials with sensible defaults / backwards compatibility

@@ -27,6 +27,11 @@ function initApp() {
 
  // Character update callback
 function onCharacterUpdate() {
+    // Validate training package - auto-remove if points become available
+    if (currentCharacter && typeof currentCharacter.validateTrainingPackage === 'function') {
+        currentCharacter.validateTrainingPackage();
+    }
+    
     // Auto-save to localStorage
     saveAutoSave();
     updatePageTitle();
