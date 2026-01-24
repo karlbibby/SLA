@@ -5,9 +5,11 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    height: 100vh;
     max-width: 1400px;
     margin: 0 auto;
     padding: var(--spacing-lg);
+    overflow: hidden;
 }
 
 /* ==================== HEADER ==================== */
@@ -179,8 +181,7 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     overflow-y: auto;
-    max-height: calc(100vh - 300px);
-    min-height: 400px;
+    min-height: 0;
 }
 
 /* ==================== CARDS ==================== */
