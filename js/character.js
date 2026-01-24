@@ -32,6 +32,11 @@ class Character {
         this.name = '';
         this.playerName = '';
         this.race = null;
+        this.move = {
+            walk: '',
+            run: '',
+            sprint: ''
+        };
         
         // Primary Statistics (base values start at 5)
         this.stats = {
@@ -184,6 +189,29 @@ class Character {
     calculateDerivedStats() {
         this.derivedStats.PHYS = Math.ceil((this.stats.STR + this.stats.DEX) / 2);
         this.derivedStats.KNOW = Math.ceil((this.stats.DIA + this.stats.CONC) / 2);
+    }
+
+    // Get phases/actions from DEX
+    getPhaseData() {
+        const dex = Number(this.stats?.DEX || 0);
+        let actions = 1;
+        let phases = [3];
+
+        if (dex >= 4 && dex <= 6) {
+            actions = 2;
+            phases = [2, 4];
+        } else if (dex >= 7 && dex <= 9) {
+            actions = 3;
+            phases = [1, 3, 5];
+        } else if (dex >= 10 && dex <= 12) {
+            actions = 4;
+            phases = [1, 2, 4, 5];
+        } else if (dex >= 13) {
+            actions = 5;
+            phases = [1, 2, 3, 4, 5];
+        }
+
+        return { actions, phases };
     }
 
     // Get race stat maximums
@@ -435,6 +463,26 @@ class Character {
         }
     }
 
+    // Get move rate (W/R/S) including Running skill bonus (+0.3 per rank)
+    getMoveRate() {
+        const base = this.move || {};
+        const runningRank = Number(this.skills?.Running || 0);
+        const bonus = runningRank * 0.3;
+
+        const applyBonus = (value) => {
+            if (value === '' || value === null || typeof value === 'undefined') return '';
+            const num = Number(value);
+            if (!Number.isFinite(num)) return '';
+            return Math.round((num + bonus) * 10) / 10;
+        };
+
+        return {
+            walk: applyBonus(base.walk),
+            run: applyBonus(base.run),
+            sprint: applyBonus(base.sprint)
+        };
+    }
+
     // Apply training package skills
     applyTrainingPackage(packageId) {
         if (!packageId || typeof TRAINING_PACKAGES === 'undefined') return;
@@ -570,6 +618,7 @@ class Character {
             name: this.name,
             playerName: this.playerName,
             race: this.race,
+            move: this.move,
             stats: this.stats,
             derivedStats: this.derivedStats,
             skills: this.skills,
@@ -627,6 +676,7 @@ class Character {
         this.name = data.name || '';
         this.playerName = data.playerName || '';
         this.race = data.race || null;
+        this.move = data.move || (this.race && RACES[this.race]?.move ? { ...RACES[this.race].move } : { walk: '', run: '', sprint: '' });
         this.stats = data.stats || { STR: 5, DEX: 5, DIA: 5, CONC: 5, CHA: 5, COOL: 5 };
         this.derivedStats = data.derivedStats || { PHYS: 5, KNOW: 5, FLUX: 10 };
         this.skills = data.skills || {};

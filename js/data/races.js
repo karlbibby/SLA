@@ -5,6 +5,11 @@ const RACES = {
         id: 'human',
         name: 'Human',
         description: 'The versatile baseline species of Mort. Humans adapt well to any role and form the backbone of SLA Industries operations.',
+        move: {
+            walk: 1,
+            run: 2,
+            sprint: 3
+        },
         statMaximums: {
             STR: { min: 5, max: 10 },
             DEX: { min: 5, max: 10 },
@@ -28,6 +33,11 @@ const RACES = {
         id: 'frother',
         name: 'Frother',
         description: 'Genetically modified workers bred for strength and stamina. Frothers are physically powerful but less intellectually inclined.',
+        move: {
+            walk: 1,
+            run: 2,
+            sprint: 4
+        },
         statMaximums: {
             STR: { min: 5, max: 12 },
             DEX: { min: 5, max: 10 },
@@ -51,6 +61,11 @@ const RACES = {
         id: 'ebon',
         name: 'Ebon',
         description: 'Psychic humans with the ability to channel Ebon Flux. Ebons are rare and valued for their mental abilities.',
+        move: {
+            walk: 1,
+            run: 2,
+            sprint: 3
+        },
         statMaximums: {
             STR: { min: 5, max: 9 },
             DEX: { min: 5, max: 10 },
@@ -74,6 +89,11 @@ const RACES = {
         id: 'brainWaster',
         name: 'Brain Waster',
         description: 'Ebons mutated by concentrated Flux exposure. Brain Wasters have corrupted psychic abilities and eerie physical features.',
+        move: {
+            walk: 1,
+            run: 2,
+            sprint: 3
+        },
         statMaximums: {
             STR: { min: 5, max: 11 },
             DEX: { min: 5, max: 10 },
@@ -97,6 +117,11 @@ const RACES = {
         id: 'wraithRaider',
         name: 'Wraith Raider',
         description: 'Arctic survivors with pale features and keen senses. Wraith Raiders are agile scouts and expert navigators.',
+        move: {
+            walk: 2,
+            run: 4,
+            sprint: 6
+        },
         statMaximums: {
             STR: { min: 5, max: 10 },
             DEX: { min: 5, max: 15 },
@@ -120,6 +145,11 @@ const RACES = {
         id: 'shaktar',
         name: 'Shaktar',
         description: 'Warrior race with ritual scarification and combat training. Shaktars are formidable combatants.',
+        move: {
+            walk: 1,
+            run: 3,
+            sprint: 5
+        },
         statMaximums: {
             STR: { min: 5, max: 13 },
             DEX: { min: 5, max: 13 },
@@ -143,6 +173,11 @@ const RACES = {
         id: 'stormer',
         name: 'Stormer 313',
         description: 'Biogenetic super-soldiers created for warfare. Stormers are living weapons with enhanced physiology.',
+        move: {
+            walk: 1,
+            run: 2.5,
+            sprint: 4
+        },
         statMaximums: {
             STR: { min: 5, max: 15 },
             DEX: { min: 5, max: 13 },
@@ -166,6 +201,11 @@ const RACES = {
         id: 'vevaphon',
         name: 'Vevaphon',
         description: "The Vevaphon, or 'Vev' for short, is the first creation to step forward from the Doppleganger Institute. A biogenetic polymorph, able to take on different shapes and forms through the manipulation of individual cells in their body by the million.",
+        move: {
+            walk: 1,
+            run: 2,
+            sprint: 4
+        },
         statMaximums: {
             STR: { min: 5, max: 10 },
             DEX: { min: 5, max: 10 },
@@ -189,6 +229,11 @@ const RACES = {
         id: 'chagrin',
         name: 'Stormer 714 - Chargrin',
         description: 'The Chagrin is designed to be the optimum combat efficient, self supporting, SLA soldier. This is a role that they fulfil perfectly. These unquestionably loyal killing machines are the perfect breed.',
+        move: {
+            walk: 1,
+            run: 2,
+            sprint: 3.5
+        },
         statMaximums: {
             STR: { min: 5, max: 20 },
             DEX: { min: 5, max: 12 },
@@ -209,6 +254,11 @@ const RACES = {
         id: 'xeno',
         name: 'Stormer 711 - Xeno',
         description: 'The Stormers 313 and 714 are the muscle, the strong arm of SLA Industries, but Karma wanted more from their designers. The Xeno (Ze-no) is the first successful attempt at such diversification.',
+        move: {
+            walk: 2,
+            run: 4,
+            sprint: 6
+        },
         statMaximums: {
             STR: { min: 5, max: 13 },
             DEX: { min: 5, max: 15 },

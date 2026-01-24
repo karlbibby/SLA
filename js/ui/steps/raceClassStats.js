@@ -8,6 +8,10 @@ function renderRaceStep(character, container, onUpdate) {
         for (const stat in raceData.statMaximums) {
             statSummary += stat + ': ' + raceData.statMaximums[stat].max + ' ';
         }
+        const move = raceData.move || {};
+        const moveSummary = (typeof move.walk !== 'undefined' || typeof move.run !== 'undefined' || typeof move.sprint !== 'undefined')
+            ? (move.walk ?? '--') + '/' + (move.run ?? '--') + '/' + (move.sprint ?? '--')
+            : '--/--/--';
         let freeSkillsHtml = '';
         if (raceData.freeSkills && Object.keys(raceData.freeSkills).length) {
             let skillsList = '';
@@ -37,6 +41,7 @@ function renderRaceStep(character, container, onUpdate) {
             '<div class="card-subtitle">Flux User: ' + (raceData.fluxUser ? 'Yes' : 'No') + '</div></div></div>' +
             '<div class="card-description">' + raceData.description + '</div>' +
             '<div class="form-hint" style="margin-top:10px">Stat Maxes: ' + statSummary + '</div>' +
+            '<div class="form-hint">Move Rate (W/R/S): ' + moveSummary + '</div>' +
             '<div class="form-hint">' + raceData.special + '</div>' +
             freeSkillsHtml +
             '</div>';
@@ -55,6 +60,7 @@ function renderRaceStep(character, container, onUpdate) {
                 const min = maximums[stat]?.min ?? 5;
                 character.stats[stat] = min;
             }
+            character.move = RACES[raceId]?.move ? { ...RACES[raceId].move } : { walk: '', run: '', sprint: '' };
             character.skills = {};
             
             // If switching from Ebon to non-Ebon, clear Ebon abilities and equipment

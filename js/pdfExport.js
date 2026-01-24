@@ -142,6 +142,25 @@
     }).join('');
   }
 
+  function renderPhaseBoxes(phases) {
+    const activeSet = new Set(Array.isArray(phases) ? phases.map(p => Number(p)) : []);
+    return [1, 2, 3, 4, 5].map((p) => {
+      const active = activeSet.has(p);
+      const style = [
+        'display:inline-block',
+        'width:14px',
+        'height:14px',
+        'border:1px solid #000',
+        'text-align:center',
+        'line-height:12px',
+        'margin-right:2px',
+        'font-size:8px',
+        active ? 'background:#000;color:#fff' : ''
+      ].join(';');
+      return `<span style="${style}">${p}</span>`;
+    }).join('');
+  }
+
   function renderEbonEquipmentTable(character) {
     const ei = character.ebonEquipmentInventory || {};
     const entries = Object.entries(ei).filter(([, qty]) => (Number(qty) || 0) > 0);
@@ -156,6 +175,12 @@
   function buildPages(character) {
     const pages = [];
     const nowStr = new Date().toLocaleDateString();
+    const phaseData = (character.getPhaseData && typeof character.getPhaseData === 'function')
+      ? character.getPhaseData()
+      : { actions: '', phases: [] };
+    const phaseSummary = (phaseData.phases && phaseData.phases.length)
+      ? phaseData.phases.join(', ')
+      : '';
 
     const cover = `
       <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:0;background:#fff;font-family:Arial, Helvetica, sans-serif;position:relative;">
@@ -341,7 +366,7 @@
               </div>
 
               <div class="panel initiative-strip" style="border:1px solid #000;display:flex;font-size:9px;">
-                <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Initiative Phase</span><div><span style="display:inline-block;width:14px;height:14px;border:1px solid #000;text-align:center;line-height:12px;margin-right:2px;font-size:8px;">1</span><span style="display:inline-block;width:14px;height:14px;border:1px solid #000;text-align:center;line-height:12px;margin-right:2px;font-size:8px;">2</span><span style="display:inline-block;width:14px;height:14px;border:1px solid #000;text-align:center;line-height:12px;margin-right:2px;font-size:8px;">3</span></div></div>
+                <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Initiative Phase</span><div>${renderPhaseBoxes(phaseData.phases)}</div></div>
                 <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Damage Bonus</span><span style="border-bottom:1px solid #000;flex:1;height:10px;"></span></div>
               </div>
             </div>
@@ -360,8 +385,9 @@
                     <div style="font-size:9px;margin-bottom:4px;">Cool: ${escapeHtml(String(character.stats?.COOL || ''))}</div>
                   </div>
                   <div>
-                    <div style="border:1px solid #000;margin-bottom:6px;padding:4px;font-size:9px;">MOVE<br/>Walk: ${escapeHtml(String(character.move?.walk || ''))}<br/>Run: ${escapeHtml(String(character.move?.run || ''))}<br/>Sprint: ${escapeHtml(String(character.move?.sprint || ''))}</div>
+                    <div style="border:1px solid #000;margin-bottom:6px;padding:4px;font-size:9px;">MOVE (W/R/S)<br/>W: ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().walk : character.move?.walk) || ''))}<br/>R: ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().run : character.move?.run) || ''))}<br/>S: ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().sprint : character.move?.sprint) || ''))}</div>
                     <div style="border:1px solid #000;padding:4px;font-size:9px;">ENCUMBRANCE<br/>${escapeHtml(String(character.encumbrance?.movement || ''))}</div>
+                    <div style="border:1px solid #000;margin-top:6px;padding:4px;font-size:9px;">PHASES<br/>Actions: ${escapeHtml(String(phaseData.actions || ''))}<br/>Phases: ${escapeHtml(String(phaseSummary))}</div>
                   </div>
                 </div>
               </div>
