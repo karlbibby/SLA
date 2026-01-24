@@ -18,7 +18,7 @@ const RACES = {
         freeSkills: {
             Literacy: 1,
             Detect: 1,
-            "SLA Info": 2,
+            "SLA Information": 2,
             "Rival Company": 1,
             Streetwise: 2,
             "Unarmed Combat": 1
@@ -40,7 +40,7 @@ const RACES = {
         fluxUser: false,
         freeSkills: {
             Detect: 1,
-            "SLA Info": 1,
+            "SLA Information": 1,
             "Rival Company": 1,
             Streetwise: 2,
             "Unarmed Combat": 2,
@@ -65,7 +65,7 @@ const RACES = {
             Literacy: 1,
             Detect: 1,
             "Rival Company": 1,
-            "SLA Info": 2,
+            "SLA Information": 2,
             Communique: 2,
             Persuasion: 1
         }
@@ -90,7 +90,7 @@ const RACES = {
             Streetwise: 1,
             Literacy: 1,
             Detect: 1,
-            "SLA Info": 1
+            "SLA Information": 1
         }
     },
     wraithRaider: {
@@ -109,7 +109,7 @@ const RACES = {
         fluxUser: false,
         freeSkills: {
             Detect: 1,
-            "SLA Info": 1,
+            "SLA Information": 1,
             "Rival Company": 1,
             Streetwise: 2,
             Sneaking: 2,
@@ -155,7 +155,7 @@ const RACES = {
         fluxUser: false,
         freeSkills: {
             "Unarmed Combat": 2,
-            "SLA Info": 1,
+            "SLA Information": 1,
             "Rival Company": 1,
             Intimidate: 2,
             Streetwise: 1,
@@ -178,7 +178,7 @@ const RACES = {
         fluxUser: false,
         freeSkills: {
             Detect: 1,
-            "SLA Info": 1,
+            "SLA Information": 1,
             "Unarmed Combat": 1,
             "Blade, 1-H": 1,
             Sneaking: 2,
@@ -221,7 +221,7 @@ const RACES = {
         fluxUser: false,
         freeSkills: {
             "Unarmed Combat": 2,
-            "SLA Info": 1,
+            "SLA Information": 1,
             Sneaking: 1,
             Hide: 2,
             Climb: 1

@@ -12,8 +12,7 @@ const TRAINING_PACKAGES = {
       'Rival Company',
       'Tactics',
       'Evaluate Opponent',
-      'Unarmed Combat',
-      'Kick'
+      'Unarmed Combat'
     ]
   },
   
@@ -38,7 +37,7 @@ const TRAINING_PACKAGES = {
     skills: [
       'Detect',
       'Rival Company',
-      'SLA Info',
+      'SLA Information',
       'Streetwise',
       'Interview',
       'Forensics'
@@ -50,8 +49,8 @@ const TRAINING_PACKAGES = {
     name: 'Medical Package',
     description: 'The Medical Package is a very in-depth and specialized form of training and most companies find that an operative with these skills is an essential part of a squad, especially when there are no Ebons to compensate for the other operative\'s lack of medical skills. The operative\'s medical training includes Paramedic skills and Forensics as well as Pathology and Computer Use so that they are able to use the medical computer software available to them in SLA Industries.',
     skills: [
-      'Paramedic',
-      'Medical Practice',
+      'Medical, Paramedic',
+      'Medical, Practice',
       'Forensics',
       'Psychology',
       'Pathology',
@@ -64,12 +63,12 @@ const TRAINING_PACKAGES = {
     name: 'Mechanics Package',
     description: 'The Mechanics Package is similar to the Medical Package with respect to the amount of specialized training involved, and most squads with a vehicle of some sort find that an operative with a Mechanics training package is necessary for the upkeep of their vehicle, as it is usually a valuable asset to the squad. The Mechanics Package also includes training for the operative in Computer Use, Subterfuge and Electronics.',
     skills: [
-      'Mechanics Repair',
-      'Mechanics Industrial',
-      'Electronics Repair',
-      'Electronics Industrial',
+      'Mechanics, Repair',
+      'Mechanics, Industrial',
+      'Electronics, Repair',
+      'Electronics, Industrial',
       'Computer Use',
-      'Computer Subterfuge'
+      'Computer, Subterfuge'
     ]
   },
   
@@ -78,12 +77,12 @@ const TRAINING_PACKAGES = {
     name: 'Pilot and Navigation Package',
     description: 'The Pilot and Navigation Package trains the operative in all aspects of company transport. This involves learning how to drive and pilot the varying vehicle types, which range from small jeeps to the Line Mate tanks, from armed bikes to the heavily armed Kilcopter. The pilot is also given a knowledge of how to repair and analyse certain parts of damaged and non-functioning vehicles. The package includes training in navigation which comprises map-reading, a knowledge of navigational devices such as the Nava-map and land marks. An operative trained in this package is essential to a squad who frequently travel.',
     skills: [
-      'Pilot Military',
-      'Drive Military',
-      'Drive Motorcycle',
+      'Pilot, Military',
+      'Drive, Military',
+      'Drive, Motorcycle',
       'Navigation',
       'Auto/Support',
-      'Mechanics Repair'
+      'Mechanics, Repair'
     ]
   },
   
@@ -96,7 +95,7 @@ const TRAINING_PACKAGES = {
       'Business Finance',
       'Diplomacy',
       'Communique',
-      'SLA Info',
+      'SLA Information',
       'Computer Use'
     ]
   },
@@ -106,11 +105,11 @@ const TRAINING_PACKAGES = {
     name: 'Strike Squad Package',
     description: 'The Strike Squad Package training is the basic Militia training for operatives. The operative is not trained in a specialized field but a selection of the basic skills needed to be an operative. A player can further specialize his / her character later on in generation if he or she so desires. The Strike Squad Package training provides a good basis for versatility in SLA Industries.',
     skills: [
-      'Drive Civilian',
-      'Drive Military',
+      'Drive, Civilian',
+      'Drive, Military',
       'Pistol',
       'Rifle',
-      'Paramedic'
+      'Medical, Paramedic'
       // Note: "Any Close Combat Skill" is not included as it's a player choice
     ]
   },

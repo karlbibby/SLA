@@ -86,7 +86,7 @@ class Character {
         
         // Training Package
         this.selectedTrainingPackage = null;  // Package ID or null
-        this.packageSkills = {};  // Tracks skills granted by package for removal: { skillName: rank }
+        this.packageSkills = {};  // Tracks skills granted by package for removal: { skillName: rank | { bonusRank, originalRank } }
         
         // Starting SCL
         this.scl = '9A';
@@ -169,19 +169,62 @@ class Character {
         return Math.min(10, this.getGoverningStatValue(skillName));
     }
 
-    // Calculate skill points spent (excludes free skills from race)
+    // Calculate skill points spent (excludes free skills from race and training package)
     calculateSkillPointsSpent() {
         let spent = 0;
         const raceData = RACES[this.race];
         const freeSkills = raceData ? raceData.freeSkills || {} : {};
-        
+
         for (const skillName in this.skills) {
-            const rank = this.skills[skillName];
-            const freeRank = freeSkills[skillName] || 0;
-            const effectiveRank = Math.max(0, rank - freeRank);
-            
-            // Progressive cost: rank 1 = 1pt, rank 2 = 2pts, etc.
-            spent += (effectiveRank * (effectiveRank + 1)) / 2;
+            const rank = Number(this.skills[skillName] || 0);
+            if (!rank || rank <= 0) continue;
+
+            const freeRank = Number(freeSkills[skillName] || 0);
+
+            // Determine training package bonus info (if any)
+            let pkgBonus = 0;
+            let pkgOriginalRank = null;
+            const pkgEntry = this.packageSkills ? this.packageSkills[skillName] : null;
+            if (pkgEntry) {
+                if (typeof pkgEntry === 'number') {
+                    pkgBonus = Number(pkgEntry || 0);
+                } else if (typeof pkgEntry === 'object') {
+                    pkgBonus = Number(pkgEntry.bonusRank || 0);
+                    if (typeof pkgEntry.originalRank === 'number') {
+                        pkgOriginalRank = pkgEntry.originalRank;
+                    }
+                }
+            }
+
+            // Build a set of free ranks (race free ranks are the lowest ranks)
+            const freeRankSet = new Set();
+            for (let i = 1; i <= Math.min(rank, freeRank); i++) {
+                freeRankSet.add(i);
+            }
+
+            // Training package grants free ranks based on original rank at time of selection
+            if (pkgBonus > 0) {
+                let inferredOriginal = pkgOriginalRank;
+                if (typeof inferredOriginal !== 'number') {
+                    inferredOriginal = Math.max(0, rank - pkgBonus);
+                }
+
+                let startRank = 1;
+                if (inferredOriginal > 0) {
+                    startRank = inferredOriginal + 1;
+                }
+                const endRank = Math.min(rank, startRank + pkgBonus - 1);
+                for (let i = startRank; i <= endRank; i++) {
+                    freeRankSet.add(i);
+                }
+            }
+
+            // Sum cost for non-free ranks
+            for (let i = 1; i <= rank; i++) {
+                if (!freeRankSet.has(i)) {
+                    spent += i;
+                }
+            }
         }
         return spent;
     }
@@ -345,7 +388,7 @@ class Character {
             const currentRank = this.skills[skillName] || 0;
             const bonusRank = currentRank > 0 ? 1 : 2;  // +1 if exists, +2 if new
             this.skills[skillName] = currentRank + bonusRank;
-            this.packageSkills[skillName] = bonusRank;  // Track actual bonus given
+            this.packageSkills[skillName] = { bonusRank, originalRank: currentRank };  // Track actual bonus given
         }
     }
 
@@ -355,7 +398,10 @@ class Character {
         
         // Subtract package skills from character skills
         for (const skillName in this.packageSkills) {
-            const packageRank = this.packageSkills[skillName];
+            const packageEntry = this.packageSkills[skillName];
+            const packageRank = (typeof packageEntry === 'object' && packageEntry !== null)
+                ? (packageEntry.bonusRank || 0)
+                : (packageEntry || 0);
             const currentRank = this.skills[skillName] || 0;
             const newRank = Math.max(0, currentRank - packageRank);
             
@@ -517,6 +563,40 @@ class Character {
         this.stats = data.stats || { STR: 5, DEX: 5, DIA: 5, CONC: 5, CHA: 5, COOL: 5 };
         this.derivedStats = data.derivedStats || { PHYS: 5, KNOW: 5, FLUX: 10 };
         this.skills = data.skills || {};
+        const skillAliases = {
+            'SLA Info': 'SLA Information',
+            'Paramedic': 'Medical, Paramedic',
+            'Medical Practice': 'Medical, Practice',
+            'Mechanics Repair': 'Mechanics, Repair',
+            'Mechanics Industrial': 'Mechanics, Industrial',
+            'Electronics Repair': 'Electronics, Repair',
+            'Electronics Industrial': 'Electronics, Industrial',
+            'Computer Subterfuge': 'Computer, Subterfuge',
+            'Drive Civilian': 'Drive, Civilian',
+            'Drive Military': 'Drive, Military',
+            'Drive Motorcycle': 'Drive, Motorcycle',
+            'Pilot Military': 'Pilot, Military'
+        };
+        const normalizeSkillMap = (map) => {
+            const normalized = {};
+            const getBonus = (entry) => (typeof entry === 'object' && entry !== null) ? (Number(entry.bonusRank || 0)) : Number(entry || 0);
+            for (const [name, value] of Object.entries(map || {})) {
+                const key = skillAliases[name] || name;
+                const existing = normalized[key];
+                if (!existing) {
+                    normalized[key] = value;
+                    continue;
+                }
+
+                const existingBonus = getBonus(existing);
+                const incomingBonus = getBonus(value);
+                if (incomingBonus >= existingBonus) {
+                    normalized[key] = value;
+                }
+            }
+            return normalized;
+        };
+        this.skills = normalizeSkillMap(this.skills);
         this.advantages = data.advantages || {};
         this.disadvantages = data.disadvantages || {};
         this.ebonAbilities = data.ebonAbilities || [];
@@ -547,7 +627,7 @@ class Character {
         this.ebonEquipmentInventory = data.ebonEquipmentInventory || {};
         this.phobias = data.phobias || [];
         this.selectedTrainingPackage = data.selectedTrainingPackage || null;
-        this.packageSkills = data.packageSkills || {};
+        this.packageSkills = normalizeSkillMap(data.packageSkills || {});
         this.scl = data.scl || '9A';
 
         // Financials with sensible defaults / backwards compatibility

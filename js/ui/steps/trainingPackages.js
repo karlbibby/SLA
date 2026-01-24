@@ -82,19 +82,33 @@ function renderTrainingPackagesStep(character, container, onUpdate) {
             
             const currentRank = character.skills[skillName] || 0;
             const bonusRank = currentRank > 0 ? 1 : 2;  // +1 if exists, +2 if new
-            const newRank = currentRank + bonusRank;
+
+            // If this package is selected, show pre-package rank → new rank
+            let displayCurrentRank = currentRank;
+            let displayNewRank = currentRank + bonusRank;
+            if (isSelected && character.packageSkills && character.packageSkills[skillName]) {
+                const pkgEntry = character.packageSkills[skillName];
+                const pkgBonus = (typeof pkgEntry === 'object' && pkgEntry !== null)
+                    ? (pkgEntry.bonusRank || 0)
+                    : (pkgEntry || 0);
+                const originalRank = (typeof pkgEntry === 'object' && pkgEntry !== null && typeof pkgEntry.originalRank === 'number')
+                    ? pkgEntry.originalRank
+                    : Math.max(0, currentRank - pkgBonus);
+                displayCurrentRank = originalRank;
+                displayNewRank = originalRank + pkgBonus;
+            }
             
+            const statLabel = governingStat ? ' <span style="color: var(--text-muted); font-size: 0.85em;">(' + governingStat + ')</span>' : '';
+
             // Show current → new rank if this package is selected
             if (isSelected) {
                 skillsHtml += '<div class="skill-item" style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">' +
-                    '<span>' + skillName + ' <span style="color: var(--text-muted); font-size: 0.85em;">(' + governingStat + ')</span></span>' +
-                    '<span style="color: var(--color-success); font-weight: 600;">' + currentRank + ' → ' + newRank + '</span>' +
+                    '<span>' + skillName + statLabel + '</span>' +
+                    '<span style="color: var(--color-success); font-weight: 600;">' + displayCurrentRank + ' → ' + displayNewRank + '</span>' +
                     '</div>';
             } else {
-                const displayBonus = currentRank > 0 ? '+1' : '+2';
                 skillsHtml += '<div class="skill-item" style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">' +
-                    '<span>' + skillName + ' <span style="color: var(--text-muted); font-size: 0.85em;">(' + governingStat + ')</span></span>' +
-                    '<span style="color: var(--text-muted);">' + displayBonus + '</span>' +
+                    '<span>' + skillName + statLabel + '</span>' +
                     '</div>';
             }
         }

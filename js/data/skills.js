@@ -292,6 +292,10 @@ const SKILLS = {
         governingStat: 'KNOW',
         description: "Knowledge of street laws, criminal networks and urban survival."
       },
+      'Rival Company': {
+        governingStat: 'KNOW',
+        description: 'Knowledge of rival company structures, procedures and personnel.'
+      },
       'Evaluate Opponent': {
         governingStat: 'KNOW',
         description: 'Judging an opponent\'s combat abilities to provide tactical insight.'

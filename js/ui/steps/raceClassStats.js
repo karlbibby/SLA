@@ -8,12 +8,38 @@ function renderRaceStep(character, container, onUpdate) {
         for (const stat in raceData.statMaximums) {
             statSummary += stat + ': ' + raceData.statMaximums[stat].max + ' ';
         }
+        let freeSkillsHtml = '';
+        if (raceData.freeSkills && Object.keys(raceData.freeSkills).length) {
+            let skillsList = '';
+            for (const [skillName, rank] of Object.entries(raceData.freeSkills)) {
+                let governingStat = '';
+                if (typeof SKILLS !== 'undefined') {
+                    for (const category in SKILLS) {
+                        if (SKILLS[category].skills[skillName]) {
+                            governingStat = SKILLS[category].skills[skillName].governingStat || '';
+                            break;
+                        }
+                    }
+                }
+                const statLabel = governingStat ? ' <span style="color: var(--text-muted); font-size: 0.85em;">(' + governingStat + ')</span>' : '';
+                skillsList += '<div style="display:flex;justify-content:space-between;padding:2px 0;">' +
+                    '<span>' + skillName + statLabel + '</span>' +
+                    '<span style="color: var(--text-muted);">' + rank + '</span>' +
+                    '</div>';
+            }
+            freeSkillsHtml = '<div class="form-hint" style="margin-top:8px">Free Skills:</div>' +
+                '<div style="margin-top:4px;padding:6px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px">' +
+                skillsList +
+                '</div>';
+        }
         racesHtml += '<div class="card ' + (isSelected ? 'selected' : '') + '" data-race="' + raceId + '" style="cursor:pointer">' +
             '<div class="card-header"><div><div class="card-title">' + raceData.name + '</div>' +
             '<div class="card-subtitle">Flux User: ' + (raceData.fluxUser ? 'Yes' : 'No') + '</div></div></div>' +
             '<div class="card-description">' + raceData.description + '</div>' +
             '<div class="form-hint" style="margin-top:10px">Stat Maxes: ' + statSummary + '</div>' +
-            '<div class="form-hint">' + raceData.special + '</div></div>';
+            '<div class="form-hint">' + raceData.special + '</div>' +
+            freeSkillsHtml +
+            '</div>';
     }
     racesHtml += '</div>';
     container.innerHTML = '<div class="section-header"><h2 class="section-title">Step 2: Select Race</h2><p class="section-description">Choose your character\'s species. Each race has different stat maximums and abilities.</p></div>' + racesHtml;
