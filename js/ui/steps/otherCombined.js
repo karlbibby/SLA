@@ -14,7 +14,7 @@ function renderOtherCombinedStep(character, container, onUpdate) {
     character.vehicleInventory = character.vehicleInventory || {};
 
     const armourItems = (Array.isArray(ARMOUR) ? ARMOUR.slice() : []);
-    const equipmentItems = (Array.isArray(EQUIPMENT) ? EQUIPMENT.slice() : []);
+    const equipmentItems = (Array.isArray(EQUIPMENT) ? EQUIPMENT.slice() : []).filter(item => !item.hidden);
     const vehicleItems = (Array.isArray(VEHICLES) ? VEHICLES.slice() : []);
 
     if (!character.selectedArmourType) {
@@ -66,6 +66,7 @@ function renderOtherCombinedStep(character, container, onUpdate) {
 
     equipmentItems.forEach(item => {
         const qty = character.equipmentInventory[item.type] || 0;
+        const lockedQty = (character.lockedInventory && character.lockedInventory.equipment && character.lockedInventory.equipment[item.type]) || 0;
         const costCredits = getEquipmentCostCredits(item);
         const canPurchase = typeof costCredits === 'number';
         html += '<div class="equipment-row" data-equipment="' + escapeHtml(item.type) + '">' +
@@ -76,7 +77,7 @@ function renderOtherCombinedStep(character, container, onUpdate) {
             '<div>' + escapeHtml(item.range) + '</div>' +
             '<div>' + escapeHtml(item.userLife) + '</div>' +
             '<div class="equipment-qty">' +
-                '<button class="equipment-qty-btn equipment-decrease" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
+                '<button class="equipment-qty-btn equipment-decrease" ' + (qty <= lockedQty ? 'disabled' : '') + '>−</button>' +
                 '<span class="equipment-qty-value">' + escapeHtml(String(qty)) + '</span>' +
                 '<button class="equipment-qty-btn equipment-increase" ' + (!canPurchase ? 'disabled' : '') + '>+</button>' +
             '</div>' +
@@ -144,6 +145,11 @@ function renderOtherCombinedStep(character, container, onUpdate) {
             return EQUIPMENT.find(a => a.type === type) || null;
         }
 
+        function getLockedEquipmentQty(type) {
+            if (!character.lockedInventory || !character.lockedInventory.equipment) return 0;
+            return character.lockedInventory.equipment[type] || 0;
+        }
+
         function findVehicleByKey(key) {
             if (!Array.isArray(VEHICLES)) return null;
             return VEHICLES.find(v => (v.name + ' (' + v.type + ')') === key) || null;
@@ -207,7 +213,8 @@ function renderOtherCombinedStep(character, container, onUpdate) {
         if (equipDec) {
             const type = equipDec.closest('[data-equipment]').getAttribute('data-equipment');
             const current = character.equipmentInventory[type] || 0;
-            if (current > 0) {
+            const lockedQty = getLockedEquipmentQty(type);
+            if (current > lockedQty) {
                 const item = findEquipmentByType(type);
                 const price = getEquipmentCostCredits(item);
                 character.equipmentInventory[type] = current - 1;

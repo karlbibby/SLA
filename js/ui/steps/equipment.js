@@ -33,7 +33,7 @@ function renderEquipmentStep(character, container, onUpdate) {
 
 	character.equipmentInventory = character.equipmentInventory || {};
 
-	const items = (Array.isArray(EQUIPMENT) ? EQUIPMENT.slice() : []);
+	const items = (Array.isArray(EQUIPMENT) ? EQUIPMENT.slice() : []).filter(item => !item.hidden);
 
 	let html = sectionHeader('Step 12: Equipment', 'Purchase equipment using your available credits.');
 	html += '<div class="equipment-container">';
@@ -44,6 +44,7 @@ function renderEquipmentStep(character, container, onUpdate) {
 
 	items.forEach(item => {
 		const qty = character.equipmentInventory[item.type] || 0;
+		const lockedQty = (character.lockedInventory && character.lockedInventory.equipment && character.lockedInventory.equipment[item.type]) || 0;
 		const costCredits = getEquipmentCostCredits(item);
 		const canPurchase = typeof costCredits === 'number';
 		html += '<div class="equipment-row" data-equipment="' + escapeHtml(item.type) + '">' +
@@ -54,7 +55,7 @@ function renderEquipmentStep(character, container, onUpdate) {
 			'<div>' + escapeHtml(item.range) + '</div>' +
 			'<div>' + escapeHtml(item.userLife) + '</div>' +
 			'<div class="equipment-qty">' +
-				'<button class="equipment-qty-btn equipment-decrease" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
+				'<button class="equipment-qty-btn equipment-decrease" ' + (qty <= lockedQty ? 'disabled' : '') + '>−</button>' +
 				'<span class="equipment-qty-value">' + escapeHtml(String(qty)) + '</span>' +
 				'<button class="equipment-qty-btn equipment-increase" ' + (!canPurchase ? 'disabled' : '') + '>+</button>' +
 			'</div>' +
@@ -79,6 +80,11 @@ function renderEquipmentStep(character, container, onUpdate) {
 			return EQUIPMENT.find(a => a.type === type) || null;
 		}
 
+		function getLockedEquipmentQty(type) {
+			if (!character.lockedInventory || !character.lockedInventory.equipment) return 0;
+			return character.lockedInventory.equipment[type] || 0;
+		}
+
 		if (inc) {
 			const type = inc.closest('[data-equipment]').getAttribute('data-equipment');
 			const item = findEquipmentByType(type);
@@ -99,7 +105,8 @@ function renderEquipmentStep(character, container, onUpdate) {
 		if (dec) {
 			const type = dec.closest('[data-equipment]').getAttribute('data-equipment');
 			const current = character.equipmentInventory[type] || 0;
-			if (current > 0) {
+			const lockedQty = getLockedEquipmentQty(type);
+			if (current > lockedQty) {
 				const item = findEquipmentByType(type);
 				const price = getEquipmentCostCredits(item);
 				character.equipmentInventory[type] = current - 1;

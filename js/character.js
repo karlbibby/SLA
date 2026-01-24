@@ -1,5 +1,31 @@
 // SLA Industries Character Generator - Character Model
 
+const STARTER_KIT = {
+    armaments: {
+        'FEN 603': 1
+    },
+    ammo: {
+        '10mm Auto × STD': 2
+    },
+    equipment: {
+        'Headset Communicator': 1,
+        'Klippo Lighter': 1,
+        'Pen': 1,
+        'Blueprint News File Case': 1,
+        'S.C.L. Card': 1,
+        'Finance Chip': 1,
+        'Package Card': 1,
+        'Package Badge': 1,
+        'Departmental Authorization Card': 1,
+        'Pack of Contraceptives': 1,
+        'Clothes (Set)': 2,
+        'Footwear (Set)': 1,
+        'Operative Organizer': 1,
+        'SLA Badge': 1,
+        'Weapons Maintenance Kit': 1
+    }
+};
+
 class Character {
     constructor() {
         // Basic Info
@@ -80,6 +106,16 @@ class Character {
 
         // Ebon Equipment Inventory
         this.ebonEquipmentInventory = {};  // { "Force Ebb Kinetic — Flintlock": 1 }
+
+        // Locked inventory (non-removable starter kit)
+        this.lockedInventory = {
+            armaments: {},
+            ammo: {},
+            equipment: {}
+        };
+
+        // Starter kit flag
+        this.starterKitApplied = false;
         
         // Phobias
         this.phobias = [];  // Array of phobia objects with treatment progress
@@ -113,6 +149,35 @@ class Character {
         // Creation metadata
         this.created = new Date().toISOString();
         this.version = '1.0';
+
+        this.applyStarterKit();
+    }
+
+    applyStarterKit() {
+        if (this.starterKitApplied) return;
+
+        const addItems = (inventory, lockedInventory, items) => {
+            if (!inventory || !items) return;
+            for (const [name, qty] of Object.entries(items)) {
+                const amount = Number(qty) || 0;
+                if (amount <= 0) continue;
+                inventory[name] = (inventory[name] || 0) + amount;
+                if (lockedInventory) {
+                    lockedInventory[name] = (lockedInventory[name] || 0) + amount;
+                }
+            }
+        };
+
+        addItems(this.armamentInventory, this.lockedInventory.armaments, STARTER_KIT.armaments);
+        addItems(this.ammoInventory, this.lockedInventory.ammo, STARTER_KIT.ammo);
+        addItems(this.equipmentInventory, this.lockedInventory.equipment, STARTER_KIT.equipment);
+
+        if (STARTER_KIT.equipment && STARTER_KIT.equipment['Finance Chip']) {
+            this.financeChip = true;
+            this.financeCard = false;
+        }
+
+        this.starterKitApplied = true;
     }
     
     // Calculate derived stats based on primary stats
@@ -549,6 +614,8 @@ class Character {
             housing: this.housing,
             totalPoints: this.totalPoints,
             spentPoints: this.spentPoints,
+            starterKitApplied: this.starterKitApplied,
+            lockedInventory: this.lockedInventory,
             created: this.created,
             version: this.version
         };
@@ -640,6 +707,8 @@ class Character {
 
         this.totalPoints = data.totalPoints || this.totalPoints || 300;
         this.spentPoints = data.spentPoints || this.spentPoints || 0;
+        this.starterKitApplied = (typeof data.starterKitApplied !== 'undefined') ? data.starterKitApplied : this.starterKitApplied;
+        this.lockedInventory = data.lockedInventory || this.lockedInventory || { armaments: {}, ammo: {}, equipment: {} };
         this.created = data.created || this.created || new Date().toISOString();
         this.version = data.version || this.version || '1.0';
     }

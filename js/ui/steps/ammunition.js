@@ -45,11 +45,12 @@ function renderAmmunitionStep(character, container, onUpdate) {
             const canPurchase = typeof priceCredits === 'number';
             const key = ammo.calibre + ' × ' + type;
             const qty = character.ammoInventory[key] || 0;
+            const lockedQty = (character.lockedInventory && character.lockedInventory.ammo && character.lockedInventory.ammo[key]) || 0;
 
             html += '<div class="ammo-cell" data-ammo="' + escapeHtml(key) + '" data-type="' + escapeHtml(type) + '">' +
                 '<div class="ammo-price ' + (available ? '' : 'is-unavailable') + '">' + escapeHtml(formatAmmoStandardCost(cell)) + '</div>' +
                 '<div class="ammo-qty">' +
-                    '<button class="ammo-qty-btn ammo-decrease" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
+                    '<button class="ammo-qty-btn ammo-decrease" ' + (qty <= lockedQty ? 'disabled' : '') + '>−</button>' +
                     '<span class="ammo-qty-value">' + escapeHtml(String(qty)) + '</span>' +
                     '<button class="ammo-qty-btn ammo-increase" ' + (!canPurchase ? 'disabled' : '') + '>+</button>' +
                 '</div>' +
@@ -86,6 +87,11 @@ function renderAmmunitionStep(character, container, onUpdate) {
             return null;
         }
 
+        function getLockedAmmoQty(key) {
+            if (!character.lockedInventory || !character.lockedInventory.ammo) return 0;
+            return character.lockedInventory.ammo[key] || 0;
+        }
+
         if (inc) {
             const cellEl = inc.closest('[data-ammo]');
             const key = cellEl.getAttribute('data-ammo');
@@ -108,7 +114,8 @@ function renderAmmunitionStep(character, container, onUpdate) {
             const cellEl = dec.closest('[data-ammo]');
             const key = cellEl.getAttribute('data-ammo');
             const current = character.ammoInventory[key] || 0;
-            if (current > 0) {
+            const lockedQty = getLockedAmmoQty(key);
+            if (current > lockedQty) {
                 const cell = findAmmoCellByKey(key);
                 const price = getAmmoCostCredits(cell);
                 character.ammoInventory[key] = current - 1;

@@ -38,6 +38,7 @@ function renderArmamentsStep(character, container, onUpdate) {
 
     items.forEach(armament => {
         const qty = character.armamentInventory[armament.type] || 0;
+        const lockedQty = (character.lockedInventory && character.lockedInventory.armaments && character.lockedInventory.armaments[armament.type]) || 0;
         const costCredits = getArmamentCostCredits(armament);
         const canPurchase = typeof costCredits === 'number';
         html += '<div class="armament-row" data-armament="' + escapeHtml(armament.type) + '">' +
@@ -51,7 +52,7 @@ function renderArmamentsStep(character, container, onUpdate) {
             '<div>' + escapeHtml(armament.weight) + '</div>' +
             '<div class="armament-cost">' + escapeHtml(formatArmamentCost(armament)) + '</div>' +
             '<div class="armament-qty">' +
-                '<button class="armament-qty-btn armament-decrease" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
+                '<button class="armament-qty-btn armament-decrease" ' + (qty <= lockedQty ? 'disabled' : '') + '>−</button>' +
                 '<span class="armament-qty-value">' + escapeHtml(String(qty)) + '</span>' +
                 '<button class="armament-qty-btn armament-increase" ' + (!canPurchase ? 'disabled' : '') + '>+</button>' +
             '</div>' +
@@ -76,6 +77,11 @@ function renderArmamentsStep(character, container, onUpdate) {
             return ARMAMENTS.find(a => a.type === type) || null;
         }
 
+        function getLockedArmamentQty(type) {
+            if (!character.lockedInventory || !character.lockedInventory.armaments) return 0;
+            return character.lockedInventory.armaments[type] || 0;
+        }
+
         if (inc) {
             const type = inc.closest('[data-armament]').getAttribute('data-armament');
             const armament = findArmamentByType(type);
@@ -96,7 +102,8 @@ function renderArmamentsStep(character, container, onUpdate) {
         if (dec) {
             const type = dec.closest('[data-armament]').getAttribute('data-armament');
             const current = character.armamentInventory[type] || 0;
-            if (current > 0) {
+            const lockedQty = getLockedArmamentQty(type);
+            if (current > lockedQty) {
                 const armament = findArmamentByType(type);
                 const price = getArmamentCostCredits(armament);
                 character.armamentInventory[type] = current - 1;
