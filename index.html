@@ -18,6 +18,8 @@
                 <button id="newCharacterBtn" class="btn btn-secondary">New Character</button>
                 <button id="loadCharacterBtn" class="btn btn-secondary">Load</button>
                 <button id="saveCharacterBtn" class="btn btn-secondary">Save</button>
+                <button id="exportSlaBtn" class="btn btn-secondary">Export .sla</button>
+                <button id="importSlaBtn" class="btn btn-secondary">Import .sla</button>
                 <button id="downloadPdfBtn" class="btn btn-primary">Download PDF</button>
             </div>
         </header>
@@ -52,6 +54,8 @@
     </div>
 
     <div class="toast" id="toast"></div>
+
+    <input type="file" id="slaFileInput" accept=".sla" style="display:none" />
 
     <script src="js/data/races.js"></script>
     <script src="js/data/skills.js"></script>

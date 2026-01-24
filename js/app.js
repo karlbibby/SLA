@@ -73,6 +73,34 @@ function setupEventListeners() {
         showLoadDialog();
     });
 
+    const exportBtn = document.getElementById('exportSlaBtn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+            exportCharacterAsSla();
+        });
+    }
+
+    const importBtn = document.getElementById('importSlaBtn');
+    if (importBtn) {
+        importBtn.addEventListener('click', () => {
+            const input = document.getElementById('slaFileInput');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        });
+    }
+
+    const fileInput = document.getElementById('slaFileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (file) {
+                importCharacterFromSla(file);
+            }
+        });
+    }
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
@@ -210,8 +238,40 @@ function updatePageTitle() {
     document.title = `${name} - SLA Industries Character Generator`;
 }
 
-// Import character from file
-function importCharacter(file) {
+function sanitizeFileName(name) {
+    const cleaned = String(name || '')
+        .trim()
+        .replace(/[\\/:*?"<>|]+/g, '')
+        .replace(/\s+/g, ' ')
+        .slice(0, 80);
+    return cleaned;
+}
+
+function exportCharacterAsSla() {
+    try {
+        const json = JSON.stringify(currentCharacter.toJSON(), null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const safeName = sanitizeFileName(currentCharacter.name);
+        link.href = url;
+        link.download = `${safeName || 'character'}.sla`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        UI.showToast('Character exported as .sla', 'success');
+    } catch (e) {
+        UI.showToast('Export failed: ' + e.message, 'error');
+    }
+}
+
+// Import character from .sla file
+function importCharacterFromSla(file) {
+    if (!file || !/\.sla$/i.test(file.name || '')) {
+        UI.showToast('Import failed: Please select a .sla file', 'error');
+        return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
@@ -230,7 +290,8 @@ function importCharacter(file) {
 // Make functions globally available
 window.loadCharacterByName = loadCharacterByName;
 window.deleteCharacterByName = deleteCharacterByName;
-window.importCharacter = importCharacter;
+window.importCharacter = importCharacterFromSla;
+window.exportCharacterAsSla = exportCharacterAsSla;
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initApp);
