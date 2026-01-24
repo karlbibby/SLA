@@ -1,20 +1,11 @@
-/* Client-side printable multi-page PDF generator
-   - Renders a dedicated set of print pages from the currentCharacter data
-   - Captures each page separately with html2canvas and adds to jsPDF A4 pages
-   - Non-fillable PDF as requested
-   - First page is the SLA Operative Security Clearance Card populated with character data
+/* Client-side single-page PDF generator for SLA Operative Security Clearance Card
+   - Generates a single-page A4 PDF containing the character clearance card
+   - Displays only purchased items (quantity > 0) for all inventory categories
+   - Non-fillable PDF rendered with html2canvas and jsPDF
+   - For legacy 4-page multi-section export, see pdfExport.legacy.js
 */
 (function () {
   'use strict';
-
-  function formatStatBar(value, max) {
-    const v = Number(value) || 0;
-    const m = Number(max) || 1;
-    const totalBlocks = 10;
-    if (m <= 0) return `${v}/${m}`;
-    const filledBlocks = Math.round((Math.max(0, Math.min(m, v)) / m) * totalBlocks);
-    return '▰'.repeat(filledBlocks) + '▱'.repeat(totalBlocks - filledBlocks) + ` ${v}/${m}`;
-  }
 
   function escapeHtml(text) {
     if (text === null || text === undefined) return '';
@@ -26,19 +17,43 @@
       .replace(/'/g, '&#39;');
   }
 
-  function renderWeaponsRows(character) {
-    const rows = [];
-    for (let i = 0; i < 8; i++) {
-      rows.push('<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+  function renderPurchasedWeapons(character) {
+    const wi = character.weaponInventory || {};
+    const ai = character.armamentInventory || {};
+    const weaponEntries = Object.entries(wi).filter(([, qty]) => (Number(qty) || 0) > 0);
+    const armamentEntries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
+    
+    if (!weaponEntries.length && !armamentEntries.length) {
+      return '<tr><th style="border:1px solid #000;padding:2px">Weapon</th><th style="border:1px solid #000;padding:2px">Size</th><th style="border:1px solid #000;padding:2px">Pen</th><th style="border:1px solid #000;padding:2px">DMG</th><th style="border:1px solid #000;padding:2px">AD</th><th style="border:1px solid #000;padding:2px">ROF</th><th style="border:1px solid #000;padding:2px">Clip</th><th style="border:1px solid #000;padding:2px">Cal</th><th style="border:1px solid #000;padding:2px">RCL</th></tr>';
     }
-    return rows.join('');
+    const headers = '<thead><tr><th style="border:1px solid #000;padding:2px">Weapon</th><th style="border:1px solid #000;padding:2px">Size</th><th style="border:1px solid #000;padding:2px">Pen</th><th style="border:1px solid #000;padding:2px">DMG</th><th style="border:1px solid #000;padding:2px">AD</th><th style="border:1px solid #000;padding:2px">ROF</th><th style="border:1px solid #000;padding:2px">Clip</th><th style="border:1px solid #000;padding:2px">Cal</th><th style="border:1px solid #000;padding:2px">RCL</th></tr></thead>';
+    const rows = weaponEntries.slice(0, 8).map(([name]) => {
+      let weaponData = {};
+      if (typeof WEAPONS !== 'undefined' && Array.isArray(WEAPONS)) {
+        const found = WEAPONS.find(w => w.type === name);
+        if (found) weaponData = found;
+      }
+      return `<tr><td style="border:1px solid #000;padding:2px">${escapeHtml(name)}</td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(weaponData.pen || ''))}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(weaponData.dmg || ''))}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(weaponData.armourDmg || ''))}</td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px"></td></tr>`;
+    }).join('');
+    let armamentRows = '';
+    if (armamentEntries.length) {
+      armamentRows = armamentEntries.map(([name, qty]) => {
+        let armData = {};
+        if (typeof ARMAMENTS !== 'undefined' && Array.isArray(ARMAMENTS)) {
+          const found = ARMAMENTS.find(a => a.type === name);
+          if (found) armData = found;
+        }
+        return `<tr><td style="border:1px solid #000;padding:2px">${escapeHtml(name)}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(armData.size || ''))}</td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px"></td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(armData.rof || ''))}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(armData.clip || ''))}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(armData.cal || ''))}</td><td style="border:1px solid #000;padding:2px"></td></tr>`;
+      }).join('');
+    }
+    return headers + '<tbody>' + rows + armamentRows + '</tbody>';
   }
 
-  function renderAmmoList(character) {
+  function renderPurchasedAmmo(character) {
     const ai = character.ammoInventory || {};
     const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
     if (!entries.length) {
-      return '<div style="color:#666">None</div>';
+      return 'None';
     }
     return '<div style="font-size:9px;display:grid;grid-template-columns:1fr 28px;gap:4px 8px;">' +
       entries.slice(0, 12).map(([name, qty]) => {
@@ -47,99 +62,84 @@
       '</div>';
   }
 
-  function renderNaturalWeapons(character) {
-    const nw = character.naturalWeapons || [];
-    if (!nw.length) {
-      return `<tr><td></td><td></td><td></td><td></td></tr>
-              <tr><td></td><td></td><td></td><td></td></tr>
-              <tr><td></td><td></td><td></td><td></td></tr>`;
+  function renderPurchasedArmour(character) {
+    const armoury = character.armourInventory || {};
+    const entries = Object.entries(armoury).filter(([, qty]) => (Number(qty) || 0) > 0);
+    if (!entries.length) {
+      return 'None';
     }
-    return nw.slice(0,3).map(n => `<tr><td>${escapeHtml(n.name||n)}</td><td>${escapeHtml(String(n.pen||''))}</td><td>${escapeHtml(String(n.dmg||''))}</td><td>${escapeHtml(String(n.ad||''))}</td></tr>`).join('');
+    return entries.map(([name, qty]) => {
+      let armourData = {};
+      if (typeof ARMOUR !== 'undefined' && Array.isArray(ARMOUR)) {
+        const found = ARMOUR.find(a => a.type === name);
+        if (found) armourData = found;
+      }
+      return '<div style="font-size:9px;margin-bottom:4px;"><strong>' + escapeHtml(name) + '</strong> (' + escapeHtml(String(qty)) + ')</div>';
+    }).join('');
   }
 
-  function renderDrugsTable(character) {
-    const di = character.drugInventory || {};
-    const entries = Object.entries(di);
+  function renderArmourProtectionTable(character) {
+    const armoury = character.armourInventory || {};
+    const entries = Object.entries(armoury).filter(([, qty]) => (Number(qty) || 0) > 0);
     if (!entries.length) {
-      return `<tr><td colspan="3" style="color:#666">None</td></tr>`;
+      return `<tr><td>Head</td><td>--</td></tr>
+              <tr><td>Torso</td><td>--</td></tr>
+              <tr><td>L.Arm</td><td>--</td></tr>
+              <tr><td>R.Arm</td><td>--</td></tr>
+              <tr><td>L.Leg</td><td>--</td></tr>
+              <tr><td>R.Leg</td><td>--</td></tr>`;
     }
-    return entries.slice(0,8).map(([name, qty]) => {
-      let type = '';
+    let rows = '';
+    entries.forEach(([name]) => {
+      let armourData = {};
+      if (typeof ARMOUR !== 'undefined' && Array.isArray(ARMOUR)) {
+        const found = ARMOUR.find(a => a.type === name);
+        if (found) armourData = found;
+      }
+      rows += `<tr><td colspan="2" style="border-top:2px solid #000;font-weight:bold;font-size:8px;">${escapeHtml(name)}</td></tr>`;
+      rows += `<tr><td>Head</td><td>${escapeHtml(String(armourData.head || '--'))}</td></tr>`;
+      rows += `<tr><td>Torso</td><td>${escapeHtml(String(armourData.torso || '--'))}</td></tr>`;
+      rows += `<tr><td>L.Arm</td><td>${escapeHtml(String(armourData.arms || '--'))}</td></tr>`;
+      rows += `<tr><td>R.Arm</td><td>${escapeHtml(String(armourData.arms || '--'))}</td></tr>`;
+      rows += `<tr><td>L.Leg</td><td>${escapeHtml(String(armourData.legs || '--'))}</td></tr>`;
+      rows += `<tr><td>R.Leg</td><td>${escapeHtml(String(armourData.legs || '--'))}</td></tr>`;
+    });
+    return rows;
+  }
+
+  function renderPurchasedDrugs(character) {
+    const di = character.drugInventory || {};
+    const entries = Object.entries(di).filter(([, qty]) => (Number(qty) || 0) > 0 || (typeof qty === 'object' && (qty.qty || qty.quantity || qty.amount)));
+    if (!entries.length) {
+      return '<tr><th style="border:1px solid #000;padding:2px">Drugs</th><th style="border:1px solid #000;padding:2px">Grouping</th><th style="border:1px solid #000;padding:2px">Qty</th></tr>';
+    }
+    const headers = '<thead><tr><th style="border:1px solid #000;padding:2px">Drugs</th><th style="border:1px solid #000;padding:2px">Grouping</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>';
+    const rows = entries.slice(0, 8).map(([name, qty]) => {
+      let grouping = '';
       let amount = '';
+      
+      // Look up drug grouping from DRUGS data
+      if (typeof DRUGS !== 'undefined') {
+        for (const groupKey in DRUGS) {
+          const group = DRUGS[groupKey];
+          if (Array.isArray(group.drugs)) {
+            const drug = group.drugs.find(d => d.name === name);
+            if (drug) {
+              grouping = DRUGS[groupKey].name || groupKey;
+              break;
+            }
+          }
+        }
+      }
+      
       if (typeof qty === 'object') {
-        type = qty.type || qty.form || '';
         amount = (qty.qty || qty.quantity || qty.amount || qty.usage || '') + (qty.unit ? ` ${qty.unit}` : '');
       } else {
         amount = String(qty || '');
       }
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(type))}</td><td>${escapeHtml(String(amount))}</td></tr>`;
+      return `<tr><td style="border:1px solid #000;padding:2px">${escapeHtml(name)}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(grouping))}</td><td style="border:1px solid #000;padding:2px">${escapeHtml(String(amount))}</td></tr>`;
     }).join('');
-  }
-
-  function renderArmamentsTable(character) {
-    const ai = character.armamentInventory || {};
-    const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
-  }
-
-  function renderGrenadesTable(character) {
-    const gi = character.grenadeInventory || {};
-    const entries = Object.entries(gi).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
-  }
-
-  function renderArmourTable(character) {
-    const ai = character.armourInventory || {};
-    const entries = Object.entries(ai).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
-  }
-
-  function renderVehiclesTable(character) {
-    const vi = character.vehicleInventory || {};
-    const entries = Object.entries(vi).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
-  }
-
-  function renderSpecialistAmmoTable(character) {
-    const si = character.specialistAmmoInventory || {};
-    const entries = Object.entries(si).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
-  }
-
-  function renderEquipmentTable(character) {
-    const ei = character.equipmentInventory || {};
-    const entries = Object.entries(ei).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
+    return headers + '<tbody>' + rows + '</tbody>';
   }
 
   function renderPhaseBoxes(phases) {
@@ -161,44 +161,31 @@
     }).join('');
   }
 
-  function renderEbonEquipmentTable(character) {
-    const ei = character.ebonEquipmentInventory || {};
-    const entries = Object.entries(ei).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td colspan="2" style="color:#666">None</td></tr>`;
-    }
-    return entries.slice(0,8).map(([name, qty]) => {
-      return `<tr><td>${escapeHtml(name)}</td><td>${escapeHtml(String(qty))}</td></tr>`;
-    }).join('');
-  }
-
   function buildPages(character) {
     const pages = [];
     const nowStr = new Date().toLocaleDateString();
     const phaseData = (character.getPhaseData && typeof character.getPhaseData === 'function')
       ? character.getPhaseData()
       : { actions: '', phases: [] };
-    const phaseSummary = (phaseData.phases && phaseData.phases.length)
-      ? phaseData.phases.join(', ')
-      : '';
 
     const cover = `
       <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:0;background:#fff;font-family:Arial, Helvetica, sans-serif;position:relative;">
         <div class="sheet" style="width:100%;height:100%;padding:8px;box-sizing:border-box;color:#000;">
-          <div class="grid-main" style="display:grid;grid-template-columns:40% 60%;column-gap:6px;height:100%;">
+          <div class="grid-main" style="display:grid;grid-template-columns:50% 50%;column-gap:6px;height:100%;">
             <div class="left-col">
               <div class="panel" style="border:1px solid #000;margin-bottom:5px;position:relative;background:#fff;">
                 <div class="panel-header" style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">SLA OPERATIVE SECURITY CLEARANCE CARD</div>
                 <div class="top-left-card" style="display:flex;padding:4px;">
                   <div class="top-left-fields" style="flex:1;margin-right:4px;">
-                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Name</span><span style="border-bottom:1px solid #000;flex:1;height:11px;display:inline-block;padding:0 4px;">${escapeHtml(character.name||'')}</span></div>
-                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Classification</span><span>${escapeHtml(character.classification || character.class || '')}</span></div>
-                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Squad</span><span>${escapeHtml(character.squad || '')}</span></div>
-                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;">Dept</span><span>${escapeHtml(character.department || character.departmentName || '')}</span></div>
+                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;min-width:35px;">Name</span><span style="border-bottom:1px solid #000;flex:1;padding:2px 4px;font-size:9px;">${escapeHtml(character.name||'')}</span></div>
+                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;min-width:75px;">Classification</span><span style="border-bottom:1px solid #000;flex:1;padding:2px 4px;font-size:9px;">${escapeHtml(character.classification || character.class || '')}</span></div>
+                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;min-width:50px;">Package</span><span style="border-bottom:1px solid #000;flex:1;padding:2px 4px;font-size:9px;">${escapeHtml((character.selectedTrainingPackage && typeof TRAINING_PACKAGES !== 'undefined' && TRAINING_PACKAGES[character.selectedTrainingPackage]) ? TRAINING_PACKAGES[character.selectedTrainingPackage].name : '')}</span></div>
+                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;min-width:35px;">Squad</span><span style="border-bottom:1px solid #000;flex:1;padding:2px 4px;font-size:9px;">${escapeHtml(character.squad || '')}</span></div>
+                    <div class="field-row" style="display:flex;align-items:center;margin-bottom:2px;"><span style="font-size:9px;text-transform:uppercase;margin-right:4px;min-width:30px;">Dept</span><span style="border-bottom:1px solid #000;flex:1;padding:2px 4px;font-size:9px;">${escapeHtml(character.department || character.departmentName || '')}</span></div>
                   </div>
-                  <div class="photo-scl" style="width:130px;display:flex;flex-direction:column;align-items:stretch;">
-                    <div class="photo-box" style="border:1px solid #000;height:100px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666">${character.photo ? `<img src="${escapeHtml(character.photo)}" style="width:100%;height:100%;object-fit:cover;"/>` : 'Portrait'}</div>
-                    <div style="display:flex;align-items:center;font-size:10px;text-transform:uppercase;"><span style="font-weight:bold;margin-right:4px;">SCL</span><div style="border:1px solid #000;width:26px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;">${escapeHtml(character.scl||'')}</div></div>
+                  <div class="photo-scl" style="width:80px;display:flex;flex-direction:column;align-items:stretch;">
+                    <div class="photo-box" style="border:1px solid #000;height:80px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666">${character.photo ? `<img src="${escapeHtml(character.photo)}" style="width:100%;height:100%;object-fit:cover;"/>` : ''}</div>
+                    <div style="display:flex;align-items:center;justify-content:center;font-size:10px;text-transform:uppercase;"><span style="font-weight:bold;">SCL</span><div style="border:1px solid #000;width:26px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;margin-left:2px">${escapeHtml(character.scl||'')}</div></div>
                   </div>
                 </div>
               </div>
@@ -206,11 +193,8 @@
               <div class="panel weapons" style="border:1px solid #000;margin-bottom:5px;">
                 <div class="panel-header" style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">WEAPON</div>
                 <div class="panel-body" style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Weapon</th><th style="border:1px solid #000;padding:2px">Size</th><th style="border:1px solid #000;padding:2px">Pen</th><th style="border:1px solid #000;padding:2px">DMG</th><th style="border:1px solid #000;padding:2px">AD</th><th style="border:1px solid #000;padding:2px">ROF</th><th style="border:1px solid #000;padding:2px">Clip</th><th style="border:1px solid #000;padding:2px">Cal</th><th style="border:1px solid #000;padding:2px">RCL</th></tr></thead>
-                    <tbody>
-                      ${renderWeaponsRows(character)}
-                    </tbody>
+                  <table style="width:100%;border-collapse:collapse;font-size:8px;">
+                    ${renderPurchasedWeapons(character)}
                   </table>
                 </div>
               </div>
@@ -218,7 +202,7 @@
               <div class="panel ammo" style="border:1px solid #000;margin-bottom:5px;">
                 <div class="panel-header" style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">AMMUNITION</div>
                 <div class="panel-body" style="padding:3px 4px;">
-                  ${renderAmmoList(character)}
+                  ${renderPurchasedAmmo(character)}
                 </div>
               </div>
 
@@ -238,131 +222,27 @@
                   <div>
                     <div style="text-align:center;font-weight:bold;text-transform:uppercase;font-size:9px;margin-bottom:2px;">Armour</div>
                     <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                      <thead><tr><th style="border:1px solid #000;padding:1px 2px">Location</th><th style="border:1px solid #000;padding:1px 2px">PV</th><th style="border:1px solid #000;padding:1px 2px">ID</th></tr></thead>
+                      <thead><tr><th style="border:1px solid #000;padding:1px 2px">Location</th><th style="border:1px solid #000;padding:1px 2px">PV</th></tr></thead>
                       <tbody>
-                        <tr><td>Head</td><td>${escapeHtml(String(character.armourHead || '--'))}</td><td>${escapeHtml(String(character.idHead || '--'))}</td></tr>
-                        <tr><td>Torso</td><td>${escapeHtml(String(character.armourTorso || '--'))}</td><td>${escapeHtml(String(character.idTorso || '--'))}</td></tr>
-                        <tr><td>L.Arm</td><td>${escapeHtml(String(character.armourLArm || '--'))}</td><td>${escapeHtml(String(character.idLArm || '--'))}</td></tr>
-                        <tr><td>R.Arm</td><td>${escapeHtml(String(character.armourRArm || '--'))}</td><td>${escapeHtml(String(character.idRArm || '--'))}</td></tr>
-                        <tr><td>L.Leg</td><td>${escapeHtml(String(character.armourLLeg || '--'))}</td><td>${escapeHtml(String(character.idLLeg || '--'))}</td></tr>
-                        <tr><td>R.Leg</td><td>${escapeHtml(String(character.armourRLeg || '--'))}</td><td>${escapeHtml(String(character.idRLeg || '--'))}</td></tr>
+                        ${renderArmourProtectionTable(character)}
                       </tbody>
                     </table>
                   </div>
                 </div>
               </div>
 
-              <div class="panel natural-weapons" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">NATURAL WEAPONS</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Natural Weapons</th><th style="border:1px solid #000;padding:2px">Pen</th><th style="border:1px solid #000;padding:2px">DMG</th><th style="border:1px solid #000;padding:2px">AD</th></tr></thead>
-                    <tbody>
-                      ${renderNaturalWeapons(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
               <div class="panel drugs" style="border:1px solid #000;margin-bottom:5px;">
                 <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">DRUGS</div>
                 <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Drugs</th><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderDrugsTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel armaments" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">ARMAMENTS</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderArmamentsTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel armour" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">ARMOUR</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderArmourTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel grenades" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">GRENADES</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderGrenadesTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel specialist-ammo" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">SPECIALIST AMMUNITION</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderSpecialistAmmoTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel equipment" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">EQUIPMENT</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderEquipmentTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel ebon-equipment" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">EBON EQUIPMENT</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderEbonEquipmentTable(character)}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="panel vehicles" style="border:1px solid #000;margin-bottom:5px;">
-                <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">VEHICLES</div>
-                <div style="padding:3px 4px;">
-                  <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                    <thead><tr><th style="border:1px solid #000;padding:2px">Type</th><th style="border:1px solid #000;padding:2px">Qty</th></tr></thead>
-                    <tbody>
-                      ${renderVehiclesTable(character)}
-                    </tbody>
+                  <table style="width:100%;border-collapse:collapse;font-size:8px;">
+                    ${renderPurchasedDrugs(character)}
                   </table>
                 </div>
               </div>
 
               <div class="panel weapon-notes" style="border:1px solid #000;margin-bottom:5px;">
                 <div style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">WEAPON NOTES</div>
-                <div style="position:relative;height:80px;"></div>
+                <div style="position:relative;height:40px;"></div>
               </div>
 
               <div class="panel initiative-strip" style="border:1px solid #000;display:flex;font-size:9px;">
@@ -372,212 +252,187 @@
             </div>
 
             <div class="right-col">
-              <div style="border:1px solid #000;margin-bottom:5px;padding:3px 4px;">
-                <div style="display:grid;grid-template-columns:60% 40%;column-gap:4px;">
-                  <div>
-                    <div style="font-size:9px;margin-bottom:4px;">Strength: ${escapeHtml(String(character.stats?.STR || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Dexterity: ${escapeHtml(String(character.stats?.DEX || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Diagnose: ${escapeHtml(String(character.stats?.DIA || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Concentration: ${escapeHtml(String(character.stats?.CONC || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Charisma: ${escapeHtml(String(character.stats?.CHA || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Physique: ${escapeHtml(String(character.derivedStats?.PHYS || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Knowledge: ${escapeHtml(String(character.derivedStats?.KNOW || ''))}</div>
-                    <div style="font-size:9px;margin-bottom:4px;">Cool: ${escapeHtml(String(character.stats?.COOL || ''))}</div>
-                  </div>
-                  <div>
-                    <div style="border:1px solid #000;margin-bottom:6px;padding:4px;font-size:9px;">MOVE (W/R/S)<br/>W: ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().walk : character.move?.walk) || ''))}<br/>R: ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().run : character.move?.run) || ''))}<br/>S: ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().sprint : character.move?.sprint) || ''))}</div>
-                    <div style="border:1px solid #000;padding:4px;font-size:9px;">ENCUMBRANCE<br/>${escapeHtml(String(character.encumbrance?.movement || ''))}</div>
-                    <div style="border:1px solid #000;margin-top:6px;padding:4px;font-size:9px;">PHASES<br/>Actions: ${escapeHtml(String(phaseData.actions || ''))}<br/>Phases: ${escapeHtml(String(phaseSummary))}</div>
-                  </div>
+              <div style="border:1px solid #000;margin-bottom:5px;padding:3px 4px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;height:auto;">
+                <div style="border-right:1px solid #000;">
+                  <div style="font-size:8px;margin-bottom:2px;">Strength</div>
+                  <div style="font-size:8px;margin-bottom:2px;">Dexterity</div>
+                  <div style="font-size:8px;margin-bottom:2px;">Diagnose</div>
+                  <div style="font-size:8px;margin-bottom:2px;">Concentration</div>
+                  <div style="font-size:8px;margin-bottom:2px;">Charisma</div>
+                  <div style="font-size:8px;margin-bottom:4px;"></div>
+                  <div style="font-size:8px;margin-bottom:2px;">Physique</div>
+                  <div style="font-size:8px;margin-bottom:2px;">Knowledge</div>
+                  <div style="font-size:8px;margin-bottom:4px;"></div>
+                  <div style="font-size:8px;">Cool</div>
+                  ${(() => {
+                    const flux = character.derivedStats?.FLUX;
+                    if (flux && flux > 0) {
+                      return '<div style="font-size:8px;margin-top:2px;">Flux</div>';
+                    }
+                    return '';
+                  })()}
+                </div>
+                <div style="border-right:1px solid #000;text-align:right;padding-right:2px;">
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.stats?.STR || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.stats?.DEX || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.stats?.DIA || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.stats?.CONC || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.stats?.CHA || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:4px;"></div>
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.derivedStats?.PHYS || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:2px;">${escapeHtml(String(character.derivedStats?.KNOW || ''))}</div>
+                  <div style="font-size:8px;margin-bottom:4px;"></div>
+                  <div style="font-size:8px;">${escapeHtml(String(character.stats?.COOL || ''))}</div>
+                  ${(() => {
+                    const flux = character.derivedStats?.FLUX;
+                    if (flux && flux > 0) {
+                      return `<div style="font-size:8px;margin-top:2px;">${escapeHtml(String(flux))}</div>`;
+                    }
+                    return '';
+                  })()}
+                </div>
+                <div style="display:flex;flex-direction:column;gap:3px;font-size:8px;">
+                  <div style="border:1px solid #000;padding:2px;text-align:center;font-weight:bold;">MOVE RATE</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;">WALK ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().walk : character.move?.walk) || ''))}</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;">RUN ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().run : character.move?.run) || ''))}</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;margin-bottom:3px;">SPRINT ${escapeHtml(String((character.getMoveRate ? character.getMoveRate().sprint : character.move?.sprint) || ''))}</div>
+                  <div style="border:1px solid #000;padding:2px;text-align:center;font-weight:bold;">ENCUMBRANCE</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;">MOVEMENT ${escapeHtml(String(character.encumbrance?.movement || ''))}</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;">HALF MOVEMENT _______</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;margin-bottom:3px;">NO MOVEMENT _______</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;">LIFT _______</div>
+                  <div style="border-bottom:1px solid #000;padding:2px 0;">THROW _______</div>
                 </div>
               </div>
 
               <div class="panel skills" style="border:1px solid #000;height:auto;">
                 <div style="background:#ddd;padding:4px;font-weight:bold;text-transform:uppercase;font-size:10px;">Skills</div>
-                ${(() => {
-                  if (character.selectedTrainingPackage && typeof TRAINING_PACKAGES !== 'undefined') {
-                    const pkg = TRAINING_PACKAGES[character.selectedTrainingPackage];
-                    if (pkg) {
-                      return `<div style="padding:4px 6px;font-size:8px;background:#e8f5e9;border-bottom:1px solid #ddd;"><strong>Training Package:</strong> ${escapeHtml(pkg.name)}</div>`;
-                    }
-                  }
-                  return '';
-                })()}
-                <div style="padding:6px;font-size:9px;color:#000;">
+                <div style="padding:4px;font-size:8px;color:#000;">
                   ${(() => {
                     const skills = Object.entries(character.skills || {});
                     if (!skills.length) return '<div style="color:#666">No skills</div>';
-                    return skills.map(([n,v]) => `<div style="display:grid;grid-template-columns:1fr 36px 40px 36px;gap:6px;padding:2px 0;border-bottom:1px solid #eee;"><div>${escapeHtml(n)}</div><div style="text-align:center">${escapeHtml(String(v))}</div><div style="text-align:center">${escapeHtml(String(character.skillStat?.[n]||''))}</div><div style="text-align:center">${escapeHtml(String(Math.max(v,10)))}</div></div>`).join('');
+                    
+                    // Header row
+                    let html = '<div style="display:grid;grid-template-columns:1fr 32px 40px 40px;gap:4px;padding:2px 0;border-bottom:2px solid #000;margin-bottom:2px;font-weight:bold;"><div>Skill</div><div style="text-align:center">Rank</div><div style="text-align:center">Stat</div><div style="text-align:center">Max</div></div>';
+                    
+                    // Skill rows
+                    html += skills.map(([skillName, rank]) => {
+                      let governingStat = '';
+                      if (typeof SKILLS !== 'undefined') {
+                        for (const category in SKILLS) {
+                          if (SKILLS[category].skills[skillName]) {
+                            governingStat = SKILLS[category].skills[skillName].governingStat || '';
+                            break;
+                          }
+                        }
+                      }
+                      return `<div style="display:grid;grid-template-columns:1fr 32px 40px 40px;gap:4px;padding:2px 0;border-bottom:1px solid #eee;"><div>${escapeHtml(skillName)}</div><div style="text-align:center">${escapeHtml(String(rank))}</div><div style="text-align:center">${escapeHtml(governingStat)}</div><div style="text-align:center">${escapeHtml(String(Math.max(rank, 10)))}</div></div>`;
+                    }).join('');
+                    
+                    return html;
                   })()}
                 </div>
               </div>
             </div>
           </div>
-          <footer style="position:absolute;left:8px;right:8px;bottom:8px;font-size:9px;color:#666;display:flex;justify-content:space-between;">Exported: ${nowStr} <span>Page 1</span></footer>
+          <footer style="position:absolute;left:8px;right:8px;bottom:8px;font-size:9px;color:#666;display:flex;justify-content:space-between;">Exported: ${nowStr}</footer>
         </div>
       </div>
     `;
     pages.push(cover);
 
-    const interiorPages = buildStandardPages(character, nowStr);
-    pages.push(...interiorPages);
+    // Add flux abilities page if character is a flux user
+    if (character.isFluxUser && character.isFluxUser()) {
+      const p_flux = `
+        <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Arial, Helvetica, sans-serif;">
+          <h2 style="margin:0 0 8px 0">Flux Abilities</h2>
+          <div style="font-size:11px;line-height:1.2">
+            ${(() => {
+              const ranks = character.ebonRanks || {};
+              const sections = [];
 
-    return pages;
-  }
+              // Render selected categories with full details (all lower ranks)
+              if (ranks && Object.keys(ranks).length) {
+                Object.keys(ranks).forEach(catKey => {
+                  const rank = Number(ranks[catKey] || 0);
+                  if (rank > 0) {
+                    const cat = (typeof EBON_ABILITIES !== 'undefined' && EBON_ABILITIES[catKey]) ? EBON_ABILITIES[catKey] : null;
+                    const title = cat ? (cat.name || catKey) : catKey;
+                    let tbl = '<div style="margin-bottom:10px">';
+                    tbl += '<div style="font-weight:700;margin-bottom:6px">' + escapeHtml(title) + ' — Rank ' + rank + '</div>';
+                    tbl += '<table style="width:100%;border-collapse:collapse;font-size:10px;border:1px solid #ddd">';
+                    tbl += '<thead><tr>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Rank</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Title</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Cost</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">DMG</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Arm</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Pen</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Range</th>' +
+                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Notes</th>' +
+                      '</tr></thead><tbody>';
 
-  function buildStandardPages(character, nowStr) {
-    const pages = [];
-
-    const p1 = `
-      <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Helvetica, Arial, sans-serif;">
-        <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8mm">
-          <div>
-            <h1 style="margin:0;font-family:Georgia, serif;">SLA INDUSTRIES</h1>
-            <div style="font-size:12px;color:#666">Operative Character Sheet — 1st Edition Redux</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-weight:600">${escapeHtml(character.name || '')}</div>
-            <div style="font-size:12px;color:#666">${escapeHtml(character.race || '')} • ${escapeHtml(character.class || '')}</div>
-            <div style="font-size:12px;color:#666">SCL: ${escapeHtml(character.scl || '')}</div>
-          </div>
-        </header>
-
-        <section style="display:flex;gap:16px;margin-bottom:8mm">
-          <div style="flex:1;">
-            <h3 style="margin:0 0 6px 0">Primary Statistics</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              ${Object.entries(character.stats || {}).map(([k,v]) => `<div style="font-size:12px">${escapeHtml(k)}: <span style="float:right">${formatStatBar(v, 15)}</span></div>`).join('')}
-            </div>
-          </div>
-          <div style="width:160mm;max-width:320px">
-            <h3 style="margin:0 0 6px 0">Derived & Resources</h3>
-            <div style="font-size:12px">PHYS: ${escapeHtml(String(character.derivedStats?.PHYS || ''))} • KNOW: ${escapeHtml(String(character.derivedStats?.KNOW || ''))} • FLUX: ${escapeHtml(String(character.derivedStats?.FLUX || ''))}</div>
-            <div style="margin-top:8px;font-size:12px">Credits: ${escapeHtml(String(character.credits || 0))}c</div>
-          </div>
-        </section>
-
-        <section>
-          <h3 style="margin:0 0 6px 0">Summary</h3>
-          <div style="font-size:11px;color:#000;line-height:1.3">${escapeHtml(character.summary || '')}</div>
-        </section>
-        <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Page 2</div></footer>
-      </div>
-    `;
-    pages.push(p1);
-
-    const p_skills = `
-      <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Helvetica, Arial, sans-serif;">
-        <h2 style="margin:0 0 8px 0">Skills</h2>
-        ${(() => {
-          if (character.selectedTrainingPackage && typeof TRAINING_PACKAGES !== 'undefined') {
-            const pkg = TRAINING_PACKAGES[character.selectedTrainingPackage];
-            if (pkg) {
-              return `<div style="margin-bottom:8px;padding:6px;background:#e8f5e9;border:1px solid #4caf50;border-radius:4px;font-size:10px;"><strong>Training Package:</strong> ${escapeHtml(pkg.name)}</div>`;
-            }
-          }
-          return '';
-        })()}
-        <div style="font-size:11px;line-height:1.25">
-          ${(() => {
-            const skills = Object.entries(character.skills || {});
-            if (!skills.length) return '<div style="color:#666">No skills</div>';
-            return skills.map(([n,v]) => `<div style="display:grid;grid-template-columns:1fr 36px 40px 36px;gap:6px;padding:2px 0;border-bottom:1px solid #eee;"><div>${escapeHtml(n)}</div><div style="text-align:center">${escapeHtml(String(v))}</div><div style="text-align:center">${escapeHtml(String(character.skillStat?.[n]||''))}</div><div style="text-align:center">${escapeHtml(String(Math.max(v,10)))}</div></div>`).join('');
-          })()}
-        </div>
-        <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Page 3</div></footer>
-      </div>
-    `;
-    pages.push(p_skills);
-
-    const p_flux = `
-      <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Helvetica, Arial, sans-serif;">
-        <h2 style="margin:0 0 8px 0">Flux Abilities</h2>
-        <div style="font-size:11px;line-height:1.2">
-          ${(() => {
-            const ranks = character.ebonRanks || {};
-            const sections = [];
-
-            // Render selected categories with full details (all lower ranks)
-            if (ranks && Object.keys(ranks).length) {
-              Object.keys(ranks).forEach(catKey => {
-                const rank = Number(ranks[catKey] || 0);
-                if (rank > 0) {
-                  const cat = (typeof EBON_ABILITIES !== 'undefined' && EBON_ABILITIES[catKey]) ? EBON_ABILITIES[catKey] : null;
-                  const title = cat ? (cat.name || catKey) : catKey;
-                  let tbl = '<div style="margin-bottom:10px">';
-                  tbl += '<div style="font-weight:700;margin-bottom:6px">' + escapeHtml(title) + ' — Rank ' + rank + '</div>';
-                  tbl += '<table style="width:100%;border-collapse:collapse;font-size:11px;border:1px solid #ddd">';
-                  tbl += '<thead><tr>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Rank</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Title</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Cost</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">DMG</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Arm</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Pen</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Range</th>' +
-                    '<th style="border:1px solid #ccc;padding:4px;text-align:left">Notes</th>' +
-                    '</tr></thead><tbody>';
-
-                  if (cat && Array.isArray(cat.ranks)) {
-                    for (let i = 0; i < Math.min(rank, cat.ranks.length); i++) {
-                      const rd = cat.ranks[i];
-                      tbl += '<tr>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.rank || (i + 1))) + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.title || '') + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.cost === null || typeof rd.cost === "undefined" ? '-' : String(rd.cost)) + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.dmg || '')) + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.armDmg || '')) + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.pen || '')) + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.range || '')) + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.notes || '')) + '</td>' +
-                        '</tr>';
+                    if (cat && Array.isArray(cat.ranks)) {
+                      for (let i = 0; i < Math.min(rank, cat.ranks.length); i++) {
+                        const rd = cat.ranks[i];
+                        tbl += '<tr>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.rank || (i + 1))) + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.title || '') + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.cost === null || typeof rd.cost === "undefined" ? '-' : String(rd.cost)) + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.dmg || '')) + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.armDmg || '')) + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.pen || '')) + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.range || '')) + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.notes || '')) + '</td>' +
+                          '</tr>';
+                      }
+                    } else {
+                      // Fallback: list simple rank rows
+                      for (let i = 1; i <= rank; i++) {
+                        tbl += '<tr>' +
+                          '<td style="border:1px solid #eee;padding:4px">' + i + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">Rank ' + i + '</td>' +
+                          '<td style="border:1px solid #eee;padding:4px">-</td>' +
+                          '<td style="border:1px solid #eee;padding:4px"></td>' +
+                          '<td style="border:1px solid #eee;padding:4px"></td>' +
+                          '<td style="border:1px solid #eee;padding:4px"></td>' +
+                          '<td style="border:1px solid #eee;padding:4px"></td>' +
+                          '<td style="border:1px solid #eee;padding:4px"></td>' +
+                          '</tr>';
+                      }
                     }
-                  } else {
-                    // Fallback: list simple rank rows
-                    for (let i = 1; i <= rank; i++) {
-                      tbl += '<tr>' +
-                        '<td style="border:1px solid #eee;padding:4px">' + i + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">Rank ' + i + '</td>' +
-                        '<td style="border:1px solid #eee;padding:4px">-</td>' +
-                        '<td style="border:1px solid #eee;padding:4px"></td>' +
-                        '<td style="border:1px solid #eee;padding:4px"></td>' +
-                        '<td style="border:1px solid #eee;padding:4px"></td>' +
-                        '<td style="border:1px solid #eee;padding:4px"></td>' +
-                        '<td style="border:1px solid #eee;padding:4px"></td>' +
-                        '</tr>';
-                    }
+
+                    tbl += '</tbody></table></div>';
+                    sections.push(tbl);
                   }
+                });
+              }
 
-                  tbl += '</tbody></table></div>';
-                  sections.push(tbl);
-                }
-              });
-            }
+              // Backwards-compat explicit list
+              if (Array.isArray(character.ebonAbilities) && character.ebonAbilities.length) {
+                sections.unshift('<div style="font-weight:700;margin-bottom:6px">Explicit Ebon Abilities</div>');
+                character.ebonAbilities.forEach(a => {
+                  sections.push('<div style="padding:2px 0">' + escapeHtml(typeof a === 'string' ? a : (a.name || JSON.stringify(a))) + '</div>');
+                });
+              }
 
-            // Backwards-compat explicit list
-            if (Array.isArray(character.ebonAbilities) && character.ebonAbilities.length) {
-              sections.unshift('<div style="font-weight:700;margin-bottom:6px">Explicit Ebon Abilities</div>');
-              character.ebonAbilities.forEach(a => {
-                sections.push('<div style="padding:2px 0">' + escapeHtml(typeof a === 'string' ? a : (a.name || JSON.stringify(a))) + '</div>');
-              });
-            }
+              // Formulae display
+              if (Array.isArray(character.selectedFormulae) && character.selectedFormulae.length) {
+                sections.push('<div style="font-weight:700;margin-top:6px">Formulae</div>');
+                character.selectedFormulae.forEach(f => {
+                  sections.push('<div style="padding:2px 0">' + escapeHtml(typeof f === 'string' ? f : (f.name || JSON.stringify(f))) + '</div>');
+                });
+              }
 
-            // Formulae display
-            if (Array.isArray(character.selectedFormulae) && character.selectedFormulae.length) {
-              sections.push('<div style="font-weight:700;margin-top:6px">Formulae</div>');
-              character.selectedFormulae.forEach(f => {
-                sections.push('<div style="padding:2px 0">' + escapeHtml(typeof f === 'string' ? f : (f.name || JSON.stringify(f))) + '</div>');
-              });
-            }
-
-            if (!sections.length) return '<div style="color:#666">No flux abilities</div>';
-            return sections.join('');
-          })()}
+              if (!sections.length) return '<div style="color:#666">No flux abilities</div>';
+              return sections.join('');
+            })()}
+          </div>
+          <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Flux</div></footer>
         </div>
-        <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Flux</div></footer>
-      </div>
-    `;
-    pages.push(p_flux);
+      `;
+      pages.push(p_flux);
+    }
 
     return pages;
   }
@@ -619,8 +474,8 @@
       }
 
       const filename = (window.currentCharacter && window.currentCharacter.name)
-        ? `${window.currentCharacter.name.replace(/\s+/g, '_')}_SLA_Sheet.pdf`
-        : 'SLA_Sheet.pdf';
+        ? `${window.currentCharacter.name.replace(/\s+/g, '_')}_SLA_Clearance_Card.pdf`
+        : 'SLA_Clearance_Card.pdf';
 
       pdf.save(filename);
     } catch (err) {

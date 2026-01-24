@@ -52,7 +52,7 @@ class Character {
         this.derivedStats = {
             PHYS: 5,  // (STR + DEX) / 2, rounded up
             KNOW: 5,  // (DIA + CONC) / 2, rounded up
-            FLUX: 10  // Only for Ebon/Brain Waster
+            FLUX: 0  // Only for Ebon/Brain Waster, will be set to 10 if flux user
         };
         
         // Skills
@@ -678,7 +678,9 @@ class Character {
         this.race = data.race || null;
         this.move = data.move || (this.race && RACES[this.race]?.move ? { ...RACES[this.race].move } : { walk: '', run: '', sprint: '' });
         this.stats = data.stats || { STR: 5, DEX: 5, DIA: 5, CONC: 5, CHA: 5, COOL: 5 };
-        this.derivedStats = data.derivedStats || { PHYS: 5, KNOW: 5, FLUX: 10 };
+        // Initialize FLUX to 10 only if this is a flux user race, otherwise 0
+        const defaultFlux = (data.race && RACES[data.race]?.fluxUser) ? 10 : 0;
+        this.derivedStats = data.derivedStats || { PHYS: 5, KNOW: 5, FLUX: defaultFlux };
         this.skills = data.skills || {};
         const skillAliases = {
             'SLA Info': 'SLA Information',

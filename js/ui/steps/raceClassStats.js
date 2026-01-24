@@ -87,6 +87,8 @@ function renderRaceStep(character, container, onUpdate) {
             
             if (character.isFluxUser()) {
                 character.derivedStats.FLUX = 10;
+            } else {
+                character.derivedStats.FLUX = 0;
             }
         }
         character.calculateDerivedStats(); 
