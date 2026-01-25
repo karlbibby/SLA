@@ -130,7 +130,7 @@ class Character {
         this.packageSkills = {};  // Tracks skills granted by package for removal: { skillName: rank | { bonusRank, originalRank } }
         
         // Starting SCL
-        this.scl = '9A';
+        this.scl = '10';
         
         // Financials
         // Credits are stored in Credits (c). Starting operative receives 1500c for purchases.
@@ -463,23 +463,23 @@ class Character {
         }
     }
 
-    // Get move rate (W/R/S) including Running skill bonus (+0.3 per rank)
+    // Get move rate (W/R/S); Running skill bonus (+0.3 per rank) only applies to sprint
     getMoveRate() {
         const base = this.move || {};
         const runningRank = Number(this.skills?.Running || 0);
-        const bonus = runningRank * 0.3;
+        const sprintBonus = runningRank * 0.3;
 
-        const applyBonus = (value) => {
+        const applyValue = (value, extra = 0) => {
             if (value === '' || value === null || typeof value === 'undefined') return '';
             const num = Number(value);
             if (!Number.isFinite(num)) return '';
-            return Math.round((num + bonus) * 10) / 10;
+            return Math.round((num + extra) * 10) / 10;
         };
 
         return {
-            walk: applyBonus(base.walk),
-            run: applyBonus(base.run),
-            sprint: applyBonus(base.sprint)
+            walk: applyValue(base.walk),
+            run: applyValue(base.run),
+            sprint: applyValue(base.sprint, sprintBonus)
         };
     }
 
@@ -747,7 +747,7 @@ class Character {
         this.phobias = data.phobias || [];
         this.selectedTrainingPackage = data.selectedTrainingPackage || null;
         this.packageSkills = normalizeSkillMap(data.packageSkills || {});
-        this.scl = data.scl || '9A';
+        this.scl = data.scl || '10';
 
         // Financials with sensible defaults / backwards compatibility
         this.credits = (typeof data.credits !== 'undefined') ? data.credits : (this.credits || 1500);
