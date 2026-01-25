@@ -79,32 +79,36 @@
   }
 
   function renderArmourProtectionTable(character) {
-    const armoury = character.armourInventory || {};
-    const entries = Object.entries(armoury).filter(([, qty]) => (Number(qty) || 0) > 0);
-    if (!entries.length) {
-      return `<tr><td>Head</td><td>--</td></tr>
-              <tr><td>Torso</td><td>--</td></tr>
-              <tr><td>L.Arm</td><td>--</td></tr>
-              <tr><td>R.Arm</td><td>--</td></tr>
-              <tr><td>L.Leg</td><td>--</td></tr>
-              <tr><td>R.Leg</td><td>--</td></tr>`;
-    }
-    let rows = '';
-    entries.forEach(([name]) => {
-      let armourData = {};
-      if (typeof ARMOUR !== 'undefined' && Array.isArray(ARMOUR)) {
-        const found = ARMOUR.find(a => a.type === name);
-        if (found) armourData = found;
-      }
-      rows += `<tr><td colspan="2" style="border-top:2px solid #000;font-weight:bold;font-size:8px;">${escapeHtml(name)}</td></tr>`;
-      rows += `<tr><td>Head</td><td>${escapeHtml(String(armourData.head || '--'))}</td></tr>`;
-      rows += `<tr><td>Torso</td><td>${escapeHtml(String(armourData.torso || '--'))}</td></tr>`;
-      rows += `<tr><td>L.Arm</td><td>${escapeHtml(String(armourData.arms || '--'))}</td></tr>`;
-      rows += `<tr><td>R.Arm</td><td>${escapeHtml(String(armourData.arms || '--'))}</td></tr>`;
-      rows += `<tr><td>L.Leg</td><td>${escapeHtml(String(armourData.legs || '--'))}</td></tr>`;
-      rows += `<tr><td>R.Leg</td><td>${escapeHtml(String(armourData.legs || '--'))}</td></tr>`;
-    });
-    return rows;
+    // Render armour protection using fixed per-location values on the character
+    const pv = {
+      head: character.armourHead,
+      torso: character.armourTorso,
+      lArm: character.armourLArm,
+      rArm: character.armourRArm,
+      lLeg: character.armourLLeg,
+      rLeg: character.armourRLeg
+    };
+    const id = {
+      head: character.idHead,
+      torso: character.idTorso,
+      lArm: character.idLArm,
+      rArm: character.idRArm,
+      lLeg: character.idLLeg,
+      rLeg: character.idRLeg
+    };
+
+    const row = (label, pvVal, idVal) => {
+      return `<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(String(pvVal ?? '--'))}</td><td>${escapeHtml(String(idVal ?? '--'))}</td></tr>`;
+    };
+
+    return [
+      row('Head', pv.head, id.head),
+      row('Torso', pv.torso, id.torso),
+      row('L.Arm', pv.lArm, id.lArm),
+      row('R.Arm', pv.rArm, id.rArm),
+      row('L.Leg', pv.lLeg, id.lLeg),
+      row('R.Leg', pv.rLeg, id.rLeg),
+    ].join('');
   }
 
   function renderPurchasedDrugs(character) {
@@ -222,7 +226,7 @@
                   <div>
                     <div style="text-align:center;font-weight:bold;text-transform:uppercase;font-size:9px;margin-bottom:2px;">Armour</div>
                     <table style="width:100%;border-collapse:collapse;font-size:9px;">
-                      <thead><tr><th style="border:1px solid #000;padding:1px 2px">Location</th><th style="border:1px solid #000;padding:1px 2px">PV</th></tr></thead>
+                      <thead><tr><th style="border:1px solid #000;padding:1px 2px">Location</th><th style="border:1px solid #000;padding:1px 2px">PV</th><th style="border:1px solid #000;padding:1px 2px">ID</th></tr></thead>
                       <tbody>
                         ${renderArmourProtectionTable(character)}
                       </tbody>
