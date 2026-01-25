@@ -321,11 +321,23 @@
                     
                     // Skill rows
                     html += skills.map(([skillName, rank]) => {
+                      // Common aliases -> canonical SKILLS keys
+                      const skillAliases = {
+                        'SLA Info': 'SLA Information',
+                        'Paramedic': 'Medical, Paramedic',
+                        'Medical Practice': 'Medical, Practice',
+                        'Mechanics Repair': 'Mechanics, Repair',
+                        'Mechanics Industrial': 'Mechanics, Industrial',
+                        'Electronics Repair': 'Electronics, Repair',
+                        'Electronics Industrial': 'Electronics, Industrial',
+                        'Intimidate': 'Intimidation'
+                      };
+                      const lookupName = skillAliases[skillName] || skillName;
                       let governingStat = '';
                       if (typeof SKILLS !== 'undefined') {
                         for (const category in SKILLS) {
-                          if (SKILLS[category].skills[skillName]) {
-                            governingStat = SKILLS[category].skills[skillName].governingStat || '';
+                          if (SKILLS[category].skills[lookupName]) {
+                            governingStat = SKILLS[category].skills[lookupName].governingStat || '';
                             break;
                           }
                         }
