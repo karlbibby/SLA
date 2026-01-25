@@ -79,23 +79,52 @@
   }
 
   function renderArmourProtectionTable(character) {
-    // Render armour protection using fixed per-location values on the character
-    const pv = {
-      head: character.armourHead,
-      torso: character.armourTorso,
-      lArm: character.armourLArm,
-      rArm: character.armourRArm,
-      lLeg: character.armourLLeg,
-      rLeg: character.armourRLeg
-    };
-    const id = {
-      head: character.idHead,
-      torso: character.idTorso,
-      lArm: character.idLArm,
-      rArm: character.idRArm,
-      lLeg: character.idLLeg,
-      rLeg: character.idRLeg
-    };
+    // If a DeathSuit is owned, override with its base values; otherwise use selected armour fields
+    const hasDS = (() => {
+      const inv = character.ebonEquipmentInventory || {};
+      return (inv['Ebon Guard — DeathSuit'] || 0) > 0;
+    })();
+
+    let pv, id;
+    if (hasDS && typeof DEATHSUIT_TYPES !== 'undefined') {
+      const dtype = (character.deathsuitType && DEATHSUIT_TYPES[character.deathsuitType])
+        ? character.deathsuitType
+        : Object.keys(DEATHSUIT_TYPES)[0];
+      const ds = DEATHSUIT_TYPES[dtype];
+      pv = {
+        head: ds.pv.base,
+        torso: ds.pv.base,
+        lArm: ds.pv.base,
+        rArm: ds.pv.base,
+        lLeg: ds.pv.base,
+        rLeg: ds.pv.base
+      };
+      id = {
+        head: ds.head.base,
+        torso: ds.torso.base,
+        lArm: ds.arms.base,
+        rArm: ds.arms.base,
+        lLeg: ds.legs.base,
+        rLeg: ds.legs.base
+      };
+    } else {
+      pv = {
+        head: character.armourHead,
+        torso: character.armourTorso,
+        lArm: character.armourLArm,
+        rArm: character.armourRArm,
+        lLeg: character.armourLLeg,
+        rLeg: character.armourRLeg
+      };
+      id = {
+        head: character.idHead,
+        torso: character.idTorso,
+        lArm: character.idLArm,
+        rArm: character.idRArm,
+        lLeg: character.idLLeg,
+        rLeg: character.idRLeg
+      };
+    }
 
     const row = (label, pvVal, idVal) => {
       return `<tr><td>${escapeHtml(label)}</td><td>${escapeHtml(String(pvVal ?? '--'))}</td><td>${escapeHtml(String(idVal ?? '--'))}</td></tr>`;
@@ -109,6 +138,31 @@
       row('L.Leg', pv.lLeg, id.lLeg),
       row('R.Leg', pv.rLeg, id.rLeg),
     ].join('');
+  }
+
+  function renderDeathSuitStats(character) {
+    const key = 'Ebon Guard — DeathSuit';
+    const owned = character.ebonEquipmentInventory && (character.ebonEquipmentInventory[key] || 0) > 0;
+    if (!owned || typeof DEATHSUIT_TYPES === 'undefined') return '';
+    const dtype = character.deathsuitType && DEATHSUIT_TYPES[character.deathsuitType]
+      ? character.deathsuitType
+      : Object.keys(DEATHSUIT_TYPES)[0];
+    const ds = DEATHSUIT_TYPES[dtype];
+    const fmt = (o) => `${escapeHtml(String(o.base))}/${escapeHtml(String(o.max))}`;
+    return `
+      <div style="margin-top:4px">
+        <div style="text-align:center;font-weight:bold;text-transform:uppercase;font-size:9px;margin:6px 0 2px 0;">DeathSuit — ${escapeHtml(dtype)}</div>
+        <table style="width:100%;border-collapse:collapse;font-size:9px;">
+          <tbody>
+            <tr><td style="border:1px solid #000;padding:1px 2px">PV</td><td style="border:1px solid #000;padding:1px 2px;text-align:center">${fmt(ds.pv)}</td></tr>
+            <tr><td style="border:1px solid #000;padding:1px 2px">Head</td><td style="border:1px solid #000;padding:1px 2px;text-align:center">${fmt(ds.head)}</td></tr>
+            <tr><td style="border:1px solid #000;padding:1px 2px">Torso</td><td style="border:1px solid #000;padding:1px 2px;text-align:center">${fmt(ds.torso)}</td></tr>
+            <tr><td style="border:1px solid #000;padding:1px 2px">Arms</td><td style="border:1px solid #000;padding:1px 2px;text-align:center">${fmt(ds.arms)}</td></tr>
+            <tr><td style="border:1px solid #000;padding:1px 2px">Legs</td><td style="border:1px solid #000;padding:1px 2px;text-align:center">${fmt(ds.legs)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
   function renderPurchasedDrugs(character) {
@@ -231,6 +285,7 @@
                         ${renderArmourProtectionTable(character)}
                       </tbody>
                     </table>
+                    ${renderDeathSuitStats(character)}
                   </div>
                 </div>
               </div>
@@ -249,9 +304,9 @@
                 <div style="position:relative;height:40px;"></div>
               </div>
 
-              <div class="panel initiative-strip" style="border:1px solid #000;display:flex;font-size:9px;">
-                <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Initiative Phase</span><div>${renderPhaseBoxes(phaseData.phases)}</div></div>
-                <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Damage Bonus</span><span style="border-bottom:1px solid #000;flex:1;height:10px;"></span></div>
+              <div class="panel initiative-strip" style="border:1px solid #000;display:flex;font-size:9px;align-items:center;gap:4px;padding:2px 4px;">
+                <div style="display:flex;align-items:center;gap:4px;flex:1;"><span style="text-transform:uppercase;font-weight:bold;">Initiative Phase</span><div>${renderPhaseBoxes(phaseData.phases)}</div></div>
+                <div style="display:flex;align-items:center;gap:4px;"><span style="text-transform:uppercase;font-weight:bold;white-space:nowrap;">Damage Bonus</span><div style="border:1px solid #000;padding:4px 8px;min-width:40px;text-align:center;font-weight:bold;">${escapeHtml(String((character.getDamageBonus ? character.getDamageBonus() : Math.floor((character.stats?.STR || 0) / 3))))}</div></div>
               </div>
             </div>
 

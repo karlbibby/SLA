@@ -44,6 +44,8 @@ function renderEbonEquipmentStep(character, container, onUpdate) {
         const qty = character.ebonEquipmentInventory[key] || 0;
         const costCredits = getEbonEquipmentCostCredits(item);
         const canPurchase = typeof costCredits === 'number';
+        const isDeathSuit = item.equipment === 'DeathSuit';
+        const disableIncrease = (!canPurchase) || (isDeathSuit && qty >= 1);
         html += '<div class="ebon-equipment-row" data-ebon-equipment="' + escapeHtml(key) + '">' +
             '<div class="ebon-equipment-ability">' + escapeHtml(item.ability) + '</div>' +
             '<div>' + escapeHtml(item.equipment) + '</div>' +
@@ -51,7 +53,7 @@ function renderEbonEquipmentStep(character, container, onUpdate) {
             '<div class="ebon-equipment-qty">' +
                 '<button class="ebon-equipment-qty-btn ebon-equipment-decrease" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
                 '<span class="ebon-equipment-qty-value">' + escapeHtml(String(qty)) + '</span>' +
-                '<button class="ebon-equipment-qty-btn ebon-equipment-increase" ' + (!canPurchase ? 'disabled' : '') + '>+</button>' +
+                '<button class="ebon-equipment-qty-btn ebon-equipment-increase" ' + (disableIncrease ? 'disabled' : '') + '>+</button>' +
             '</div>' +
         '</div>';
     });
@@ -79,6 +81,10 @@ function renderEbonEquipmentStep(character, container, onUpdate) {
             const item = findEbonEquipmentByKey(key);
             const price = getEbonEquipmentCostCredits(item);
             if (typeof price !== 'number') return;
+            if (item && item.equipment === 'DeathSuit') {
+                const current = character.ebonEquipmentInventory[key] || 0;
+                if (current >= 1) return; // cap at 1
+            }
             character.credits = (typeof character.credits !== 'undefined') ? character.credits : 0;
             if (price > 0 && character.credits < price) {
                 alert('Insufficient credits to purchase ' + key + ' (' + price + 'c).');

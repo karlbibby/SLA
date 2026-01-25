@@ -10,31 +10,38 @@ const SKILLS = {
       },
       'Blade, 1-H': {
         governingStat: 'STR',
-        description: 'One-handed blades from pocket knives through daggers to MAC knives. Does not cover throwing knives.'
+        description: 'One-handed blades from pocket knives through daggers to MAC knives. Does not cover throwing knives.',
+        unarmedCombat: true
       },
       'Blade, 2-H': {
         governingStat: 'STR',
-        description: 'Two-handed blades such as greatswords and Power Claymores.'
+        description: 'Two-handed blades such as greatswords and Power Claymores.',
+        unarmedCombat: true
       },
       'Club, 1-H': {
         governingStat: 'STR',
-        description: 'One-handed clubs including batons and similar blunt instruments.'
+        description: 'One-handed clubs including batons and similar blunt instruments.',
+        unarmedCombat: true
       },
       'Club, 2-H': {
         governingStat: 'STR',
-        description: 'Two-handed improvised or crafted clubs such as baseball bats and large poles.'
+        description: 'Two-handed improvised or crafted clubs such as baseball bats and large poles.',
+        unarmedCombat: true
       },
       'Chainaxe': {
         governingStat: 'STR',
-        description: 'Specialised chainaxe technique with a defined method to avoid self-injury.'
+        description: 'Specialised chainaxe technique with a defined method to avoid self-injury.',
+        unarmedCombat: true
       },
       'Flexible Weapon': {
         governingStat: 'STR',
-        description: 'Nunchaku, bike chains, whips and similar flexible weapons.'
+        description: 'Nunchaku, bike chains, whips and similar flexible weapons.',
+        unarmedCombat: true
       },
       'Pole-arm': {
         governingStat: 'STR',
-        description: "Spears, pole-arms and modern equivalents such as Flick Scythes."
+        description: "Spears, pole-arms and modern equivalents such as Flick Scythes.",
+        unarmedCombat: true
       }
     }
   },
@@ -44,7 +51,8 @@ const SKILLS = {
     skills: {
       'Martial Arts': {
         governingStat: 'DEX',
-        description: 'Trained unarmed combat styles (judo, karate, ninjitsu) that improve both defence and offence.'
+        description: 'Trained unarmed combat styles (judo, karate, ninjitsu) that improve both defence and offence.',
+        unarmedCombat: true
       },
       'Gymnastics': {
         governingStat: 'DEX',
@@ -86,7 +94,8 @@ const SKILLS = {
     skills: {
       'Wrestling': {
         governingStat: 'PHYS',
-        description: 'Wrestling skill used for grappling, pins and combat holds.'
+        description: 'Wrestling skill used for grappling, pins and combat holds.',
+        unarmedCombat: true
       },
       'Acrobatics': {
         governingStat: 'PHYS',

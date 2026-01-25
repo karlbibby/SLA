@@ -379,9 +379,9 @@
                 <div style="position:relative;height:80px;"></div>
               </div>
 
-              <div class="panel initiative-strip" style="border:1px solid #000;display:flex;font-size:9px;">
-                <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Initiative Phase</span><div>${renderPhaseBoxes(phaseData.phases)}</div></div>
-                <div style="padding:2px 4px;flex:1;display:flex;align-items:center;"><span style="text-transform:uppercase;font-weight:bold;margin-right:4px;">Damage Bonus</span><span style="border-bottom:1px solid #000;flex:1;height:10px;"></span></div>
+              <div class="panel initiative-strip" style="border:1px solid #000;display:flex;font-size:9px;align-items:center;gap:4px;padding:2px 4px;">
+                <div style="display:flex;align-items:center;gap:4px;flex:1;"><span style="text-transform:uppercase;font-weight:bold;">Initiative Phase</span><div>${renderPhaseBoxes(phaseData.phases)}</div></div>
+                <div style="display:flex;align-items:center;gap:4px;"><span style="text-transform:uppercase;font-weight:bold;white-space:nowrap;">Damage Bonus</span><div style="border:1px solid #000;padding:4px 8px;min-width:40px;text-align:center;font-weight:bold;">${escapeHtml(String((character.getDamageBonus ? character.getDamageBonus() : Math.floor((character.stats?.STR || 0) / 3))))}</div></div>
               </div>
             </div>
 

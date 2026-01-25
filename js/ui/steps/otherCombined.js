@@ -16,6 +16,7 @@ function renderOtherCombinedStep(character, container, onUpdate) {
     const armourItems = (Array.isArray(ARMOUR) ? ARMOUR.slice() : []);
     const equipmentItems = (Array.isArray(EQUIPMENT) ? EQUIPMENT.slice() : []).filter(item => !item.hidden);
     const vehicleItems = (Array.isArray(VEHICLES) ? VEHICLES.slice() : []);
+    const dsOwned = !!(character.ebonEquipmentInventory && (character.ebonEquipmentInventory['Ebon Guard — DeathSuit'] || 0) > 0);
 
     if (!character.selectedArmourType) {
         const owned = Object.entries(character.armourInventory).find(([, qty]) => (Number(qty) || 0) > 0);
@@ -28,7 +29,36 @@ function renderOtherCombinedStep(character, container, onUpdate) {
     let html = sectionHeader('Step 11: Other', 'Purchase armour, equipment, and vehicles using your available credits.');
 
     html += '<div class="section-header"><h3 class="section-title">Armour</h3></div>';
-    html += '<div class="armour-container">';
+    // Effective armour display when DeathSuit owned
+    (function(){
+        try {
+            const key = 'Ebon Guard — DeathSuit';
+            const owned = (character.ebonEquipmentInventory && (character.ebonEquipmentInventory[key] || 0) > 0);
+            if (owned && typeof DEATHSUIT_TYPES !== 'undefined') {
+                const dtype = character.deathsuitType && DEATHSUIT_TYPES[character.deathsuitType]
+                    ? character.deathsuitType
+                    : Object.keys(DEATHSUIT_TYPES)[0];
+                const ds = DEATHSUIT_TYPES[dtype];
+                const fmt = (o) => escapeHtml(String(o.base)) + ' / ' + escapeHtml(String(o.max));
+                html += '<div class="info-box" style="margin-bottom:8px">' +
+                    '<div style="font-weight:700;margin-bottom:4px">DeathSuit active — armour purchases will not change protection values.</div>' +
+                    '<div style="margin-bottom:4px">Type: <strong>' + escapeHtml(dtype) + '</strong></div>' +
+                    '<table style="width:100%;border-collapse:collapse;font-size:14px">' +
+                        '<thead><tr><th style="text-align:left;padding:2px 4px">Location</th><th style="text-align:left;padding:2px 4px">PV</th><th style="text-align:left;padding:2px 4px">ID</th></tr></thead>' +
+                        '<tbody>' +
+                            '<tr><td style="padding:2px 4px">Head</td><td style="padding:2px 4px">' + fmt(ds.pv) + '</td><td style="padding:2px 4px">' + fmt(ds.head) + '</td></tr>' +
+                            '<tr><td style="padding:2px 4px">Torso</td><td style="padding:2px 4px">' + fmt(ds.pv) + '</td><td style="padding:2px 4px">' + fmt(ds.torso) + '</td></tr>' +
+                            '<tr><td style="padding:2px 4px">L.Arm</td><td style="padding:2px 4px">' + fmt(ds.pv) + '</td><td style="padding:2px 4px">' + fmt(ds.arms) + '</td></tr>' +
+                            '<tr><td style="padding:2px 4px">R.Arm</td><td style="padding:2px 4px">' + fmt(ds.pv) + '</td><td style="padding:2px 4px">' + fmt(ds.arms) + '</td></tr>' +
+                            '<tr><td style="padding:2px 4px">L.Leg</td><td style="padding:2px 4px">' + fmt(ds.pv) + '</td><td style="padding:2px 4px">' + fmt(ds.legs) + '</td></tr>' +
+                            '<tr><td style="padding:2px 4px">R.Leg</td><td style="padding:2px 4px">' + fmt(ds.pv) + '</td><td style="padding:2px 4px">' + fmt(ds.legs) + '</td></tr>' +
+                        '</tbody>' +
+                    '</table>' +
+                '</div>';
+            }
+        } catch (e) {}
+    })();
+    html += '<div class="armour-container" ' + (dsOwned ? 'style="opacity:0.5;pointer-events:none"' : '') + '>';
     html += '<div class="armour-table">';
     html += '<div class="armour-header">' +
         '<div>Armour Types</div><div>Cost</div><div>P.V.</div><div>Head</div><div>Torso</div><div>Arms</div><div>Legs</div><div>Modifiers</div><div>Qty</div>' +
@@ -38,6 +68,7 @@ function renderOtherCombinedStep(character, container, onUpdate) {
         const qty = character.armourInventory[armour.type] || 0;
         const costCredits = getArmourCostCredits(armour);
         const canPurchase = typeof costCredits === 'number';
+        const disableIncrease = (!canPurchase) || dsOwned;
         html += '<div class="armour-row" data-armour="' + escapeHtml(armour.type) + '">' +
             '<div class="armour-type">' + escapeHtml(armour.type) + '</div>' +
             '<div class="armour-cost">' + escapeHtml(formatArmourCost(armour)) + '</div>' +
@@ -50,7 +81,7 @@ function renderOtherCombinedStep(character, container, onUpdate) {
             '<div class="armour-qty">' +
                 '<button class="armour-qty-btn armour-decrease" ' + (qty <= 0 ? 'disabled' : '') + '>−</button>' +
                 '<span class="armour-qty-value">' + escapeHtml(String(qty)) + '</span>' +
-                '<button class="armour-qty-btn armour-increase" ' + (!canPurchase ? 'disabled' : '') + '>+</button>' +
+                '<button class="armour-qty-btn armour-increase" ' + (disableIncrease ? 'disabled' : '') + (dsOwned ? ' title="Disabled while DeathSuit is active"' : '') + '>+</button>' +
             '</div>' +
         '</div>';
     });
@@ -156,6 +187,9 @@ function renderOtherCombinedStep(character, container, onUpdate) {
         }
 
         if (armourInc) {
+            if (character.ebonEquipmentInventory && (character.ebonEquipmentInventory['Ebon Guard — DeathSuit'] || 0) > 0) {
+                return; // purchasing disabled while DeathSuit owned
+            }
             const type = armourInc.closest('[data-armour]').getAttribute('data-armour');
             const armour = findArmourByType(type);
             const price = getArmourCostCredits(armour);

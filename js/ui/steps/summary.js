@@ -25,6 +25,8 @@ function renderSummaryStep(character, container, onUpdate) {
     let derivedHtml = '<div class="stats-grid">';
     derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">PHYS</span><span class="stat-value">' + escapeHtml(String(derived.PHYS || 0)) + '</span></div>';
     derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">KNOW</span><span class="stat-value">' + escapeHtml(String(derived.KNOW || 0)) + '</span></div>';
+    const damageBonus = character.getDamageBonus ? character.getDamageBonus() : Math.floor((character.stats?.STR || 0) / 3);
+    derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">DMG BONUS</span><span class="stat-value">' + escapeHtml(String(damageBonus)) + '</span></div>';
     if (character.isFluxUser && character.isFluxUser()) {
         derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">FLUX</span><span class="stat-value">' + escapeHtml(String(derived.FLUX || 0)) + '</span></div>';
     }
@@ -185,9 +187,28 @@ function renderSummaryStep(character, container, onUpdate) {
     const equipmentEntries = Object.entries(character.equipmentInventory || {}).filter(([,q]) => q > 0);
     const equipmentHtml = equipmentEntries.length ? equipmentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No equipment</div>';
 
-    // Ebon Equipment (totals per type)
+    // Ebon Equipment (totals per type) + DeathSuit details
     const ebonEquipmentEntries = Object.entries(character.ebonEquipmentInventory || {}).filter(([,q]) => q > 0);
     const ebonEquipmentHtml = ebonEquipmentEntries.length ? ebonEquipmentEntries.map(([k,q]) => '<div>' + escapeHtml(k) + ' × ' + escapeHtml(String(q)) + '</div>').join('') : '<div style="color:#666">No ebon equipment</div>';
+
+    function renderDeathSuitSummary(character) {
+        const key = 'Ebon Guard — DeathSuit';
+        const owned = (character.ebonEquipmentInventory && (character.ebonEquipmentInventory[key] || 0) > 0);
+        if (!owned || typeof DEATHSUIT_TYPES === 'undefined') return '';
+        const dtype = character.deathsuitType && DEATHSUIT_TYPES[character.deathsuitType] ? character.deathsuitType : Object.keys(DEATHSUIT_TYPES)[0];
+        const ds = DEATHSUIT_TYPES[dtype];
+        const fmt = (o) => escapeHtml(String(o.base)) + ' / ' + escapeHtml(String(o.max));
+        return '<div class="card" style="margin-top:10px;padding:8px">' +
+            '<div style="font-weight:700">DeathSuit: ' + escapeHtml(dtype) + '</div>' +
+            '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px;font-size:14px">' +
+              '<div><strong>PV</strong><div>' + fmt(ds.pv) + '</div></div>' +
+              '<div><strong>Head</strong><div>' + fmt(ds.head) + '</div></div>' +
+              '<div><strong>Torso</strong><div>' + fmt(ds.torso) + '</div></div>' +
+              '<div><strong>Arms</strong><div>' + fmt(ds.arms) + '</div></div>' +
+              '<div><strong>Legs</strong><div>' + fmt(ds.legs) + '</div></div>' +
+            '</div>' +
+        '</div>';
+    }
 
     container.innerHTML = sectionHeader('Step 12: Character Summary') +
         '<div class="card"><div class="card-title">' + escapeHtml(name) + '</div><div class="card-subtitle">' + escapeHtml(race) + '</div></div>' +
@@ -217,7 +238,7 @@ function renderSummaryStep(character, container, onUpdate) {
         '<div style="margin-top:18px"><h4>Ammunition</h4>' + ammoHtml + '</div>' +
         '<div style="margin-top:18px"><h4>Specialist Ammunition</h4>' + specialistHtml + '</div>' +
         '<div style="margin-top:18px"><h4>Equipment</h4>' + equipmentHtml + '</div>' +
-        '<div style="margin-top:18px"><h4>Ebon Equipment</h4>' + ebonEquipmentHtml + '</div>' +
+        '<div style="margin-top:18px"><h4>Ebon Equipment</h4>' + ebonEquipmentHtml + renderDeathSuitSummary(character) + '</div>' +
         '<div style="margin-top:18px"><h4>Vehicles</h4>' + vehiclesHtml + '</div>' +
         '<div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' +
             '<div><h4>Ebon Abilities</h4>' + ebonHtml + '<h5 style="margin-top:8px">Formulae</h5>' + formulaeHtml + '</div>' +

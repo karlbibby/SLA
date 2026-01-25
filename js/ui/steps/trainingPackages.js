@@ -70,6 +70,31 @@ function renderTrainingPackagesStep(character, container, onUpdate) {
         
         // Build skills list with current → new rank for selected package
         let skillsHtml = '<div class="skills-list" style="margin-top: 10px;">';
+        
+        // Add combat skill selector for packages with selectableCombatSkill flag
+        if (isSelected && pkg.selectableCombatSkill) {
+            // Build list of unarmed combat skills
+            const unarmedCombatSkills = [];
+            for (const category in SKILLS) {
+                for (const skillName in SKILLS[category].skills) {
+                    if (SKILLS[category].skills[skillName].unarmedCombat) {
+                        unarmedCombatSkills.push(skillName);
+                    }
+                }
+            }
+            
+            const selectedSkill = character.packageSelectedCombatSkill || '';
+            skillsHtml += '<div style="margin-bottom: 12px; padding: 8px; background: rgba(46, 204, 113, 0.1); border: 1px solid rgba(46, 204, 113, 0.3); border-radius: 4px;">';
+            skillsHtml += '<label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-success);">Select One Close Combat Skill:</label>';
+            skillsHtml += '<select id="package-combat-select-' + packageId + '" style="width: 100%; padding: 6px; border: 1px solid #666; border-radius: 4px; background: #222; color: #fff;">';
+            skillsHtml += '<option value="">-- Choose a skill --</option>';
+            unarmedCombatSkills.sort().forEach(skill => {
+                skillsHtml += '<option value="' + skill + '"' + (selectedSkill === skill ? ' selected' : '') + '>' + skill + '</option>';
+            });
+            skillsHtml += '</select>';
+            skillsHtml += '</div>';
+        }
+        
         for (const skillName of pkg.skills) {
             // Find the skill to get governing stat
             let governingStat = '';
@@ -112,6 +137,42 @@ function renderTrainingPackagesStep(character, container, onUpdate) {
                     '</div>';
             }
         }
+        
+        // Also show the selected combat skill if any
+        if (isSelected && pkg.selectableCombatSkill && character.packageSelectedCombatSkill) {
+            let governingStat = '';
+            for (const category in SKILLS) {
+                if (SKILLS[category].skills[character.packageSelectedCombatSkill]) {
+                    governingStat = SKILLS[category].skills[character.packageSelectedCombatSkill].governingStat;
+                    break;
+                }
+            }
+            
+            const skillName = character.packageSelectedCombatSkill;
+            const currentRank = character.skills[skillName] || 0;
+            const bonusRank = currentRank > 0 ? 1 : 2;
+            
+            let displayCurrentRank = currentRank;
+            let displayNewRank = currentRank + bonusRank;
+            if (character.packageSkills && character.packageSkills[skillName]) {
+                const pkgEntry = character.packageSkills[skillName];
+                const pkgBonus = (typeof pkgEntry === 'object' && pkgEntry !== null)
+                    ? (pkgEntry.bonusRank || 0)
+                    : (pkgEntry || 0);
+                const originalRank = (typeof pkgEntry === 'object' && pkgEntry !== null && typeof pkgEntry.originalRank === 'number')
+                    ? pkgEntry.originalRank
+                    : Math.max(0, currentRank - pkgBonus);
+                displayCurrentRank = originalRank;
+                displayNewRank = originalRank + pkgBonus;
+            }
+            
+            const statLabel = governingStat ? ' <span style="color: var(--text-muted); font-size: 0.85em;">(' + governingStat + ')</span>' : '';
+            skillsHtml += '<div class="skill-item" style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(46, 204, 113, 0.3); margin-top: 6px; padding-top: 6px; font-weight: 600; color: var(--color-success);">' +
+                '<span>' + skillName + statLabel + '</span>' +
+                '<span>' + displayCurrentRank + ' → ' + displayNewRank + '</span>' +
+                '</div>';
+        }
+        
         skillsHtml += '</div>';
         
         const disabledStyle = !canSelectPackage ? 'opacity: 0.5; cursor: not-allowed;' : 'cursor: pointer;';
@@ -135,6 +196,22 @@ function renderTrainingPackagesStep(character, container, onUpdate) {
     packagesHtml += '</div>';
     
     container.innerHTML = headerHtml + packagesHtml;
+    
+    // Add combat skill selector change handler for packages with selectableCombatSkill
+    const packageCombatSelect = container.querySelector('[id^="package-combat-select-"]');
+    if (packageCombatSelect) {
+        const packageId = packageCombatSelect.id.replace('package-combat-select-', '');
+        packageCombatSelect.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click handler from firing
+        });
+        packageCombatSelect.addEventListener('change', function(e) {
+            e.stopPropagation(); // Prevent card click handler from firing
+            const selectedSkill = this.value;
+            character.applyTrainingPackage(packageId, selectedSkill);
+            renderTrainingPackagesStep(character, container, onUpdate);
+            onUpdate();
+        });
+    }
     
     // Add click handlers
     container.querySelectorAll('.package-card').forEach(card => {
