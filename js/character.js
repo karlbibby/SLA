@@ -112,6 +112,9 @@ class Character {
         // Ebon Equipment Inventory
         this.ebonEquipmentInventory = {};  // { "Force Ebb Kinetic — Flintlock": 1 }
 
+        // DeathSuit selection (owned via Ebon Equipment)
+        this.deathsuitType = ''; // One of keys in DEATHSUIT_TYPES when owned
+
         // Locked inventory (non-removable starter kit)
         this.lockedInventory = {
             armaments: {},
@@ -674,6 +677,7 @@ class Character {
             specialistAmmoInventory: this.specialistAmmoInventory,
             equipmentInventory: this.equipmentInventory,
             ebonEquipmentInventory: this.ebonEquipmentInventory,
+            deathsuitType: this.deathsuitType,
             phobias: this.phobias,
             selectedTrainingPackage: this.selectedTrainingPackage,
             packageSkills: this.packageSkills,
@@ -769,6 +773,7 @@ class Character {
         this.specialistAmmoInventory = data.specialistAmmoInventory || {};
         this.equipmentInventory = data.equipmentInventory || {};
         this.ebonEquipmentInventory = data.ebonEquipmentInventory || {};
+        this.deathsuitType = data.deathsuitType || this.deathsuitType || '';
         this.phobias = data.phobias || [];
         this.selectedTrainingPackage = data.selectedTrainingPackage || null;
         this.packageSkills = normalizeSkillMap(data.packageSkills || {});
