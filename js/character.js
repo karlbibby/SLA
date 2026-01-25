@@ -128,6 +128,7 @@ class Character {
         // Training Package
         this.selectedTrainingPackage = null;  // Package ID or null
         this.packageSkills = {};  // Tracks skills granted by package for removal: { skillName: rank | { bonusRank, originalRank } }
+        this.packageSelectedCombatSkill = null;  // Track selected unarmed combat skill for packages with selectableCombatSkill flag
         
         // Starting SCL
         this.scl = '10';
@@ -189,6 +190,12 @@ class Character {
     calculateDerivedStats() {
         this.derivedStats.PHYS = Math.ceil((this.stats.STR + this.stats.DEX) / 2);
         this.derivedStats.KNOW = Math.ceil((this.stats.DIA + this.stats.CONC) / 2);
+    }
+
+    // Get damage bonus (STR / 3 rounded down)
+    getDamageBonus() {
+        const str = Number(this.stats?.STR || 0);
+        return Math.floor(str / 3);
     }
 
     // Get phases/actions from DEX
@@ -484,7 +491,7 @@ class Character {
     }
 
     // Apply training package skills
-    applyTrainingPackage(packageId) {
+    applyTrainingPackage(packageId, selectedCombatSkill = null) {
         if (!packageId || typeof TRAINING_PACKAGES === 'undefined') return;
         
         // Remove current package first if any
@@ -496,12 +503,28 @@ class Character {
         this.selectedTrainingPackage = packageId;
         this.packageSkills = {};
         
+        // Handle packages with selectable combat skill
+        if (packageData.selectableCombatSkill && selectedCombatSkill) {
+            this.packageSelectedCombatSkill = selectedCombatSkill;
+        }
+        
         // Add skills: +1 if skill exists, +2 if new skill
         for (const skillName of packageData.skills) {
+            // Skip placeholder - it will be handled by the selected combat skill
+            if (skillName === 'Any Close Combat Skill') continue;
+            
             const currentRank = this.skills[skillName] || 0;
             const bonusRank = currentRank > 0 ? 1 : 2;  // +1 if exists, +2 if new
             this.skills[skillName] = currentRank + bonusRank;
             this.packageSkills[skillName] = { bonusRank, originalRank: currentRank };  // Track actual bonus given
+        }
+        
+        // If package has selectable combat skill and one is selected, add it to skills
+        if (packageData.selectableCombatSkill && selectedCombatSkill) {
+            const currentRank = this.skills[selectedCombatSkill] || 0;
+            const bonusRank = currentRank > 0 ? 1 : 2;
+            this.skills[selectedCombatSkill] = currentRank + bonusRank;
+            this.packageSkills[selectedCombatSkill] = { bonusRank, originalRank: currentRank };
         }
     }
 
@@ -527,6 +550,7 @@ class Character {
         
         this.selectedTrainingPackage = null;
         this.packageSkills = {};
+        this.packageSelectedCombatSkill = null;
     }
 
     // Validate training package - auto-remove if points are available
@@ -653,6 +677,7 @@ class Character {
             phobias: this.phobias,
             selectedTrainingPackage: this.selectedTrainingPackage,
             packageSkills: this.packageSkills,
+            packageSelectedCombatSkill: this.packageSelectedCombatSkill,
             scl: this.scl,
             // Financials
             credits: this.credits,
@@ -747,6 +772,7 @@ class Character {
         this.phobias = data.phobias || [];
         this.selectedTrainingPackage = data.selectedTrainingPackage || null;
         this.packageSkills = normalizeSkillMap(data.packageSkills || {});
+        this.packageSelectedCombatSkill = data.packageSelectedCombatSkill || data.kickMurderSelectedCombatSkill || null;  // Support old property name
         this.scl = data.scl || '10';
 
         // Financials with sensible defaults / backwards compatibility

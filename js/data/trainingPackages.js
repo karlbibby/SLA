@@ -26,8 +26,8 @@ const TRAINING_PACKAGES = {
       'Martial Arts',
       'Climb',
       'Acrobatics'
-      // Note: "Any Close Combat Skill" is not included as it's a player choice
-    ]
+    ],
+    selectableCombatSkill: true  // Flag to indicate this package has a selectable unarmed combat skill
   },
   
   investigationInterrogation: {
@@ -110,8 +110,8 @@ const TRAINING_PACKAGES = {
       'Pistol',
       'Rifle',
       'Medical, Paramedic'
-      // Note: "Any Close Combat Skill" is not included as it's a player choice
-    ]
+    ],
+    selectableCombatSkill: true  // Flag to indicate this package has a selectable unarmed combat skill
   },
   
   scouting: {

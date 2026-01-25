@@ -25,6 +25,8 @@ function renderSummaryStep(character, container, onUpdate) {
     let derivedHtml = '<div class="stats-grid">';
     derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">PHYS</span><span class="stat-value">' + escapeHtml(String(derived.PHYS || 0)) + '</span></div>';
     derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">KNOW</span><span class="stat-value">' + escapeHtml(String(derived.KNOW || 0)) + '</span></div>';
+    const damageBonus = character.getDamageBonus ? character.getDamageBonus() : Math.floor((character.stats?.STR || 0) / 3);
+    derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">DMG BONUS</span><span class="stat-value">' + escapeHtml(String(damageBonus)) + '</span></div>';
     if (character.isFluxUser && character.isFluxUser()) {
         derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">FLUX</span><span class="stat-value">' + escapeHtml(String(derived.FLUX || 0)) + '</span></div>';
     }
