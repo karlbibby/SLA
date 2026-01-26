@@ -220,19 +220,14 @@ const VALIDATORS = {
             errors.push('FLUX cannot be below 10 for Ebon/Brain Waster characters');
         }
 
-        // DeathSuit validation (cap 1 and require valid type when owned)
+        // DeathSuit validation (cap 1; type is automatically calculated from Protect rank)
         try {
             const key = 'Ebon Guard — DeathSuit';
             const qty = (character.ebonEquipmentInventory && Number(character.ebonEquipmentInventory[key] || 0)) || 0;
             if (qty > 1) {
                 errors.push('DeathSuit quantity cannot exceed 1');
             }
-            if (qty > 0) {
-                const t = character.deathsuitType || '';
-                if (typeof DEATHSUIT_TYPES === 'undefined' || !DEATHSUIT_TYPES[t]) {
-                    errors.push('DeathSuit type must be selected (Light, Medium, Heavy, Super, Angel)');
-                }
-            }
+            // DeathSuit type is now automatically calculated from Protect rank (no validation needed)
         } catch (e) {
             // no-op
         }

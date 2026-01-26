@@ -826,4 +826,84 @@ describe('Character Class', () => {
       expect(clone.name).toBe('Clone');
     });
   });
+
+  describe('DeathSuit Type from Protect Rank', () => {
+    test('should return Light for Protect rank 0-4', () => {
+      character.ebonRanks = {};
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+
+      character.ebonRanks.protect = 1;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+
+      character.ebonRanks.protect = 4;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+    });
+
+    test('should return Medium for Protect rank 5-9', () => {
+      character.ebonRanks = { protect: 5 };
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Medium');
+
+      character.ebonRanks.protect = 7;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Medium');
+
+      character.ebonRanks.protect = 9;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Medium');
+    });
+
+    test('should return Heavy for Protect rank 10-14', () => {
+      character.ebonRanks = { protect: 10 };
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Heavy');
+
+      character.ebonRanks.protect = 12;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Heavy');
+
+      character.ebonRanks.protect = 14;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Heavy');
+    });
+
+    test('should return Super for Protect rank 15-19', () => {
+      character.ebonRanks = { protect: 15 };
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Super');
+
+      character.ebonRanks.protect = 17;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Super');
+
+      character.ebonRanks.protect = 19;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Super');
+    });
+
+    test('should return Angel for Protect rank 20', () => {
+      character.ebonRanks = { protect: 20 };
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Angel');
+    });
+
+    test('should handle missing or zero Protect rank as Light', () => {
+      character.ebonRanks = {};
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+
+      character.ebonRanks = null;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+
+      character.ebonRanks = { protect: 0 };
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+    });
+
+    test('should update dynamically when Protect rank changes', () => {
+      character.ebonRanks = { protect: 3 };
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Light');
+
+      character.ebonRanks.protect = 8;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Medium');
+
+      character.ebonRanks.protect = 13;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Heavy');
+
+      character.ebonRanks.protect = 18;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Super');
+
+      character.ebonRanks.protect = 20;
+      expect(character.getDeathSuitTypeFromProtectRank()).toBe('Angel');
+    });
+  });
 });
+

@@ -89,9 +89,9 @@ function renderArmourStep(character, container, onUpdate) {
             const key = 'Ebon Guard — DeathSuit';
             const owned = (character.ebonEquipmentInventory && (character.ebonEquipmentInventory[key] || 0) > 0);
             if (owned && typeof DEATHSUIT_TYPES !== 'undefined') {
-                const dtype = character.deathsuitType && DEATHSUIT_TYPES[character.deathsuitType]
-                    ? character.deathsuitType
-                    : Object.keys(DEATHSUIT_TYPES)[0];
+                const dtype = (typeof character.getDeathSuitTypeFromProtectRank === 'function')
+                    ? character.getDeathSuitTypeFromProtectRank()
+                    : (Object.keys(DEATHSUIT_TYPES)[0] || 'Light');
                 const ds = DEATHSUIT_TYPES[dtype];
                 const fmt = (o) => escapeHtml(String(o.base)) + ' / ' + escapeHtml(String(o.max));
                 html += '<div class="info-box" style="margin-bottom:8px">' +

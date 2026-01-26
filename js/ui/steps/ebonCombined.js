@@ -90,7 +90,6 @@ function renderEbonCombinedStep(character, container, onUpdate) {
         '</div>';
 
     const items = (Array.isArray(EBON_EQUIPMENT) ? EBON_EQUIPMENT.slice() : []);
-    character.deathsuitType = character.deathsuitType || '';
 
     items.forEach(item => {
         const key = item.ability + ' — ' + item.equipment;
@@ -110,13 +109,11 @@ function renderEbonCombinedStep(character, container, onUpdate) {
             '</div>' +
             (isDeathSuit ? (function(){
                 const owned = qty > 0;
-                const options = (typeof DEATHSUIT_TYPES !== 'undefined')
-                  ? Object.keys(DEATHSUIT_TYPES).map(t => '<option value="' + escapeHtml(t) + '" ' + (character.deathsuitType === t ? 'selected' : '') + '>' + escapeHtml(t) + '</option>').join('')
-                  : '';
-                return '<div class="deathsuit-type" style="margin-left:8px">' +
-                    '<label style="font-size:12px;margin-right:6px;color:#ddd">Type</label>' +
-                    '<select class="deathsuit-type-select" ' + (!owned ? 'disabled' : '') + '>' + options + '</select>' +
-                '</div>';
+                const dsType = typeof character.getDeathSuitTypeFromProtectRank === 'function' ? character.getDeathSuitTypeFromProtectRank() : 'Light';
+                return owned ? '<div class="deathsuit-type" style="margin-left:8px">' +
+                    '<label style="font-size:12px;margin-right:6px;color:#ddd">Type (Protect Rank):</label>' +
+                    '<span style="font-size:12px;color:#fff;font-weight:bold">' + escapeHtml(dsType) + '</span>' +
+                '</div>' : '';
             })() : '') +
         '</div>';
     });
@@ -135,15 +132,6 @@ function renderEbonCombinedStep(character, container, onUpdate) {
     });
 
     container._ebonCombinedInputHandler = function (e) {
-        // Handle deathsuit type select
-        const dsSelect = e.target.closest('.deathsuit-type-select');
-        if (dsSelect && container.contains(dsSelect)) {
-            const val = dsSelect.value;
-            character.deathsuitType = val || '';
-            if (typeof onUpdate === 'function') onUpdate();
-            return;
-        }
-
         const input = e.target.closest('.ebon-rank-input');
         if (!input || !container.contains(input)) return;
         const cat = input.getAttribute('data-cat');
@@ -181,7 +169,6 @@ function renderEbonCombinedStep(character, container, onUpdate) {
 
         const inc = e.target.closest('.ebon-equipment-qty-btn.ebon-equipment-increase');
         const dec = e.target.closest('.ebon-equipment-qty-btn.ebon-equipment-decrease');
-        const typeSel = e.target.closest('.deathsuit-type-select');
 
         function findEbonEquipmentByKey(key) {
             if (!Array.isArray(EBON_EQUIPMENT)) return null;
@@ -204,10 +191,6 @@ function renderEbonCombinedStep(character, container, onUpdate) {
             }
             if (price > 0) character.credits -= price;
             character.ebonEquipmentInventory[key] = (character.ebonEquipmentInventory[key] || 0) + 1;
-            if (item && item.equipment === 'DeathSuit' && !character.deathsuitType) {
-                // Default to Light on first purchase
-                character.deathsuitType = (typeof DEATHSUIT_TYPES !== 'undefined' && DEATHSUIT_TYPES.Light) ? 'Light' : '';
-            }
             renderEbonCombinedStep(character, container, onUpdate);
             if (typeof onUpdate === 'function') onUpdate();
             return;
@@ -224,23 +207,9 @@ function renderEbonCombinedStep(character, container, onUpdate) {
                     character.credits = (typeof character.credits !== 'undefined') ? character.credits : 0;
                     character.credits += price;
                 }
-                if (item && item.equipment === 'DeathSuit' && character.ebonEquipmentInventory[key] <= 0) {
-                    character.deathsuitType = '';
-                }
             }
             renderEbonCombinedStep(character, container, onUpdate);
             if (typeof onUpdate === 'function') onUpdate();
-        }
-
-        if (typeSel) {
-            const row = typeSel.closest('[data-ebon-equipment]');
-            const key = row ? row.getAttribute('data-ebon-equipment') : null;
-            if (!key) return;
-            if (key.endsWith('— DeathSuit') || key.indexOf('DeathSuit') !== -1) {
-                const val = typeSel.value;
-                character.deathsuitType = val || '';
-                if (typeof onUpdate === 'function') onUpdate();
-            }
         }
     };
 

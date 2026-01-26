@@ -264,6 +264,17 @@ class Character {
         return { actions, phases };
     }
 
+    // Calculate DeathSuit type from Protect ability rank
+    // 0-4: Light, 5-9: Medium, 10-14: Heavy, 15-19: Super, 20: Angel
+    getDeathSuitTypeFromProtectRank() {
+        const protectRank = Number(this.ebonRanks?.protect || 0);
+        if (protectRank >= 20) return 'Angel';
+        if (protectRank >= 15) return 'Super';
+        if (protectRank >= 10) return 'Heavy';
+        if (protectRank >= 5) return 'Medium';
+        return 'Light';
+    }
+
     // Get race stat maximums
     getStatMaximums() {
         if (!this.race) return null;
@@ -1261,7 +1272,8 @@ class Character {
         this.specialistAmmoInventory = data.specialistAmmoInventory || {};
         this.equipmentInventory = data.equipmentInventory || {};
         this.ebonEquipmentInventory = data.ebonEquipmentInventory || {};
-        this.deathsuitType = data.deathsuitType || this.deathsuitType || '';
+        // Migration: deathsuitType is now calculated from Protect rank; clear old stored values
+        this.deathsuitType = '';
         this.phobias = data.phobias || [];
         this.selectedTrainingPackage = data.selectedTrainingPackage || null;
         this.packageSkills = normalizeSkillMap(data.packageSkills || {});
