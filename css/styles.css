@@ -2639,3 +2639,101 @@
 .error-box h4 {
     color: var(--color-error);
 }
+/* ==================== CALCULATION BREAKDOWN ==================== */
+.calcs-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calcs-toggle:hover {
+    background: rgba(52, 152, 219, 0.1);
+    border-color: var(--color-info);
+    color: var(--color-info);
+}
+
+.calcs-breakdown {
+    margin-top: var(--spacing-md);
+}
+
+.calcs-breakdown-content {
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.breakdown-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.breakdown-section:last-child {
+    margin-bottom: 0;
+}
+
+.breakdown-section h3 {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-primary);
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+}
+
+.breakdown-row:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.breakdown-description {
+    flex: 1;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.breakdown-amount {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+    margin-left: var(--spacing-md);
+}
+
+.breakdown-total {
+    margin-top: var(--spacing-sm);
+    background: rgba(52, 152, 219, 0.1) !important;
+    border: 1px solid var(--border-color);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.positive-value {
+    color: var(--color-success);
+}
+
+.negative-value {
+    color: var(--color-error);
+}
+
+.training-package-subsection {
+    margin-top: var(--spacing-md);
+    padding-left: var(--spacing-sm);
+    border-left: 2px solid rgba(46, 204, 113, 0.3);
+}
+
+.training-package-subsection .breakdown-row {
+    background: rgba(46, 204, 113, 0.05);
+}

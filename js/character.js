@@ -456,6 +456,446 @@ class Character {
         return this.getAvailablePoints();
     }
 
+    // Get detailed breakdown of points gained and spent
+    getPointsBreakdown() {
+        const gained = [];
+        const spent = [];
+
+        // Points Gained
+        gained.push({ description: 'Starting Points', amount: this.totalPoints || 300 });
+
+        // Disadvantages (from advantages object where type is 'disadvantage')
+        for (const category in ADVANTAGES) {
+            const categoryData = ADVANTAGES[category];
+            for (const advName in categoryData.items) {
+                const advData = categoryData.items[advName];
+                const rank = this.disadvantages[advName] || 0;
+                if (rank > 0 && advData.type === 'disadvantage') {
+                    let points = 0;
+                    if (typeof advData.oneOffCost === 'number') {
+                        points = advData.oneOffCost;
+                        gained.push({ description: `${advData.name || advName}`, amount: points });
+                    } else {
+                        const perRank = advData.costPerRank || 0;
+                        points = perRank * rank;
+                        gained.push({ description: `${advData.name || advName} (Rank ${rank})`, amount: points });
+                    }
+                }
+            }
+        }
+
+        // Phobias
+        if (Array.isArray(this.phobias)) {
+            for (const ph of this.phobias) {
+                const name = ph.name;
+                const rank = ph.rank || 0;
+                let perRank = 0;
+                if (typeof PHOBIAS !== 'undefined' && PHOBIAS.items && PHOBIAS.items[name]) {
+                    perRank = PHOBIAS.items[name].costPerRank || (PHOBIA_RULES && PHOBIA_RULES.costPerRank) || 0;
+                } else {
+                    perRank = (PHOBIA_RULES && PHOBIA_RULES.costPerRank) || 0;
+                }
+                const points = perRank * rank;
+                gained.push({ description: `Phobia: ${name} (Rank ${rank})`, amount: points });
+            }
+        }
+
+        // Points Spent - Stats (only increases above racial minimum)
+        const raceData = RACES[this.race];
+        if (raceData && raceData.statMaximums) {
+            for (const stat in this.stats) {
+                const currentValue = this.stats[stat];
+                const minValue = raceData.statMaximums[stat]?.min || 5;
+                if (currentValue > minValue) {
+                    const increase = currentValue - minValue;
+                    const cost = increase * 5;
+                    spent.push({ description: `${stat} ${minValue}→${currentValue}: ${increase} × 5`, amount: cost, category: 'stat' });
+                }
+            }
+        }
+
+        // FLUX stat (if flux user, starts at 10, costs 5 per +1)
+        if (this.isFluxUser && this.isFluxUser()) {
+            const fluxValue = this.derivedStats?.FLUX || 10;
+            const baseFlux = 10;
+            if (fluxValue > baseFlux) {
+                const increase = fluxValue - baseFlux;
+                const cost = increase * 5;
+                spent.push({ description: `FLUX ${baseFlux}→${fluxValue}: ${increase} × 5`, amount: cost, category: 'stat' });
+            }
+        }
+
+        // Points Spent - Skills (with triangular formula, showing training package bonuses separately)
+        const freeSkills = raceData ? raceData.freeSkills || {} : {};
+        
+        for (const skillName in this.skills) {
+            const rank = Number(this.skills[skillName] || 0);
+            if (!rank || rank <= 0) continue;
+
+            const freeRank = Number(freeSkills[skillName] || 0);
+
+            // Check if this skill has training package bonus
+            let pkgBonus = 0;
+            let pkgOriginalRank = null;
+            const pkgEntry = this.packageSkills ? this.packageSkills[skillName] : null;
+            if (pkgEntry) {
+                if (typeof pkgEntry === 'number') {
+                    pkgBonus = Number(pkgEntry || 0);
+                } else if (typeof pkgEntry === 'object') {
+                    pkgBonus = Number(pkgEntry.bonusRank || 0);
+                    if (typeof pkgEntry.originalRank === 'number') {
+                        pkgOriginalRank = pkgEntry.originalRank;
+                    }
+                }
+            }
+
+            // Build a set of free ranks
+            const freeRankSet = new Set();
+            for (let i = 1; i <= Math.min(rank, freeRank); i++) {
+                freeRankSet.add(i);
+            }
+
+            // Training package ranks
+            if (pkgBonus > 0) {
+                let inferredOriginal = pkgOriginalRank;
+                if (typeof inferredOriginal !== 'number') {
+                    inferredOriginal = Math.max(0, rank - pkgBonus);
+                }
+                let startRank = 1;
+                if (inferredOriginal > 0) {
+                    startRank = inferredOriginal + 1;
+                }
+                const endRank = Math.min(rank, startRank + pkgBonus - 1);
+                for (let i = startRank; i <= endRank; i++) {
+                    freeRankSet.add(i);
+                }
+
+                // Add training package bonus as free entry
+                const packageName = this.selectedTrainingPackage && TRAINING_PACKAGES[this.selectedTrainingPackage] 
+                    ? TRAINING_PACKAGES[this.selectedTrainingPackage].name 
+                    : 'Training Package';
+                spent.push({ 
+                    description: `${skillName} +${pkgBonus} (${packageName})`, 
+                    amount: 0, 
+                    category: 'training-package' 
+                });
+            }
+
+            // Calculate cost for non-free ranks with triangular formula
+            let cost = 0;
+            const paidRanks = [];
+            for (let i = 1; i <= rank; i++) {
+                if (!freeRankSet.has(i)) {
+                    paidRanks.push(i);
+                    cost += i;
+                }
+            }
+
+            if (cost > 0) {
+                const formula = paidRanks.length > 0 ? `(${paidRanks.join('+')})` : '';
+                spent.push({ description: `${skillName} +${rank}: ${formula} = ${cost}`, amount: cost, category: 'skill' });
+            }
+        }
+
+        // Points Spent - Advantages
+        for (const category in ADVANTAGES) {
+            const categoryData = ADVANTAGES[category];
+            for (const advName in categoryData.items) {
+                const advData = categoryData.items[advName];
+                const rank = this.advantages[advName] || 0;
+                if (rank > 0 && advData.type === 'advantage') {
+                    let cost = 0;
+                    if (typeof advData.oneOffCost === 'number') {
+                        cost = advData.oneOffCost;
+                        spent.push({ description: `${advData.name || advName}`, amount: cost, category: 'advantage' });
+                    } else {
+                        const perRank = advData.costPerRank || 0;
+                        cost = perRank * rank;
+                        spent.push({ description: `${advData.name || advName} (Rank ${rank})`, amount: cost, category: 'advantage' });
+                    }
+                }
+            }
+        }
+
+        // Points Spent - Ebon Abilities (with triangular formula)
+        if (this.ebonRanks && typeof EBON_ABILITIES !== 'undefined') {
+            for (const catKey in this.ebonRanks) {
+                const rank = Number(this.ebonRanks[catKey] || 0);
+                if (!rank || rank <= 0) continue;
+                const cat = EBON_ABILITIES[catKey];
+                if (!cat || !cat.canPurchase) continue;
+
+                const cost = (rank * (rank + 1)) / 2;
+                const formula = Array.from({ length: rank }, (_, i) => i + 1).join('+');
+                const rankData = Array.isArray(cat.ranks) ? cat.ranks[rank - 1] : null;
+                const rankTitle = rankData && rankData.title ? rankData.title : `Rank ${rank}`;
+                spent.push({ 
+                    description: `${cat.name} (${rankTitle}): (${formula}) = ${cost}`, 
+                    amount: cost, 
+                    category: 'ebon' 
+                });
+            }
+        }
+
+        return { gained, spent };
+    }
+
+    // Get detailed breakdown of credits spent (excluding starter kit items)
+    getCreditsBreakdown() {
+        const spent = [];
+
+        // Helper to find item cost from data arrays
+        const findItemCost = (itemName, dataArray) => {
+            if (!dataArray) return null;
+            if (Array.isArray(dataArray)) {
+                const item = dataArray.find(i => i.type === itemName || i.name === itemName || i.equipment === itemName);
+                return item ? item.cost : null;
+            }
+            return null;
+        };
+
+        // Helper to find drug cost from nested DRUGS object
+        const findDrugCost = (drugName) => {
+            if (!DRUGS || typeof DRUGS !== 'object') return null;
+            for (const categoryKey in DRUGS) {
+                const category = DRUGS[categoryKey];
+                if (category.drugs && Array.isArray(category.drugs)) {
+                    const drug = category.drugs.find(d => d.name === drugName);
+                    if (drug) return drug.cost;
+                }
+            }
+            return null;
+        };
+
+        // Weapons
+        if (this.weaponInventory && typeof WEAPONS !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.weaponInventory)) {
+                if (quantity <= 0) continue;
+                // Skip starter kit items
+                const lockedQty = this.lockedInventory?.armaments?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, WEAPONS);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Weapons',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Armaments
+        if (this.armamentInventory && typeof ARMAMENTS !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.armamentInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.armaments?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, ARMAMENTS);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Armaments',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Armour
+        if (this.armourInventory && typeof ARMOUR !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.armourInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.armour?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, ARMOUR);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Armour',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Ammunition
+        if (this.ammoInventory && typeof AMMUNITION !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.ammoInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.ammo?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                // Parse itemName format: "Calibre × Type" (e.g., "10mm Auto × STD")
+                const match = itemName.match(/^(.+?)\s*×\s*(.+)$/);
+                if (match) {
+                    const calibre = match[1].trim();
+                    const type = match[2].trim();
+                    const ammoData = AMMUNITION.find(a => a.calibre === calibre);
+                    if (ammoData && ammoData.types && ammoData.types[type]) {
+                        const cost = ammoData.types[type].stdCost || 0;
+                        spent.push({
+                            category: 'Ammunition',
+                            description: itemName,
+                            quantity: purchasedQty,
+                            unitCost: cost,
+                            total: cost * purchasedQty
+                        });
+                    }
+                }
+            }
+        }
+
+        // Grenades
+        if (this.grenadeInventory && typeof GRENADES !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.grenadeInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.grenades?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, GRENADES);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Grenades',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Specialist Ammunition
+        if (this.specialistAmmoInventory && typeof SPECIALIST_AMMUNITION !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.specialistAmmoInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.specialistAmmo?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, SPECIALIST_AMMUNITION);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Specialist Ammunition',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Equipment
+        if (this.equipmentInventory && typeof EQUIPMENT !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.equipmentInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.equipment?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, EQUIPMENT);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Equipment',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Drugs
+        if (this.drugInventory && typeof DRUGS !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.drugInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.drugs?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findDrugCost(itemName);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Drugs',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Ebon Equipment
+        if (this.ebonEquipmentInventory && typeof EBON_EQUIPMENT !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.ebonEquipmentInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.ebonEquipment?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, EBON_EQUIPMENT);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Ebon Equipment',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Vehicles
+        if (this.vehicleInventory && typeof VEHICLES !== 'undefined') {
+            for (const [itemName, quantity] of Object.entries(this.vehicleInventory)) {
+                if (quantity <= 0) continue;
+                const lockedQty = this.lockedInventory?.vehicles?.[itemName] || 0;
+                const purchasedQty = quantity - lockedQty;
+                if (purchasedQty <= 0) continue;
+
+                const cost = findItemCost(itemName, VEHICLES);
+                if (cost !== null) {
+                    spent.push({
+                        category: 'Vehicles',
+                        description: itemName,
+                        quantity: purchasedQty,
+                        unitCost: cost,
+                        total: cost * purchasedQty
+                    });
+                }
+            }
+        }
+
+        // Sort by category for better organization
+        spent.sort((a, b) => {
+            if (a.category !== b.category) {
+                return a.category.localeCompare(b.category);
+            }
+            return a.description.localeCompare(b.description);
+        });
+
+        return { spent };
+    }
+
     // Check if race is a flux user
     isFluxUser() {
         if (!this.race) return false;

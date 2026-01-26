@@ -6,6 +6,131 @@
  * Relies on shared helpers: escapeHtml, sectionHeader.
  */
 
+/**
+ * Render detailed calculation breakdown for points and credits
+ */
+function renderCalculationBreakdown(character) {
+    const pointsBreakdown = character.getPointsBreakdown ? character.getPointsBreakdown() : { gained: [], spent: [] };
+    const creditsBreakdown = character.getCreditsBreakdown ? character.getCreditsBreakdown() : { spent: [] };
+
+    let html = '<div class="calcs-breakdown-content">';
+
+    // Points Gained Section
+    html += '<div class="breakdown-section">';
+    html += '<h3 style="margin-top: 0;">Points Gained</h3>';
+    
+    let totalGained = 0;
+    if (pointsBreakdown.gained.length > 0) {
+        pointsBreakdown.gained.forEach(item => {
+            totalGained += item.amount;
+            html += '<div class="breakdown-row">';
+            html += '<span class="breakdown-description">' + escapeHtml(item.description) + '</span>';
+            html += '<span class="breakdown-amount positive-value">+' + escapeHtml(String(item.amount)) + '</span>';
+            html += '</div>';
+        });
+    }
+    
+    html += '<div class="breakdown-row breakdown-total">';
+    html += '<span class="breakdown-description"><strong>Total Gained</strong></span>';
+    html += '<span class="breakdown-amount positive-value"><strong>' + escapeHtml(String(totalGained)) + '</strong></span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Points Spent Section
+    html += '<div class="breakdown-section">';
+    html += '<h3>Points Spent</h3>';
+    
+    let totalSpent = 0;
+    const regularSpent = pointsBreakdown.spent.filter(item => item.category !== 'training-package');
+    const trainingPackageItems = pointsBreakdown.spent.filter(item => item.category === 'training-package');
+    
+    if (regularSpent.length > 0 || trainingPackageItems.length > 0) {
+        // Regular spent items
+        regularSpent.forEach(item => {
+            totalSpent += item.amount;
+            html += '<div class="breakdown-row">';
+            html += '<span class="breakdown-description">' + escapeHtml(item.description) + '</span>';
+            html += '<span class="breakdown-amount negative-value">−' + escapeHtml(String(item.amount)) + '</span>';
+            html += '</div>';
+        });
+
+        // Training Package Bonuses (Free) subsection
+        if (trainingPackageItems.length > 0) {
+            html += '<div class="training-package-subsection">';
+            html += '<div style="margin-top: 12px; margin-bottom: 6px; font-weight: 600; font-style: italic;">Training Package Bonuses (Free)</div>';
+            trainingPackageItems.forEach(item => {
+                html += '<div class="breakdown-row" style="padding-left: 20px;">';
+                html += '<span class="breakdown-description" style="font-style: italic;">' + escapeHtml(item.description) + '</span>';
+                html += '<span class="breakdown-amount" style="color: var(--text-secondary);">0</span>';
+                html += '</div>';
+            });
+            html += '</div>';
+        }
+    } else {
+        html += '<div style="color: var(--text-secondary); padding: 8px 0;">No points spent</div>';
+    }
+    
+    html += '<div class="breakdown-row breakdown-total">';
+    html += '<span class="breakdown-description"><strong>Total Spent</strong></span>';
+    html += '<span class="breakdown-amount negative-value"><strong>−' + escapeHtml(String(totalSpent)) + '</strong></span>';
+    html += '</div>';
+    
+    // Available Points
+    const availablePoints = totalGained - totalSpent;
+    html += '<div class="breakdown-row breakdown-total" style="border-top: 2px solid var(--border-color); margin-top: 8px; padding-top: 8px;">';
+    html += '<span class="breakdown-description"><strong>Points Available</strong></span>';
+    html += '<span class="breakdown-amount"><strong>' + escapeHtml(String(availablePoints)) + '</strong></span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Credits Spent Section
+    html += '<div class="breakdown-section">';
+    html += '<h3>Credits Spent</h3>';
+    
+    let totalCredits = 0;
+    if (creditsBreakdown.spent.length > 0) {
+        let currentCategory = null;
+        creditsBreakdown.spent.forEach(item => {
+            // Add category header if different from previous
+            if (item.category !== currentCategory) {
+                if (currentCategory !== null) {
+                    html += '<div style="height: 8px;"></div>'; // Spacer between categories
+                }
+                html += '<div style="font-weight: 600; color: var(--color-primary); margin-top: 8px; margin-bottom: 4px;">' + 
+                        escapeHtml(item.category) + '</div>';
+                currentCategory = item.category;
+            }
+            
+            totalCredits += item.total;
+            const qtyDisplay = item.quantity > 1 ? item.quantity + ' × ' + item.unitCost + 'c' : item.unitCost + 'c';
+            html += '<div class="breakdown-row">';
+            html += '<span class="breakdown-description">' + escapeHtml(item.description) + '</span>';
+            html += '<span class="breakdown-amount">' + escapeHtml(qtyDisplay) + ' = ' + escapeHtml(String(item.total)) + 'c</span>';
+            html += '</div>';
+        });
+    } else {
+        html += '<div style="color: var(--text-secondary); padding: 8px 0;">No credits spent</div>';
+    }
+    
+    html += '<div class="breakdown-row breakdown-total">';
+    html += '<span class="breakdown-description"><strong>Total Spent</strong></span>';
+    html += '<span class="breakdown-amount"><strong>' + escapeHtml(String(totalCredits)) + 'c</strong></span>';
+    html += '</div>';
+    
+    // Available Credits
+    const startingCredits = 1500;
+    const availableCredits = character.credits !== undefined ? character.credits : startingCredits;
+    html += '<div class="breakdown-row breakdown-total" style="border-top: 2px solid var(--border-color); margin-top: 8px; padding-top: 8px;">';
+    html += '<span class="breakdown-description"><strong>Credits Available</strong></span>';
+    html += '<span class="breakdown-amount"><strong>' + escapeHtml(String(availableCredits)) + 'c</strong></span>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '</div>'; // Close calcs-breakdown-content
+
+    return html;
+}
+
 function renderSummaryStep(character, container, onUpdate) {
     const availablePoints = (character.getAvailablePoints && typeof character.getAvailablePoints === 'function') ? character.getAvailablePoints() : 0;
 
@@ -244,5 +369,28 @@ function renderSummaryStep(character, container, onUpdate) {
             '<div><h4>Ebon Abilities</h4>' + ebonHtml + '<h5 style="margin-top:8px">Formulae</h5>' + formulaeHtml + '</div>' +
             '<div><h4>Phobias</h4>' + phobiasList + '</div>' +
         '</div>' +
-        '<div style="margin-top:18px;font-size:12px;color:#666">Created: ' + escapeHtml(created) + ' • Version: ' + escapeHtml(version) + '</div>';
-}
+        '<div style="margin-top:18px;font-size:12px;color:#666">Created: ' + escapeHtml(created) + ' • Version: ' + escapeHtml(version) + '</div>' +
+        '<div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color);">' +
+            '<button class="calcs-toggle" id="calcsToggleBtn">▶ Calcs</button>' +
+            '<div class="calcs-breakdown" id="calcsBreakdown" style="display: none;">' +
+                renderCalculationBreakdown(character) +
+            '</div>' +
+        '</div>';
+
+    // Add toggle event listener
+    setTimeout(() => {
+        const toggleBtn = document.getElementById('calcsToggleBtn');
+        const breakdown = document.getElementById('calcsBreakdown');
+        
+        if (toggleBtn && breakdown) {
+            toggleBtn.addEventListener('click', function() {
+                if (breakdown.style.display === 'none') {
+                    breakdown.style.display = 'block';
+                    toggleBtn.textContent = '▼ Calcs';
+                } else {
+                    breakdown.style.display = 'none';
+                    toggleBtn.textContent = '▶ Calcs';
+                }
+            });
+        }
+    }, 0);}
