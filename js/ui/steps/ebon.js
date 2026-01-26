@@ -62,7 +62,7 @@ function renderEbonStep(character, container, onUpdate) {
         let currentSummary = '—';
         if (selectedRank > 0 && Array.isArray(cat.ranks) && cat.ranks[selectedRank - 1]) {
             const rankData = cat.ranks[selectedRank - 1];
-            currentSummary = `${escapeHtml(rankData.title || ('Rank ' + selectedRank))}${rankData.notes ? ' — ' + escapeHtml(String(rankData.notes)) : ''}`;
+            currentSummary = `${escapeHtml(rankData.title || ('Rank ' + selectedRank))}${rankData.description ? ' — ' + escapeHtml(String(rankData.description).substring(0, 50)) + '...' : ''}`;
         }
 
         const fluxCost = (typeof computeCumulativeCost === 'function')
@@ -92,7 +92,7 @@ function renderEbonStep(character, container, onUpdate) {
             <div style="font-size:12px;color:#ddd"><strong>Points:</strong> ${pointCost || 0} • <strong>Flux:</strong> ${fluxCost || 0}</div>
           </div>
 
-          <div style="font-size:12px;color:#444">${escapeHtml(cat.ranks && cat.ranks[0] && cat.ranks[0].notes ? cat.ranks[0].notes : '')}</div>
+          <div style="font-size:12px;color:#bbb;line-height:1.4">${cat.ranks && cat.ranks[0] && cat.ranks[0].description ? renderMarkdown(cat.ranks[0].description) : ''}</div>
         </div>`;
     }
 

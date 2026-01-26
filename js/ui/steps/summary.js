@@ -152,6 +152,17 @@ function renderSummaryStep(character, container, onUpdate) {
     derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">KNOW</span><span class="stat-value">' + escapeHtml(String(derived.KNOW || 0)) + '</span></div>';
     const damageBonus = character.getDamageBonus ? character.getDamageBonus() : Math.floor((character.stats?.STR || 0) / 3);
     derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">DMG BONUS</span><span class="stat-value">' + escapeHtml(String(damageBonus)) + '</span></div>';
+    
+    // Hit Points
+    const hp = derived.hitPoints || {};
+    derivedHtml += '<div class="stat-row stat-derived" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:6px;margin-top:4px;"><span class="stat-label">HITS</span><span class="stat-value">' + escapeHtml(String(hp.total || 0)) + '</span></div>';
+    derivedHtml += '<div class="stat-row stat-derived" style="font-size:0.9em;"><span class="stat-label">Head</span><span class="stat-value">' + escapeHtml(String(hp.head || 0)) + '</span></div>';
+    derivedHtml += '<div class="stat-row stat-derived" style="font-size:0.9em;"><span class="stat-label">Torso</span><span class="stat-value">' + escapeHtml(String(hp.torso || 0)) + '</span></div>';
+    derivedHtml += '<div class="stat-row stat-derived" style="font-size:0.9em;"><span class="stat-label">L.Arm</span><span class="stat-value">' + escapeHtml(String(hp.leftArm || 0)) + '</span></div>';
+    derivedHtml += '<div class="stat-row stat-derived" style="font-size:0.9em;"><span class="stat-label">R.Arm</span><span class="stat-value">' + escapeHtml(String(hp.rightArm || 0)) + '</span></div>';
+    derivedHtml += '<div class="stat-row stat-derived" style="font-size:0.9em;"><span class="stat-label">L.Leg</span><span class="stat-value">' + escapeHtml(String(hp.leftLeg || 0)) + '</span></div>';
+    derivedHtml += '<div class="stat-row stat-derived" style="font-size:0.9em;"><span class="stat-label">R.Leg</span><span class="stat-value">' + escapeHtml(String(hp.rightLeg || 0)) + '</span></div>';
+    
     if (character.isFluxUser && character.isFluxUser()) {
         derivedHtml += '<div class="stat-row stat-derived"><span class="stat-label">FLUX</span><span class="stat-value">' + escapeHtml(String(derived.FLUX || 0)) + '</span></div>';
     }

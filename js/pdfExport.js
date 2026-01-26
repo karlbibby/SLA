@@ -268,14 +268,42 @@
                 <div class="panel-header" style="background:#666;color:#fff;padding:2px 4px;font-weight:bold;text-transform:uppercase;font-size:10px;">HIT POINTS & ARMOUR</div>
                 <div class="hp-armour-body" style="display:grid;grid-template-columns:55% 45%;column-gap:4px;padding:3px 4px 4px 4px;">
                   <div class="hp-table">
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span style="width:50px;text-transform:uppercase;">Total</span><span style="border-bottom:1px solid #000;flex:1;height:10px;display:inline-block;padding:0 4px;">${escapeHtml(String(character.hpTotal || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>Head</span><span style="flex:1">${escapeHtml(String(character.hpHead || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>Torso</span><span style="flex:1">${escapeHtml(String(character.hpTorso || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>L.Arm</span><span style="flex:1">${escapeHtml(String(character.hpLArm || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>R.Arm</span><span style="flex:1">${escapeHtml(String(character.hpRArm || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>L.Leg</span><span style="flex:1">${escapeHtml(String(character.hpLLeg || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>R.Leg</span><span style="flex:1">${escapeHtml(String(character.hpRLeg || ''))}</span></div>
-                    <div style="display:flex;align-items:center;font-size:9px;margin-bottom:1px;"><span>Wounds</span><span style="flex:1">${escapeHtml(String(character.wounds || ''))}</span></div>
+                    <table style="width:100%;border-collapse:collapse;font-size:9px;border:1px solid #000;">
+                      <tbody>
+                        <tr style="border-bottom:2px solid #000;background:#f0f0f0;">
+                          <td style="border:1px solid #000;padding:2px 4px;font-weight:bold;text-transform:uppercase;">Total</td>
+                          <td style="border:1px solid #000;padding:2px 4px;text-align:center;font-weight:bold;font-size:14px;">${escapeHtml(String(character.hpTotal || ''))}</td>
+                        </tr>
+                        <tr>
+                          <td style="border:1px solid #000;padding:1px 4px;">Head</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.hpHead || ''))}</td>
+                        </tr>
+                        <tr>
+                          <td style="border:1px solid #000;padding:1px 4px;">Torso</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.hpTorso || ''))}</td>
+                        </tr>
+                        <tr>
+                          <td style="border:1px solid #000;padding:1px 4px;">L.Arm</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.hpLArm || ''))}</td>
+                        </tr>
+                        <tr>
+                          <td style="border:1px solid #000;padding:1px 4px;">R.Arm</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.hpRArm || ''))}</td>
+                        </tr>
+                        <tr>
+                          <td style="border:1px solid #000;padding:1px 4px;">L.Leg</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.hpLLeg || ''))}</td>
+                        </tr>
+                        <tr>
+                          <td style="border:1px solid #000;padding:1px 4px;">R.Leg</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.hpRLeg || ''))}</td>
+                        </tr>
+                        <tr style="border-top:1px solid #666;">
+                          <td style="border:1px solid #000;padding:1px 4px;font-weight:bold;">Wounds</td>
+                          <td style="border:1px solid #000;padding:1px 4px;text-align:center;">${escapeHtml(String(character.wounds || ''))}</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                   <div>
                     <div style="text-align:center;font-weight:bold;text-transform:uppercase;font-size:9px;margin-bottom:2px;">Armour</div>
@@ -412,97 +440,192 @@
     `;
     pages.push(cover);
 
-    // Add flux abilities page if character is a flux user
+    // Add flux abilities pages (paginated) if character is a flux user
     if (character.isFluxUser && character.isFluxUser()) {
-      const p_flux = `
-        <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Arial, Helvetica, sans-serif;">
-          <h2 style="margin:0 0 8px 0">Flux Abilities</h2>
-          <div style="font-size:11px;line-height:1.2">
-            ${(() => {
-              const ranks = character.ebonRanks || {};
-              const sections = [];
+      // Collect all ability sections
+      const ranks = character.ebonRanks || {};
+      const sections = [];
 
-              // Render selected categories with full details (all lower ranks)
-              if (ranks && Object.keys(ranks).length) {
-                Object.keys(ranks).forEach(catKey => {
-                  const rank = Number(ranks[catKey] || 0);
-                  if (rank > 0) {
-                    const cat = (typeof EBON_ABILITIES !== 'undefined' && EBON_ABILITIES[catKey]) ? EBON_ABILITIES[catKey] : null;
-                    const title = cat ? (cat.name || catKey) : catKey;
-                    let tbl = '<div style="margin-bottom:10px">';
-                    tbl += '<div style="font-weight:700;margin-bottom:6px">' + escapeHtml(title) + ' — Rank ' + rank + '</div>';
-                    tbl += '<table style="width:100%;border-collapse:collapse;font-size:10px;border:1px solid #ddd">';
-                    tbl += '<thead><tr>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Rank</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Title</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Cost</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">DMG</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Arm</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Pen</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Range</th>' +
-                      '<th style="border:1px solid #ccc;padding:4px;text-align:left">Notes</th>' +
-                      '</tr></thead><tbody>';
+      // Render selected categories with full details (all lower ranks)
+      if (ranks && Object.keys(ranks).length) {
+        Object.keys(ranks).forEach(catKey => {
+          const rank = Number(ranks[catKey] || 0);
+          if (rank > 0) {
+            const cat = (typeof EBON_ABILITIES !== 'undefined' && EBON_ABILITIES[catKey]) ? EBON_ABILITIES[catKey] : null;
+            const title = cat ? (cat.name || catKey) : catKey;
+            let tbl = '<div style="margin-bottom:10px">';
+            tbl += '<div style="font-weight:700;margin-bottom:6px">' + escapeHtml(title) + ' — Rank ' + rank + '</div>';
+            tbl += '<table style="width:100%;border-collapse:collapse;font-size:10px;border:1px solid #ddd">';
+            tbl += '<thead><tr>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Rank</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Title</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Cost</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">DMG</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Arm</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Pen</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Range</th>' +
+              '<th style="border:1px solid #ccc;padding:4px;text-align:left">Notes</th>' +
+              '</tr></thead><tbody>';
 
-                    if (cat && Array.isArray(cat.ranks)) {
-                      for (let i = 0; i < Math.min(rank, cat.ranks.length); i++) {
-                        const rd = cat.ranks[i];
-                        tbl += '<tr>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.rank || (i + 1))) + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.title || '') + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.cost === null || typeof rd.cost === "undefined" ? '-' : String(rd.cost)) + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.dmg || '')) + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.armDmg || '')) + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.pen || '')) + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.range || '')) + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.notes || '')) + '</td>' +
-                          '</tr>';
-                      }
-                    } else {
-                      // Fallback: list simple rank rows
-                      for (let i = 1; i <= rank; i++) {
-                        tbl += '<tr>' +
-                          '<td style="border:1px solid #eee;padding:4px">' + i + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">Rank ' + i + '</td>' +
-                          '<td style="border:1px solid #eee;padding:4px">-</td>' +
-                          '<td style="border:1px solid #eee;padding:4px"></td>' +
-                          '<td style="border:1px solid #eee;padding:4px"></td>' +
-                          '<td style="border:1px solid #eee;padding:4px"></td>' +
-                          '<td style="border:1px solid #eee;padding:4px"></td>' +
-                          '<td style="border:1px solid #eee;padding:4px"></td>' +
-                          '</tr>';
-                      }
-                    }
-
-                    tbl += '</tbody></table></div>';
-                    sections.push(tbl);
-                  }
-                });
+            if (cat && Array.isArray(cat.ranks)) {
+              for (let i = 0; i < Math.min(rank, cat.ranks.length); i++) {
+                const rd = cat.ranks[i];
+                tbl += '<tr>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.rank || (i + 1))) + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.title || '') + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(rd.cost === null || typeof rd.cost === "undefined" ? '-' : String(rd.cost)) + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.dmg || '')) + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.armDmg || '')) + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.pen || '')) + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.range || '')) + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + escapeHtml(String(rd.description || '')) + '</td>' +
+                  '</tr>';
               }
-
-              // Backwards-compat explicit list
-              if (Array.isArray(character.ebonAbilities) && character.ebonAbilities.length) {
-                sections.unshift('<div style="font-weight:700;margin-bottom:6px">Explicit Ebon Abilities</div>');
-                character.ebonAbilities.forEach(a => {
-                  sections.push('<div style="padding:2px 0">' + escapeHtml(typeof a === 'string' ? a : (a.name || JSON.stringify(a))) + '</div>');
-                });
+            } else {
+              // Fallback: list simple rank rows
+              for (let i = 1; i <= rank; i++) {
+                tbl += '<tr>' +
+                  '<td style="border:1px solid #eee;padding:4px">' + i + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">Rank ' + i + '</td>' +
+                  '<td style="border:1px solid #eee;padding:4px">-</td>' +
+                  '<td style="border:1px solid #eee;padding:4px"></td>' +
+                  '<td style="border:1px solid #eee;padding:4px"></td>' +
+                  '<td style="border:1px solid #eee;padding:4px"></td>' +
+                  '<td style="border:1px solid #eee;padding:4px"></td>' +
+                  '<td style="border:1px solid #eee;padding:4px"></td>' +
+                  '</tr>';
               }
+            }
 
-              // Formulae display
-              if (Array.isArray(character.selectedFormulae) && character.selectedFormulae.length) {
-                sections.push('<div style="font-weight:700;margin-top:6px">Formulae</div>');
-                character.selectedFormulae.forEach(f => {
-                  sections.push('<div style="padding:2px 0">' + escapeHtml(typeof f === 'string' ? f : (f.name || JSON.stringify(f))) + '</div>');
-                });
-              }
+            tbl += '</tbody></table></div>';
+            sections.push({ type: 'ability', html: tbl });
+          }
+        });
+      }
 
-              if (!sections.length) return '<div style="color:#666">No flux abilities</div>';
-              return sections.join('');
-            })()}
+      // Backwards-compat explicit list
+      if (Array.isArray(character.ebonAbilities) && character.ebonAbilities.length) {
+        sections.unshift({ type: 'header', html: '<div style="font-weight:700;margin-bottom:6px">Explicit Ebon Abilities</div>' });
+        character.ebonAbilities.forEach(a => {
+          sections.push({ type: 'item', html: '<div style="padding:2px 0">' + escapeHtml(typeof a === 'string' ? a : (a.name || JSON.stringify(a))) + '</div>' });
+        });
+      }
+
+      // Formulae display
+      if (Array.isArray(character.selectedFormulae) && character.selectedFormulae.length) {
+        sections.push({ type: 'header', html: '<div style="font-weight:700;margin-top:6px">Formulae</div>' });
+        character.selectedFormulae.forEach(f => {
+          sections.push({ type: 'item', html: '<div style="padding:2px 0">' + escapeHtml(typeof f === 'string' ? f : (f.name || JSON.stringify(f))) + '</div>' });
+        });
+      }
+
+      if (sections.length === 0) {
+        // No abilities, add single page
+        const p_flux = `
+          <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Arial, Helvetica, sans-serif;">
+            <h2 style="margin:0 0 8px 0">Flux Abilities</h2>
+            <div style="font-size:11px;line-height:1.2;color:#666">No flux abilities selected</div>
+            <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Flux</div></footer>
           </div>
-          <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Flux</div></footer>
-        </div>
-      `;
-      pages.push(p_flux);
+        `;
+        pages.push(p_flux);
+      } else {
+        // Paginate content: target ~65mm content height per page to avoid overflow
+        const pageContentHeightMm = 200; // 297mm page - 24mm top/bottom margins - 24mm for header/footer
+        const estimatedHeightPerAbility = 35; // mm per ability table
+        const estimatedHeightPerItem = 8; // mm per list item
+        
+        let currentPageSections = [];
+        let currentPageHeight = 20; // Start with header height
+        let pageNumber = 1;
+        
+        sections.forEach(section => {
+          const sectionHeight = section.type === 'ability' ? estimatedHeightPerAbility : estimatedHeightPerItem;
+          
+          // Check if adding this section would overflow
+          if (currentPageHeight + sectionHeight > pageContentHeightMm && currentPageSections.length > 0) {
+            // Create a page with current sections
+            const p_flux = `
+              <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Arial, Helvetica, sans-serif;">
+                <h2 style="margin:0 0 8px 0">Flux Abilities${pageNumber > 1 ? ' (continued)' : ''}</h2>
+                <div style="font-size:11px;line-height:1.2">
+                  ${currentPageSections.map(s => s.html).join('')}
+                </div>
+                <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Flux - Page ${pageNumber}</div></footer>
+              </div>
+            `;
+            pages.push(p_flux);
+            
+            // Reset for next page
+            currentPageSections = [];
+            currentPageHeight = 20;
+            pageNumber++;
+          }
+          
+          currentPageSections.push(section);
+          currentPageHeight += sectionHeight;
+        });
+        
+        // Add final page with remaining sections
+        if (currentPageSections.length > 0) {
+          const p_flux = `
+            <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Arial, Helvetica, sans-serif;">
+              <h2 style="margin:0 0 8px 0">Flux Abilities${pageNumber > 1 ? ' (continued)' : ''}</h2>
+              <div style="font-size:11px;line-height:1.2">
+                ${currentPageSections.map(s => s.html).join('')}
+              </div>
+              <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>Flux - Page ${pageNumber}</div></footer>
+            </div>
+          `;
+          pages.push(p_flux);
+        }
+      }
+    }
+
+    // Add racial abilities page if character's race has racial abilities
+    if (character.race && RACES && RACES[character.race] && RACES[character.race].racialAbilities) {
+      const abilities = RACES[character.race].racialAbilities;
+      if (Array.isArray(abilities) && abilities.length > 0) {
+        const raceName = RACES[character.race].name || character.race;
+        const p_racial = `
+          <div class="print-page" style="width:210mm;height:297mm;box-sizing:border-box;padding:12mm;background:#fff;color:#000;font-family:Arial, Helvetica, sans-serif;">
+            <h2 style="margin:0 0 8px 0">Racial Abilities: ${escapeHtml(raceName)}</h2>
+            <div style="font-size:11px;line-height:1.4">
+              ${(() => {
+                const sections = [];
+                abilities.forEach(ability => {
+                  let abilityHtml = '<div style="margin-bottom:12px;padding:8px;border:1px solid #ddd;border-radius:4px;background:#f9f9f9">';
+                  abilityHtml += '<div style="font-weight:700;margin-bottom:4px">' + escapeHtml(ability.name || '') + '</div>';
+                  if (ability.shortDesc) {
+                    abilityHtml += '<div style="font-size:10px;color:#666;margin-bottom:4px;font-style:italic">' + escapeHtml(ability.shortDesc) + '</div>';
+                  }
+                  if (ability.description) {
+                    // Render markdown description as plain text for PDF (fallback to escaped HTML)
+                    const descText = escapeHtml(String(ability.description).replace(/[*#_\-\[\]]/g, '').substring(0, 500));
+                    abilityHtml += '<div style="font-size:10px;color:#333;margin-bottom:4px">' + descText + '</div>';
+                  }
+                  if (ability.mechanics) {
+                    const mech = ability.mechanics;
+                    let mechStr = '';
+                    if (mech.pv) mechStr += 'PV:' + escapeHtml(String(mech.pv)) + ' ';
+                    if (mech.healing) mechStr += 'Healing:' + escapeHtml(String(mech.healing)) + ' ';
+                    if (mech.cost) mechStr += 'Cost:' + escapeHtml(String(mech.cost)) + ' ';
+                    if (mech.duration) mechStr += 'Duration:' + escapeHtml(String(mech.duration)) + ' ';
+                    if (mechStr) {
+                      abilityHtml += '<div style="font-size:9px;color:#555;margin-top:4px"><strong>Mechanics:</strong> ' + mechStr + '</div>';
+                    }
+                  }
+                  abilityHtml += '</div>';
+                  sections.push(abilityHtml);
+                });
+                return sections.join('');
+              })()}
+            </div>
+            <footer style="position:absolute;left:12mm;right:12mm;bottom:12mm;font-size:10px;color:#666;display:flex;justify-content:space-between"><div>Exported: ${nowStr}</div><div>${escapeHtml(raceName)}</div></footer>
+          </div>
+        `;
+        pages.push(p_racial);
+      }
     }
 
     return pages;

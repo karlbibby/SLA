@@ -445,6 +445,97 @@ describe('Character Class', () => {
     });
   });
 
+  describe('Hit Points Calculations', () => {
+    test('should calculate total hit points as STR + PHYS', () => {
+      character.stats.STR = 8;
+      character.stats.DEX = 7;
+      character.calculateDerivedStats();
+      // PHYS = ceil((8+7)/2) = 8, Total = 8 + 8 = 16
+      expect(character.derivedStats.hitPoints.total).toBe(16);
+      expect(character.hpTotal).toBe(16);
+    });
+
+    test('should calculate head HP as ceil(total / 3)', () => {
+      character.stats.STR = 10;
+      character.stats.DEX = 10;
+      character.calculateDerivedStats();
+      // PHYS = 10, Total = 20, Head = ceil(20/3) = 7
+      expect(character.derivedStats.hitPoints.head).toBe(7);
+      expect(character.hpHead).toBe(7);
+    });
+
+    test('should calculate torso HP as total', () => {
+      character.stats.STR = 9;
+      character.stats.DEX = 9;
+      character.calculateDerivedStats();
+      // PHYS = 9, Total = 18, Torso = 18
+      expect(character.derivedStats.hitPoints.torso).toBe(18);
+      expect(character.hpTorso).toBe(18);
+    });
+
+    test('should calculate arm HP as floor(total / 2)', () => {
+      character.stats.STR = 7;
+      character.stats.DEX = 8;
+      character.calculateDerivedStats();
+      // PHYS = ceil(15/2) = 8, Total = 15, Arms = floor(15/2) = 7
+      expect(character.derivedStats.hitPoints.leftArm).toBe(7);
+      expect(character.derivedStats.hitPoints.rightArm).toBe(7);
+      expect(character.hpLArm).toBe(7);
+      expect(character.hpRArm).toBe(7);
+    });
+
+    test('should calculate leg HP as ceil(total / 2)', () => {
+      character.stats.STR = 7;
+      character.stats.DEX = 8;
+      character.calculateDerivedStats();
+      // PHYS = 8, Total = 15, Legs = ceil(15/2) = 8
+      expect(character.derivedStats.hitPoints.leftLeg).toBe(8);
+      expect(character.derivedStats.hitPoints.rightLeg).toBe(8);
+      expect(character.hpLLeg).toBe(8);
+      expect(character.hpRLeg).toBe(8);
+    });
+
+    test('should handle even total HP (no rounding needed)', () => {
+      character.stats.STR = 8;
+      character.stats.DEX = 8;
+      character.calculateDerivedStats();
+      // PHYS = 8, Total = 16
+      // Head = ceil(16/3) = 6, Torso = 16, Arms = floor(16/2) = 8, Legs = ceil(16/2) = 8
+      expect(character.derivedStats.hitPoints.total).toBe(16);
+      expect(character.derivedStats.hitPoints.head).toBe(6);
+      expect(character.derivedStats.hitPoints.torso).toBe(16);
+      expect(character.derivedStats.hitPoints.leftArm).toBe(8);
+      expect(character.derivedStats.hitPoints.leftLeg).toBe(8);
+    });
+
+    test('should handle minimum stats HP', () => {
+      character.stats.STR = 5;
+      character.stats.DEX = 5;
+      character.calculateDerivedStats();
+      // PHYS = 5, Total = 10
+      // Head = ceil(10/3) = 4, Torso = 10, Arms = floor(10/2) = 5, Legs = ceil(10/2) = 5
+      expect(character.derivedStats.hitPoints.total).toBe(10);
+      expect(character.derivedStats.hitPoints.head).toBe(4);
+      expect(character.derivedStats.hitPoints.torso).toBe(10);
+      expect(character.derivedStats.hitPoints.leftArm).toBe(5);
+      expect(character.derivedStats.hitPoints.leftLeg).toBe(5);
+    });
+
+    test('should mirror HP to top-level fields', () => {
+      character.stats.STR = 8;
+      character.stats.DEX = 7;
+      character.calculateDerivedStats();
+      // Verify top-level fields are set
+      expect(character.hpTotal).toBe(character.derivedStats.hitPoints.total);
+      expect(character.hpHead).toBe(character.derivedStats.hitPoints.head);
+      expect(character.hpTorso).toBe(character.derivedStats.hitPoints.torso);
+      expect(character.hpLArm).toBe(character.derivedStats.hitPoints.leftArm);
+      expect(character.hpRArm).toBe(character.derivedStats.hitPoints.rightArm);
+      expect(character.hpLLeg).toBe(character.derivedStats.hitPoints.leftLeg);
+      expect(character.hpRLeg).toBe(character.derivedStats.hitPoints.rightLeg);
+    });
+  });
+
   describe('Damage Bonus Calculation', () => {
     test('should calculate damage bonus as STR / 3 rounded down', () => {
       character.stats.STR = 5;

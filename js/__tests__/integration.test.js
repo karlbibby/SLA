@@ -281,6 +281,13 @@ describe('Integration Tests - Full Character Creation Flow', () => {
       character.stats.STR = 8;
       character.calculateDerivedStats();
       expect(character.derivedStats.PHYS).toBe(7); // ceil((8+5)/2) = 7
+      
+      // Step 3b: Verify Hit Points calculated
+      expect(character.hpTotal).toBe(15); // 8 + 7 = 15
+      expect(character.hpHead).toBe(5); // ceil(15/3) = 5
+      expect(character.hpTorso).toBe(15); // 15
+      expect(character.hpLArm).toBe(7); // floor(15/2) = 7
+      expect(character.hpLLeg).toBe(8); // ceil(15/2) = 8
 
       // Step 4: Select advantages
       character.advantages['Good Looks'] = 1;
@@ -477,6 +484,37 @@ describe('Integration Tests - Full Character Creation Flow', () => {
 
       const after = newChar.getAvailablePoints();
       expect(after).toBe(before);
+    });
+
+    test('should preserve Hit Points after serialization', () => {
+      character.race = 'human';
+      character.stats.STR = 8;
+      character.stats.DEX = 7;
+      character.calculateDerivedStats();
+
+      const hpBefore = {
+        total: character.hpTotal,
+        head: character.hpHead,
+        torso: character.hpTorso,
+        lArm: character.hpLArm,
+        rArm: character.hpRArm,
+        lLeg: character.hpLLeg,
+        rLeg: character.hpRLeg,
+        wounds: character.wounds
+      };
+
+      const json = character.toJSON();
+      const newChar = new Character();
+      newChar.fromJSON(json);
+
+      expect(newChar.hpTotal).toBe(hpBefore.total);
+      expect(newChar.hpHead).toBe(hpBefore.head);
+      expect(newChar.hpTorso).toBe(hpBefore.torso);
+      expect(newChar.hpLArm).toBe(hpBefore.lArm);
+      expect(newChar.hpRArm).toBe(hpBefore.rArm);
+      expect(newChar.hpLLeg).toBe(hpBefore.lLeg);
+      expect(newChar.hpRLeg).toBe(hpBefore.rLeg);
+      expect(newChar.wounds).toBe(hpBefore.wounds);
     });
   });
 

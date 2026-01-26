@@ -81,6 +81,84 @@ const testFixtures = {
         Literacy: 1,
         'Ebon Lore': 1
       }
+    },
+    vevaphon: {
+      id: 'vevaphon',
+      name: 'Vevaphon',
+      description: 'Cellular polymorphs',
+      move: {
+        walk: 1,
+        run: 2,
+        sprint: 4
+      },
+      statMaximums: {
+        STR: { min: 5, max: 10 },
+        DEX: { min: 5, max: 10 },
+        DIA: { min: 5, max: 10 },
+        CONC: { min: 5, max: 10 },
+        CHA: { min: 5, max: 10 },
+        COOL: { min: 5, max: 10 }
+      },
+      special: 'Biogenetic polymorph',
+      fluxUser: false,
+      freeSkills: {
+        Detect: 1
+      },
+      racialAbilities: [
+        {
+          name: 'Cellular Adaptation',
+          type: 'passive',
+          shortDesc: 'Damage type resistance',
+          description: '**Ability**: Gain +2 PV against selected damage type',
+          mechanics: { pv: 2 }
+        },
+        {
+          name: 'Regenerative Cells',
+          type: 'passive',
+          shortDesc: 'Natural healing',
+          description: '**Ability**: Heal +1 hp per hour',
+          mechanics: { healing: 1 }
+        }
+      ]
+    },
+    xeno: {
+      id: 'xeno',
+      name: 'Xeno',
+      description: 'Engineered combat operatives',
+      move: {
+        walk: 2,
+        run: 4,
+        sprint: 6
+      },
+      statMaximums: {
+        STR: { min: 5, max: 13 },
+        DEX: { min: 5, max: 15 },
+        DIA: { min: 5, max: 10 },
+        CONC: { min: 5, max: 9 },
+        CHA: { min: 5, max: 7 },
+        COOL: { min: 5, max: 12 }
+      },
+      special: 'Enhanced combat engineering',
+      fluxUser: false,
+      freeSkills: {
+        'Unarmed Combat': 1
+      },
+      racialAbilities: [
+        {
+          name: 'Enhanced Reflexes',
+          type: 'passive',
+          shortDesc: 'Combat speed boost',
+          description: '**Ability**: +2 to Initiative rolls',
+          mechanics: { statMods: { initiative: 2 } }
+        },
+        {
+          name: 'Predatory Senses',
+          type: 'passive',
+          shortDesc: 'Heightened perception',
+          description: '**Ability**: +3 to Detect skill checks',
+          mechanics: { statMods: { detectBonus: 3 } }
+        }
+      ]
     }
   },
 
@@ -264,17 +342,29 @@ const testFixtures = {
   EBON_ABILITIES: {
     'Ebon Might': {
       name: 'Ebon Might',
+      slug: 'ebon_might',
+      freeAbility: 'Physical enhancement through Flux',
+      shortDesc: 'Basic strength enhancement',
       description: 'Physical enhancement',
+      startingMaxRank: 10,
+      canPurchase: true,
+      necanthropeOnly: false,
       ranks: [
-        { rank: 1, title: 'Rank 1', cost: 5, dmg: null },
-        { rank: 2, title: 'Rank 2', cost: 10, dmg: null }
+        { rank: 1, title: 'Rank 1', cost: 5, dmg: null, description: 'Basic enhancement' },
+        { rank: 2, title: 'Rank 2', cost: 10, dmg: null, description: 'Improved enhancement' }
       ]
     },
     'Ebon Shield': {
       name: 'Ebon Shield',
+      slug: 'ebon_shield',
+      freeAbility: 'Protective barrier',
+      shortDesc: 'Personal protection',
       description: 'Protective barrier',
+      startingMaxRank: 10,
+      canPurchase: true,
+      necanthropeOnly: false,
       ranks: [
-        { rank: 1, title: 'Rank 1', cost: 5, dmg: null }
+        { rank: 1, title: 'Rank 1', cost: 5, dmg: null, description: 'Basic shield' }
       ]
     }
   },

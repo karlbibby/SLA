@@ -36,6 +36,21 @@ function renderRaceStep(character, container, onUpdate) {
                 skillsList +
                 '</div>';
         }
+        
+        let racialAbilitiesHtml = '';
+        if (raceData.racialAbilities && Array.isArray(raceData.racialAbilities) && raceData.racialAbilities.length > 0) {
+            let abilitiesList = '';
+            raceData.racialAbilities.forEach(ability => {
+                abilitiesList += '<div style="padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.1);">' +
+                    '<div style="font-weight:600;color:var(--text-accent)">' + escapeHtml(ability.name || '') + '</div>' +
+                    '<div style="font-size:0.9em;color:var(--text-muted);margin-top:2px">' + escapeHtml(ability.shortDesc || '') + '</div>' +
+                    '</div>';
+            });
+            racialAbilitiesHtml = '<div class="form-hint" style="margin-top:8px">Racial Abilities:</div>' +
+                '<div style="margin-top:4px;padding:6px 8px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px">' +
+                abilitiesList +
+                '</div>';
+        }
         racesHtml += '<div class="card ' + (isSelected ? 'selected' : '') + '" data-race="' + raceId + '" style="cursor:pointer">' +
             '<div class="card-header"><div><div class="card-title">' + raceData.name + '</div>' +
             '<div class="card-subtitle">Flux User: ' + (raceData.fluxUser ? 'Yes' : 'No') + '</div></div></div>' +
@@ -44,6 +59,7 @@ function renderRaceStep(character, container, onUpdate) {
             '<div class="form-hint">Move Rate (W/R/S): ' + moveSummary + '</div>' +
             '<div class="form-hint">' + raceData.special + '</div>' +
             freeSkillsHtml +
+            racialAbilitiesHtml +
             '</div>';
     }
     racesHtml += '</div>';

@@ -237,6 +237,76 @@ const UI = {
     }
 };
 
+/**
+ * Render markdown to HTML with limited feature set (headings, bold, italic, lists, tables)
+ * Sanitized against XSS attacks using DOMPurify
+ * @param {string} markdown - Markdown text to render
+ * @returns {string} Sanitized HTML
+ */
+function renderMarkdown(markdown) {
+    if (!markdown || typeof markdown !== 'string') return '';
+    
+    try {
+        // Use marked if available (browser), otherwise fallback to simple parsing
+        if (typeof marked !== 'undefined' && marked.parse) {
+            const html = marked.parse(markdown);
+            // Sanitize with DOMPurify if available
+            if (typeof DOMPurify !== 'undefined') {
+                return DOMPurify.sanitize(html);
+            }
+            return html;
+        } else {
+            // Fallback: simple markdown-like parsing for environments without marked
+            return simpleMarkdownParse(markdown);
+        }
+    } catch (error) {
+        console.warn('Error rendering markdown:', error);
+        return escapeHtml(markdown);
+    }
+}
+
+/**
+ * Simple markdown parsing fallback for limited feature set
+ * Supports: headings (#, ##, ###), bold (**), italic (*), lists (-, *), code blocks
+ */
+function simpleMarkdownParse(text) {
+    let html = escapeHtml(text);
+    
+    // Headings: ## Heading -> <h3>Heading</h3>
+    html = html.replace(/^### (.*?)$/gm, '<h4 style="margin:6px 0 3px 0;font-weight:700">$1</h4>');
+    html = html.replace(/^## (.*?)$/gm, '<h3 style="margin:8px 0 4px 0;font-weight:700">$1</h3>');
+    html = html.replace(/^# (.*?)$/gm, '<h2 style="margin:10px 0 5px 0;font-weight:700">$1</h2>');
+    
+    // Bold: **text** -> <strong>text</strong>
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic: *text* -> <em>text</em>
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Line breaks: convert \n to <br>
+    html = html.replace(/\n/g, '<br>');
+    
+    // Lists: - item -> indented item
+    html = html.replace(/^- (.*?)$/gm, '&nbsp;&nbsp;• $1');
+    
+    return html;
+}
+
+/**
+ * Escape HTML special characters to prevent XSS
+ */
+function escapeHtml(text) {
+    if (!text || typeof text !== 'string') return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 // Make closeModal globally available
 window.closeModal = function(modalId) {
     UI.closeModal(modalId);

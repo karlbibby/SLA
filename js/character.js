@@ -52,8 +52,27 @@ class Character {
         this.derivedStats = {
             PHYS: 5,  // (STR + DEX) / 2, rounded up
             KNOW: 5,  // (DIA + CONC) / 2, rounded up
-            FLUX: 0  // Only for Ebon/Brain Waster, will be set to 10 if flux user
+            FLUX: 0,  // Only for Ebon/Brain Waster, will be set to 10 if flux user
+            hitPoints: {
+                total: 10,  // STR + PHYS
+                head: 4,    // ceil(total / 3)
+                torso: 10,  // total
+                leftArm: 5, // floor(total / 2)
+                rightArm: 5,// floor(total / 2)
+                leftLeg: 5, // ceil(total / 2)
+                rightLeg: 5 // ceil(total / 2)
+            }
         };
+        
+        // Top-level HP fields for PDF compatibility
+        this.hpTotal = 10;
+        this.hpHead = 4;
+        this.hpTorso = 10;
+        this.hpLArm = 5;
+        this.hpRArm = 5;
+        this.hpLLeg = 5;
+        this.hpRLeg = 5;
+        this.wounds = 0;
         
         // Skills
         this.skills = {};
@@ -193,6 +212,27 @@ class Character {
     calculateDerivedStats() {
         this.derivedStats.PHYS = Math.ceil((this.stats.STR + this.stats.DEX) / 2);
         this.derivedStats.KNOW = Math.ceil((this.stats.DIA + this.stats.CONC) / 2);
+        
+        // Calculate Hit Points: Total = STR + PHYS
+        const total = this.stats.STR + this.derivedStats.PHYS;
+        this.derivedStats.hitPoints = {
+            total: total,
+            head: Math.ceil(total / 3),
+            torso: total,
+            leftArm: Math.floor(total / 2),
+            rightArm: Math.floor(total / 2),
+            leftLeg: Math.ceil(total / 2),
+            rightLeg: Math.ceil(total / 2)
+        };
+        
+        // Mirror to top-level fields for PDF compatibility
+        this.hpTotal = total;
+        this.hpHead = Math.ceil(total / 3);
+        this.hpTorso = total;
+        this.hpLArm = Math.floor(total / 2);
+        this.hpRArm = Math.floor(total / 2);
+        this.hpLLeg = Math.ceil(total / 2);
+        this.hpRLeg = Math.ceil(total / 2);
     }
 
     // Get damage bonus (STR / 3 rounded down)
@@ -1134,6 +1174,14 @@ class Character {
             spentPoints: this.spentPoints,
             starterKitApplied: this.starterKitApplied,
             lockedInventory: this.lockedInventory,
+            hpTotal: this.hpTotal,
+            hpHead: this.hpHead,
+            hpTorso: this.hpTorso,
+            hpLArm: this.hpLArm,
+            hpRArm: this.hpRArm,
+            hpLLeg: this.hpLLeg,
+            hpRLeg: this.hpRLeg,
+            wounds: this.wounds,
             created: this.created,
             version: this.version
         };
@@ -1230,6 +1278,18 @@ class Character {
 
         this.totalPoints = data.totalPoints || this.totalPoints || 300;
         this.spentPoints = data.spentPoints || this.spentPoints || 0;
+        this.starterKitApplied = data.starterKitApplied || this.starterKitApplied || false;
+        this.lockedInventory = data.lockedInventory || { armaments: {}, ammo: {}, equipment: {} };
+        
+        // Hit Points
+        this.hpTotal = data.hpTotal || 10;
+        this.hpHead = data.hpHead || 4;
+        this.hpTorso = data.hpTorso || 10;
+        this.hpLArm = data.hpLArm || 5;
+        this.hpRArm = data.hpRArm || 5;
+        this.hpLLeg = data.hpLLeg || 5;
+        this.hpRLeg = data.hpRLeg || 5;
+        this.wounds = data.wounds || 0;
         this.starterKitApplied = (typeof data.starterKitApplied !== 'undefined') ? data.starterKitApplied : this.starterKitApplied;
         this.lockedInventory = data.lockedInventory || this.lockedInventory || { armaments: {}, ammo: {}, equipment: {} };
         this.created = data.created || this.created || new Date().toISOString();

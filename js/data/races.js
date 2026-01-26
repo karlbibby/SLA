@@ -223,7 +223,46 @@ const RACES = {
             "Blade, 1-H": 1,
             Sneaking: 2,
             Sleight: 2
-        }
+        },
+        racialAbilities: [
+            {
+                name: 'Cellular Adaptation',
+                type: 'passive',
+                shortDesc: 'Vevaphons can adapt their cellular structure to resist specific damage types',
+                description: `**Innate Adaptation**: Through conscious cellular manipulation, a Vevaphon can attune their physiology to resist specific damage types. 
+
+- **Adaptation Limit**: Maximum 3 damage type adaptations active simultaneously
+- **Protection**: Each active adaptation grants **+2 PV** against that damage type
+- **Duration**: Adaptations remain active until dismissed or changed
+- **Activation**: Switching adaptations requires **10 minutes** of concentration
+- **Supported Types**: Physical, Energy, Chemical, Biological, Radiation`,
+                mechanics: {
+                    pv: 2,
+                    statMods: null,
+                    cost: 'Inherent',
+                    costType: 'racial',
+                    duration: 'Sustained'
+                }
+            },
+            {
+                name: 'Regenerative Cells',
+                type: 'passive',
+                shortDesc: 'Natural cellular regeneration heals wounds over time',
+                description: `**Enhanced Regeneration**: Vevaphon biology includes a natural healing mechanism at the cellular level.
+
+- **Natural Healing**: Vevaphons recover **+1 hit point per hour** of rest
+- **Accelerated Recovery**: With medical care, healing rate increases to **+2 hit points per hour**
+- **Kick Start**: Can perform "Kick Start" protocol once per day, immediately recovering **4 hit points** at a cost of 2 COOL
+- **Limitations**: Extreme damage (heavy trauma, dismemberment) may require medical intervention
+- **Regeneration Rate**: Does not stack with other healing abilities; use highest available rate`,
+                mechanics: {
+                    healing: 1,
+                    duration: 'Ongoing',
+                    cost: 'Free (1 COOL per Kick Start)',
+                    costType: 'racial'
+                }
+            }
+        ]
     },
     chagrin: {
         id: 'chagrin',
@@ -275,7 +314,52 @@ const RACES = {
             Sneaking: 1,
             Hide: 2,
             Climb: 1
-        }
+        },
+        racialAbilities: [
+            {
+                name: 'Enhanced Reflexes',
+                type: 'passive',
+                shortDesc: 'Xenos possess accelerated neural processing and reaction time',
+                description: `**Genetic Combat Enhancement**: Xenos are engineered with optimized neuromuscular systems for rapid response.
+
+- **Initiative Bonus**: Xenos gain **+2 to Initiative rolls** in combat
+- **Action Efficiency**: Movement actions are **10% faster** than base movement rates
+- **Reaction Window**: Can react to threats **1 round before** normal reaction timing
+- **Sustained Benefit**: This enhancement is always active; no activation or deactivation required
+- **Stacking**: Does not stack with other initiative or speed bonuses; use the highest available bonus`,
+                mechanics: {
+                    statMods: {
+                        initiative: 2,
+                        movementModifier: 1.1
+                    },
+                    cost: 'Inherent',
+                    costType: 'racial',
+                    duration: 'Ongoing'
+                }
+            },
+            {
+                name: 'Predatory Senses',
+                type: 'passive',
+                shortDesc: 'Xenos have heightened sensory perception for tracking and hunting',
+                description: `**Engineered Sensory Superiority**: Xeno design includes enhanced sensory organs and neural processing for environmental awareness.
+
+- **Detection Bonus**: Gain **+3 to Detect skill checks** for spotting movement or heat signatures
+- **Night Vision**: Natural **thermal vision** allowing operation in complete darkness (100m range)
+- **Tracking**: Can follow **scent trails** with exceptional accuracy (Survival skill +2 bonus)
+- **Targeting**: In ranged combat, enemies gain **-1 to Defense** against Xeno ranged attacks
+- **Sensory Limitation**: Extreme sensory input (bright flashes, loud noises) causes **-1 COOL until recovered**`,
+                mechanics: {
+                    statMods: {
+                        detectBonus: 3,
+                        survivalBonus: 2,
+                        enemyDefenseMalus: 1
+                    },
+                    cost: 'Inherent',
+                    costType: 'racial',
+                    duration: 'Ongoing'
+                }
+            }
+        ]
     }
 };
 
